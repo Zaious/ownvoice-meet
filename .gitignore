@@ -1,0 +1,13 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+src-tauri/target/
+src-tauri/gen/
+
+# secrets and personal material never belong in this repo
+.env
+.env.*
+*.local.md
+scripts/private/

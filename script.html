@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>eztrans · Script</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div class="bar">
+      <div id="tabs" class="tabs grow"></div>
+      <label><button id="open">開啟講稿…</button></label>
+      <input id="file" type="file" accept=".md,.txt" hidden />
+    </div>
+    <div id="body" class="scroll script">
+      <div class="empty">開啟一份講稿（.md）。格式見 examples/scripts/demo.md。</div>
+    </div>
+    <div id="note" class="hint"></div>
+    <script type="module" src="/src/script/main.ts"></script>
+  </body>
+</html>

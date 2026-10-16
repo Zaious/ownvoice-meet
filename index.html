@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>eztrans</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div class="bar">
+      <button id="listen" class="live" aria-pressed="false">▶ 聆聽</button>
+      <button id="demo">Demo</button>
+      <span id="status" class="status grow"></span>
+      <button id="reply" aria-pressed="false" title="Ctrl+Shift+Space">回覆 <kbd>Ctrl+Shift+Space</kbd></button>
+      <button id="script" aria-pressed="false">講稿</button>
+    </div>
+    <div id="captions" class="scroll">
+      <div class="empty">按「聆聽」開始擷取系統音訊，或按 Demo 看示範。</div>
+    </div>
+    <script type="module" src="/src/captions/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "optional",
+  "description": "The optional reply and script windows only draw the session and call the app's own commands.",
+  "windows": ["reply", "script"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-set-always-on-top"
+  ]
+}

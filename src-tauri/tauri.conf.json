@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "eztrans",
+  "version": "0.1.0",
+  "identifier": "io.github.zaious.eztrans",
+  "build": {
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "eztrans",
+        "url": "index.html",
+        "width": 760,
+        "height": 460,
+        "minWidth": 360,
+        "minHeight": 160,
+        "alwaysOnTop": true,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "ChronicleCore Studio",
+    "copyright": "Copyright 2026 ChronicleCore Studio. Apache License 2.0.",
+    "category": "Productivity",
+    "shortDescription": "Live meeting interpreter.",
+    "longDescription": "Captions with translation for online meetings, a teleprompter that turns what you type into English to read aloud, and a bilingual script panel.",
+    "homepage": "https://github.com/Zaious/eztrans",
+    "resources": {
+      "../LICENSE": "LICENSE.txt",
+      "../NOTICE": "NOTICE.txt"
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
