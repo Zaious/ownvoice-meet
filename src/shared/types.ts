@@ -14,6 +14,16 @@ export interface Reply {
   done: boolean;
 }
 
+/** Mirrors src-tauri/src/settings.rs. API keys are not part of it. */
+export interface Settings {
+  stt_model: string;
+  stt_language: string;
+  llm_model: string;
+  llm_effort: string;
+  context_lines: number;
+  glossary: string;
+}
+
 export interface Session {
   segments: Segment[];
   reply: Reply | null;

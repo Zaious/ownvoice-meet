@@ -53,14 +53,21 @@ The first version was a PyQt app used at a live conference demo. These held up a
 - `Ctrl+Shift+Space` (global) opens and focuses the reply window while the meeting app has focus.
 - Capabilities are per window type: `capabilities/main.json` may create windows and register the shortcut; `capabilities/optional.json` only draws and calls the app's own commands.
 
-## Status (0.1.0 skeleton)
+## Status
 
-Working: the three windows, the shared session and its events, the script format and its window, the reply round trip (with a placeholder answer), Demo mode, the global shortcut.
+Working and checked:
+- System audio capture (`audio.rs`): default output device in WASAPI loopback, 16 kHz mono 16-bit PCM in 100 ms chunks. Checked on real hardware with Windows TTS.
+- Gemini Live speech-to-text (`gemini.rs`): setup, audio, interim (gray) and final (white) captions, silence fill while loopback is quiet, reconnect before the 10-minute session limit, a bad key reported once instead of retried. The bad-key path was checked against the real endpoint; a full run needs a Gemini key.
+- Claude over the Messages API with streaming (`llm.rs`): caption translation and replies, script as a cached system block, glossary. Checked against the real API.
+- Settings window, keys in the OS keychain (environment variables as a development fallback).
 
-Not yet connected: audio capture, speech-to-text, the language model, settings and the keychain, `docs/LOCAL.md`, the updater, release workflow. macOS needs ScreenCaptureKit (or a virtual audio device) for system audio and comes after Windows.
+Not yet: OpenAI-compatible providers (OpenAI, Groq, Gemini chat, vLLM, Ollama), other streaming speech providers, `docs/LOCAL.md`, the updater, release workflow. macOS needs ScreenCaptureKit (or a virtual audio device) for system audio and comes after Windows.
+
+Open question to confirm with a real Gemini key: whether `interimInputTranscription.text` carries the whole hypothesis or only new words. The code treats it as the whole line; run with `EZTRANS_DEBUG=1` to log raw server messages to `gemini-debug.log` in the config folder.
 
 ## Checking a build
 
-- `npm test` runs the script-format tests.
+- `npm test` runs the script-format tests; `cargo test --lib` (in `src-tauri`) runs the Rust unit tests.
+- Hardware and network checks are `#[ignore]`d: `cargo test --lib -- --ignored --nocapture loopback` (needs a speaker as default output), `gemini_bad` / `claude_bad` (network), `claude_translates` (needs `ANTHROPIC_API_KEY`), `gemini_real` (needs `GEMINI_API_KEY`).
 - `npm run typecheck`.
 - `npx tauri build --debug --no-bundle`, then `scripts/smoke-windows.ps1 -Exe src-tauri\target\debug\eztrans.exe -Out <folder>` launches the app in Demo mode, clicks through the windows with UI Automation and saves screenshots.

@@ -89,10 +89,19 @@ try {
     Start-Sleep -Milliseconds 800
     $rt = Texts $reply
     "reply_shows_input=" + ($rt -match '我同意')
-    "reply_shows_placeholder_en=" + ($rt -match 'No language model connected')
+    "reply_points_to_key=" + ($rt -match 'No Anthropic key')
     Shot $reply "$Out\reply.png"
   }
   if ($script) { Shot $script "$Out\script.png" }
+
+  # Settings opens; listening without a Gemini key points the user to it instead of failing quietly.
+  "click_settings=" + (Click $main '⚙')
+  $settings = Find-Window 'eztrans · Settings' 10
+  "settings_window=" + [bool]$settings
+  if ($settings) { Start-Sleep -Milliseconds 800; Shot $settings "$Out\settings.png"; "settings_shows_key_state=" + ((Texts $settings) -match '已設定|未設定') }
+  "click_listen=" + (Click $main '▶')
+  Start-Sleep -Milliseconds 800
+  "listen_without_key_hint=" + ((Texts $main) -match 'Gemini API key')
 
   # closing the reply window by itself must flip the main button back
   if ($reply) { $reply.GetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern).Close(); Start-Sleep -Milliseconds 600 }
