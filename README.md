@@ -4,11 +4,13 @@
 
 For people who join meetings, talks and Q&A in English but read it better than they speak it. Type what you mean in your own language; OwnVoice Meet turns it into short, natural English that you read aloud. The words are yours, and so is the voice.
 
-> Status: 0.1.0, Windows. Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+> Status: 0.1.1, Windows. Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ![A question is heard and translated, the prepared answer is open in the script, and a Chinese reply becomes English to read aloud](docs/media/demo.gif)
 
 *Recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script: one question has a prepared answer on the right; for the other, a reply typed in Chinese becomes English to read aloud. The questions are text-to-speech. [MP4 version](docs/media/demo.mp4).*
+
+**使用手冊（中文）：[docs/MANUAL.md](docs/MANUAL.md)**, from installing to saving money and running everything locally.
 
 ## What it does
 
@@ -93,6 +95,8 @@ Checks: `npm test`, `npm run typecheck`, and `cargo test --lib` in `src-tauri`; 
 給英文「看得懂、說不太出口」的人：想說什麼就用中文打，OwnVoice Meet 把它變成好唸的口語英文短句，你照著唸。話是你自己的，聲音也是你自己的。旁邊有對方發言的英文字幕和中文意思，還能開一份中英對照的講稿與 Q&A 備忘。
 
 它不會替你作答：沒有 AI 代寫的回答，也沒有合成語音。
+
+**完整使用手冊：[docs/MANUAL.md](docs/MANUAL.md)**（安裝、開會流程、講稿、省錢組合、本機執行、常見問題）。
 
 **起源：** 作者是來自台灣的獨立研究者，英文看得懂、說不太出口。2026 年 10 月 16 日要在 JCDL 2026（ACM/IEEE 數位圖書館聯合會議）的線上 Demo 場發表，有一分鐘簡報和 breakout room 問答。當天下午花大約兩小時做出第一版，開著它撐完 1.5 小時的場次。那一整天 Claude Haiku 5.5 的翻譯費用是 **0.11 美元**（Claude Console 數字，含開發測試），語音辨識跑在自己的 GPU 上，不用錢。之後很多人來要這個工具，OwnVoice Meet 就是為了分享而重做的版本。
 

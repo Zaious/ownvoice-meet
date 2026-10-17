@@ -93,7 +93,7 @@ async fn upload_worker(app: AppHandle, cfg: Config, mut queue: mpsc::Receiver<(u
     }
 }
 
-async fn transcribe(client: &reqwest::Client, url: &str, cfg: &Config, wav: Vec<u8>) -> Result<String, String> {
+pub(crate) async fn transcribe(client: &reqwest::Client, url: &str, cfg: &Config, wav: Vec<u8>) -> Result<String, String> {
     let file = Part::bytes(wav).file_name("speech.wav").mime_str("audio/wav").map_err(|e| e.to_string())?;
     let mut form = Form::new().part("file", file).text("model", cfg.model.clone()).text("response_format", "json");
     if !cfg.language.is_empty() {

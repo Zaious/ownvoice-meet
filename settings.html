@@ -14,6 +14,7 @@
       <div id="stt-local" class="local" hidden>
         <label>伺服器網址（OpenAI 相容，到 /v1 為止）<input name="local_stt_url" /></label>
         <label>模型名稱 <input name="local_stt_model" /></label>
+        <div class="actions"><button type="button" id="test-stt">測試連線</button><span id="test-stt-result" class="status"></span></div>
       </div>
       <div id="stt-lc" class="local lc-setup" hidden></div>
       <label>語言（BCP-47，例如 en-US；留空＝自動偵測）
@@ -26,7 +27,9 @@
       <div id="llm-list" class="choices"></div>
       <div id="llm-local" class="local" hidden>
         <label>伺服器網址（OpenAI 相容，到 /v1 為止；Ollama 預設 http://localhost:11434/v1）<input name="local_llm_url" /></label>
-        <label>模型名稱 <input name="local_llm_model" placeholder="例如 qwen3:8b" /></label>
+        <label>模型名稱 <input name="local_llm_model" placeholder="例如 qwen3:8b" list="local-models" /></label>
+        <datalist id="local-models"></datalist>
+        <div class="actions"><button type="button" id="test-llm">測試連線並列出模型</button><span id="test-llm-result" class="status"></span></div>
       </div>
       <label>思考深度
         <select name="llm_effort">

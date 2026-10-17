@@ -13,6 +13,7 @@ mod gemini;
 mod gloss;
 mod live_captions;
 mod llm;
+mod local;
 mod openai_rt;
 mod prompts;
 mod sentences;
@@ -134,6 +135,20 @@ async fn gloss_script(app: AppHandle, text: String) -> Result<usize, String> {
         app.emit("script", filled).map_err(|e| e.to_string())?;
     }
     Ok(n)
+}
+
+/// Settings "測試連線" for a self-hosted transcription server.
+#[tauri::command]
+async fn test_local_stt(app: AppHandle, url: String, model: String) -> Result<String, String> {
+    let client = app.state::<llm::Http>().0.clone();
+    local::check_stt(&client, &url, &model, settings::get_key("local")).await
+}
+
+/// Settings "測試連線" for a self-hosted chat server: the models it offers.
+#[tauri::command]
+async fn local_models(app: AppHandle, url: String) -> Result<Vec<String>, String> {
+    let client = app.state::<llm::Http>().0.clone();
+    local::list_models(&client, &url, settings::get_key("local")).await
 }
 
 /// Debug builds only: OWNVOICE_AUTOMATION, e.g. {"open": ["reply", "script"], "listen": true,
@@ -380,6 +395,8 @@ pub fn run() {
             live_captions_setup,
             gloss_script,
             automation,
+            test_local_stt,
+            local_models,
             live_captions_open,
             start_demo,
             install_kind,

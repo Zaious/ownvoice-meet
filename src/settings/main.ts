@@ -142,6 +142,30 @@ for (const link of document.querySelectorAll<HTMLAnchorElement>('a.getkey, a.ext
   });
 }
 
+// ---------- local servers: 測試連線 ----------
+document.querySelector('#test-stt')!.addEventListener('click', async () => {
+  const out = document.querySelector<HTMLElement>('#test-stt-result')!;
+  out.textContent = '測試中…';
+  try {
+    out.textContent = await invoke<string>('test_local_stt', { url: field('local_stt_url').value, model: field('local_stt_model').value });
+  } catch (e) {
+    out.textContent = `失敗：${String(e)}`;
+  }
+});
+document.querySelector('#test-llm')!.addEventListener('click', async () => {
+  const out = document.querySelector<HTMLElement>('#test-llm-result')!;
+  out.textContent = '測試中…';
+  try {
+    const models = await invoke<string[]>('local_models', { url: field('local_llm_url').value });
+    const list = document.querySelector<HTMLDataListElement>('#local-models')!;
+    list.replaceChildren(...models.map((m) => Object.assign(document.createElement('option'), { value: m })));
+    if (!field('local_llm_model').value.trim()) field('local_llm_model').value = models[0] ?? '';
+    out.textContent = `連線成功：${models.length} 個模型（點模型名稱欄位可以選）`;
+  } catch (e) {
+    out.textContent = `失敗：${String(e)}`;
+  }
+});
+
 // ---------- usage ----------
 let report: UsageReport | null = null;
 let range: keyof UsageReport = 'session';
