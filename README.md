@@ -70,10 +70,10 @@
 
 Windows 10、11，到 [Releases](https://github.com/Zaious/ownvoice-meet/releases)：
 
-- **安裝版**（`OwnVoice.Meet_<版本>_x64-setup.exe`）：只裝給目前使用者，不需要系統管理員權限。設定 → 檢查更新會找到新版，按「更新並重新啟動」會先驗證簽章再安裝。
-- **免安裝版**（`OwnVoice.Meet_<版本>_x64_portable.zip`）：解壓縮到任何地方，執行 `OwnVoice Meet.exe`。不會自己更新；檢查更新會連到下載頁。
+- **安裝版**（`OwnVoice.Meet_<版本>_x64-setup.exe`）：只裝給目前使用者，不需要系統管理員權限。
+- **免安裝版**（`OwnVoice.Meet_<版本>_x64_portable.zip`）：解壓縮到任何地方，執行 `OwnVoice Meet.exe`。
 
-程式還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。兩種都需要 Microsoft Edge WebView2 Runtime（Windows 11 內建）。只有按「檢查更新」時才會連到 GitHub。
+程式還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。兩種都需要 Microsoft Edge WebView2 Runtime（Windows 11 內建）。設定 → 檢查更新會告訴你有沒有新版，並帶你到下載頁；只有按它時才會連到 GitHub。
 
 ## 從原始碼建置
 
@@ -154,10 +154,10 @@ Meeting audio goes to the speech service you choose, and text to the language mo
 
 Windows 10 and 11, from [Releases](https://github.com/Zaious/ownvoice-meet/releases):
 
-- **Installer** (`OwnVoice.Meet_<version>_x64-setup.exe`): installs for your user only, no administrator rights. Settings > Check for updates finds a newer version, and Update installs it after checking its signature.
-- **Portable** (`OwnVoice.Meet_<version>_x64_portable.zip`): unzip anywhere and run `OwnVoice Meet.exe`. It never updates itself; Check for updates links to the download page.
+- **Installer** (`OwnVoice.Meet_<version>_x64-setup.exe`): installs for your user only, no administrator rights.
+- **Portable** (`OwnVoice.Meet_<version>_x64_portable.zip`): unzip anywhere and run `OwnVoice Meet.exe`.
 
-The builds are not code-signed yet, so Windows may say "Windows protected your PC": choose **More info**, then **Run anyway**. Both need the Microsoft Edge WebView2 Runtime, which Windows 11 includes. OwnVoice Meet contacts GitHub only when you press Check for updates.
+The builds are not code-signed yet, so Windows may say "Windows protected your PC": choose **More info**, then **Run anyway**. Both need the Microsoft Edge WebView2 Runtime, which Windows 11 includes. Settings > Check for updates tells you when a newer version is out and links to it; OwnVoice Meet contacts GitHub only when you press it.
 
 ### Building from source
 
