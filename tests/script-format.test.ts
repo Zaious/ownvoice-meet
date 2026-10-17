@@ -33,3 +33,20 @@ describe('script format', () => {
     expect(missingGloss(items)).toEqual([]);
   });
 });
+
+describe('editor template', () => {
+  it('parses into its tabs and leaves the Chinese lines for 補對照', async () => {
+    const { TEMPLATE } = await import('../src/script/template.ts');
+    const { sections, items } = parse(TEMPLATE);
+    expect(sections).toEqual(['開場', 'Q&A']);
+    expect(missingGloss(items)).toEqual(['寫中文也可以，按「補對照」會幫你產生要唸的英文。', '它不會替你作答，你說的是自己的話。']);
+  });
+});
+
+describe('JCDL 2026 example', () => {
+  it('has the pitch and Q&A tabs and a meaning under every line', () => {
+    const { sections, items } = parse(readFileSync('examples/scripts/journal-atlas-jcdl2026.md', 'utf8'));
+    expect(sections).toEqual(['Pitch', 'Q&A']);
+    expect(missingGloss(items)).toEqual([]);
+  });
+});

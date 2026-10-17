@@ -6,9 +6,9 @@ For people who join meetings, talks and Q&A in English but read it better than t
 
 > Status: 0.1.0, Windows. Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-![Captions with the Chinese meaning under each line, a reply ready to read aloud, and a bilingual script](docs/images/overview.png)
+![A question is heard and translated, the prepared answer is open in the script, and a Chinese reply becomes English to read aloud](docs/media/demo.gif)
 
-*Demo mode, no keys needed: captions (top left), a reply to read aloud (bottom left) and a bilingual script (right).*
+*Recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script: one question has a prepared answer on the right; for the other, a reply typed in Chinese becomes English to read aloud. The questions are text-to-speech. [MP4 version](docs/media/demo.mp4).*
 
 ## What it does
 
@@ -18,7 +18,7 @@ Three windows; use the ones you need and put each where it helps.
 |---|---|
 | **Reply** | Type in Chinese, press Enter, read the English aloud in large type. It knows what was just said in the meeting and what is in your script, so it uses the right names and terms. `Ctrl+Shift+Space` brings it up while Zoom or Teams has focus. Put it next to your webcam. |
 | **Captions** | What others say, in English as they speak, with the meaning in Chinese under each sentence. |
-| **Script & notes** | Your talk, prepared answers and notes, each line with its meaning, in tabs, with copy buttons for links and commands. |
+| **Script & notes** | Your talk, prepared answers and notes, each line with its meaning, in tabs, with copy buttons for links and commands. Write it in the window (a template and a format guide are built in), in English or in Chinese: **補對照** fills in the other half, the Chinese meaning of an English line or the English to read for a Chinese one. It is saved and comes back next time. See [the JCDL 2026 script](examples/scripts/journal-atlas-jcdl2026.md) for a real one. |
 
 Each window has its own text size (A− / A+) and background opacity, remembered between runs. Captions can show the translation only, and can let clicks pass through to the meeting underneath (turn it off with `Ctrl+Shift+F8` or the tray icon). When you share your screen, the Reply and Script windows stay off the share, recordings and screenshots (Windows 10 2004 or later; can be turned off in Settings). The Captions window is not hidden.
 
@@ -32,7 +32,11 @@ I'm an independent researcher from Taiwan, and I read English much better than I
 
 Translation for that whole day cost **US$0.11** on Claude Haiku 5.5, according to the Claude Console: 5,570,065 input tokens and 28,585 output tokens, including the testing while I built it. Most of the input is the prepared script, which goes with every request so names and terms come out right; it is read from the prompt cache, which is why it costs so little. Speech recognition ran on my own GPU, so it cost nothing.
 
-Many people asked for the tool afterwards. OwnVoice Meet is that tool rebuilt to be shared: speech recognition in the cloud or on the device, so you do not need a GPU, and your choice of providers.
+Many people asked for the tool afterwards. OwnVoice Meet is that tool rebuilt to be shared: speech recognition in the cloud or on the device, so you do not need a GPU, and your choice of providers. The public part of that evening's script (the pitch and the prepared answers) is in [examples/scripts/journal-atlas-jcdl2026.md](examples/scripts/journal-atlas-jcdl2026.md).
+
+![Demo mode, no keys needed: captions, a reply to read aloud and a bilingual script](docs/images/overview.png)
+
+*Press **Demo** to see all three windows without audio or keys.*
 
 ## Providers and cost
 

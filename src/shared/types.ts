@@ -51,6 +51,16 @@ export interface ViewPatch {
   zh_only?: boolean;
 }
 
+/** Debug builds only: what OWNVOICE_AUTOMATION asks the windows to do at start (lib.rs). */
+export interface Automation {
+  open?: string[];
+  listen?: boolean;
+  script_tab?: string;
+  /** Typed into the reply window after reply_after_ms, then sent. */
+  reply_zh?: string;
+  reply_after_ms?: number;
+}
+
 /** Mirrors catalog.rs. */
 export type Price =
   | { unit: 'per_minute'; usd: number }

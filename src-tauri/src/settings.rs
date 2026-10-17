@@ -151,6 +151,31 @@ pub fn config_dir(app: &AppHandle) -> Result<PathBuf, String> {
 /// the settings window may be saving.
 static WRITE: Mutex<()> = Mutex::new(());
 
+/// The open script, kept in script.md next to the settings so it survives a restart.
+pub fn load_script(app: &AppHandle) -> String {
+    config_dir(app)
+        .ok()
+        .and_then(|d| std::fs::read_to_string(d.join("script.md")).ok())
+        .map(|t| t.trim_start_matches('\u{feff}').to_string())
+        .unwrap_or_default()
+}
+
+/// Save (or, when empty, remove) the open script. Atomic, like the settings.
+pub fn save_script(app: &AppHandle, text: &str) -> Result<(), String> {
+    let dir = config_dir(app)?;
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let path = dir.join("script.md");
+    if text.trim().is_empty() {
+        return match std::fs::remove_file(&path) {
+            Err(e) if e.kind() != std::io::ErrorKind::NotFound => Err(e.to_string()),
+            _ => Ok(()),
+        };
+    }
+    let tmp = dir.join("script.md.tmp");
+    std::fs::write(&tmp, text).map_err(|e| e.to_string())?;
+    std::fs::rename(&tmp, path).map_err(|e| e.to_string())
+}
+
 pub fn load(app: &AppHandle) -> Settings {
     let mut s = load_raw(app);
     s.view = s.view.clamped();

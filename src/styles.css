@@ -109,6 +109,17 @@ kbd { font: 11px var(--font-read); color: var(--muted); }
 .usage td.muted { color: var(--muted); font-size: 12px; }
 .usage tr.total td { font-weight: 600; border-bottom: none; }
 
+/* script editor */
+.editor { display: flex; flex-direction: column; flex: 1 1 50%; min-height: 0; padding: 6px 10px 0; gap: 6px; }
+.editor[hidden] { display: none; }
+.editbar { display: flex; gap: 8px; align-items: center; }
+.editor textarea { flex: 1; min-height: 120px; margin: 0; height: auto; resize: none; font: 13px/1.5 Consolas, 'Microsoft JhengHei UI', monospace; }
+.editor .help { font-size: 12px; color: var(--muted); }
+.editor .help table { border-collapse: collapse; margin: 4px 0 6px; }
+.editor .help td { padding: 2px 8px 2px 0; vertical-align: top; }
+.editor .help code { color: var(--text); }
+.script.preview { flex: 1 1 50%; border-top: 1px solid var(--line); }
+
 /* captions */
 .seg { margin: 0 0 12px; }
 .seg .en { color: var(--text); }

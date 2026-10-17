@@ -10,6 +10,7 @@ mod captions;
 mod catalog;
 mod demo;
 mod gemini;
+mod gloss;
 mod live_captions;
 mod llm;
 mod openai_rt;
@@ -117,7 +118,34 @@ fn set_script(app: AppHandle, state: Shared<'_>, text: String) -> Result<(), Str
         return Err("script must be under 512 KB".into());
     }
     lock(&state)?.script = text.clone();
+    settings::save_script(&app, &text)?;
     app.emit("script", text).map_err(|e| e.to_string())
+}
+
+/// Fill in the script's missing halves (Chinese meanings, or English to read for Chinese lines) and
+/// make the result the open script. Returns how many lines were filled.
+#[tauri::command]
+async fn gloss_script(app: AppHandle, text: String) -> Result<usize, String> {
+    if text.len() > SCRIPT_MAX_BYTES {
+        return Err("script must be under 512 KB".into());
+    }
+    let (filled, n) = gloss::fill_open_script(&app, text).await?;
+    if n > 0 {
+        app.emit("script", filled).map_err(|e| e.to_string())?;
+    }
+    Ok(n)
+}
+
+/// Debug builds only: OWNVOICE_AUTOMATION, e.g. {"open": ["reply", "script"], "listen": true,
+/// "script_tab": "Q&A"}, lets scripted demos and checks drive the app without the mouse, which
+/// races with whoever is using the computer. Release builds always answer None.
+#[tauri::command]
+fn automation() -> Option<serde_json::Value> {
+    if cfg!(debug_assertions) {
+        std::env::var("OWNVOICE_AUTOMATION").ok().and_then(|s| serde_json::from_str(&s).ok())
+    } else {
+        None
+    }
 }
 
 /// Chinese typed in the reply window, to become English to read aloud.
@@ -350,6 +378,8 @@ pub fn run() {
             catalog,
             usage_report,
             live_captions_setup,
+            gloss_script,
+            automation,
             live_captions_open,
             start_demo,
             install_kind,
@@ -361,6 +391,13 @@ pub fn run() {
         // The restart after an in-app update.
         .plugin(tauri_plugin_process::init())
         .setup(|app| {
+            // The script open last time comes back (settings folder, script.md).
+            let script = settings::load_script(app.handle());
+            if !script.is_empty() {
+                if let Ok(mut s) = app.state::<Mutex<Session>>().lock() {
+                    s.script = script;
+                }
+            }
             // In-app updates (only when the user presses Update). The updater's key and address come
             // from tauri.updater.conf.json, which only release builds made with the update key merge
             // in; without it the plugin is left out and Settings offers the download page instead.

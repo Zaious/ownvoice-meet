@@ -9,11 +9,33 @@
   <body>
     <div class="bar">
       <div id="tabs" class="tabs grow"></div>
+      <button id="edit" aria-pressed="false">編輯</button>
+      <button id="gloss" title="只寫英文的補上中文意思；寫中文的產生要唸的英文">補對照</button>
       <label><button id="open">開啟講稿…</button></label>
       <input id="file" type="file" accept=".md,.txt" hidden />
     </div>
+    <div id="editor" class="editor" hidden>
+      <div class="editbar">
+        <button id="template">插入範本</button>
+        <span class="hint grow">邊打邊存；下面即時預覽</span>
+        <button id="done">完成</button>
+      </div>
+      <textarea id="src" spellcheck="false" placeholder="直接寫講稿。只寫英文或只寫中文都可以，寫完按「補對照」。"></textarea>
+      <details class="help">
+        <summary>格式說明</summary>
+        <table>
+          <tr><td><code># 標題</code></td><td>一個分頁（開場、Demo、Q&amp;A，名稱隨你取）</td></tr>
+          <tr><td><code>## 小標</code></td><td>分頁裡的小標題</td></tr>
+          <tr><td><code>! 提示</code></td><td>灰色提示，不用唸（例如「切到第 2 張投影片」）</td></tr>
+          <tr><td><code>Q: 問題</code></td><td>預先準備的提問</td></tr>
+          <tr><td>一般一行</td><td>要唸的英文；寫中文也可以，按「補對照」轉成英文</td></tr>
+          <tr><td><code>&gt; 中文</code></td><td>上一行的中文意思（「補對照」會自動補）</td></tr>
+          <tr><td><code>```copy:名稱</code> … <code>```</code></td><td>可一鍵複製的區塊（連結、指令）</td></tr>
+        </table>
+      </details>
+    </div>
     <div id="body" class="scroll script">
-      <div class="empty">開啟一份講稿（.md）。格式見 examples/scripts/demo.md。</div>
+      <div class="empty">還沒有講稿。按「編輯」直接寫，或「開啟講稿…」讀 .md 檔。</div>
     </div>
     <div id="note" class="hint"></div>
     <script type="module" src="/src/script/main.ts"></script>

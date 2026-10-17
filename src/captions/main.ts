@@ -6,7 +6,7 @@ import { listen } from '@tauri-apps/api/event';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut';
 import { FollowBottom } from '../shared/follow.ts';
-import type { Segment, Session } from '../shared/types.ts';
+import type { Automation, Segment, Session } from '../shared/types.ts';
 import { setView, viewControls } from '../shared/view.ts';
 import { openWindow, toggleWindow, type OptionalWindow } from '../shared/windows.ts';
 
@@ -123,4 +123,16 @@ try {
   });
 } catch (e) {
   status.textContent = `快捷鍵註冊失敗（可能被其他程式占用）：${String(e)}`;
+}
+
+// Scripted demos and checks (debug builds only): open windows and start listening without the mouse.
+const auto = await invoke<Automation | null>('automation');
+if (auto) {
+  for (const name of auto.open ?? []) {
+    if (name === 'reply' || name === 'script' || name === 'settings') {
+      await openWindow(name, false);
+      await track(name, document.querySelector<HTMLButtonElement>(`#${name}`)!);
+    }
+  }
+  if (auto.listen) setListening(await invoke<boolean>('set_listening', { on: true }));
 }
