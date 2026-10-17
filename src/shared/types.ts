@@ -26,6 +26,29 @@ export interface Settings {
   local_stt_model: string;
   local_llm_url: string;
   local_llm_model: string;
+  view: Views;
+}
+
+/** Mirrors settings.rs View / Views / ViewPatch. */
+export interface View {
+  font_px: number;
+  opacity: number;
+}
+
+export interface Views {
+  captions: View;
+  reply: View;
+  script: View;
+  hide_from_capture: boolean;
+  zh_only: boolean;
+}
+
+export interface ViewPatch {
+  window?: 'captions' | 'reply' | 'script';
+  font_px?: number;
+  opacity?: number;
+  hide_from_capture?: boolean;
+  zh_only?: boolean;
 }
 
 /** Mirrors catalog.rs. */

@@ -4,9 +4,10 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { register, unregisterAll } from '@tauri-apps/plugin-global-shortcut';
+import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut';
 import { FollowBottom } from '../shared/follow.ts';
 import type { Segment, Session } from '../shared/types.ts';
+import { setView, viewControls } from '../shared/view.ts';
 import { openWindow, toggleWindow, type OptionalWindow } from '../shared/windows.ts';
 
 const REPLY_SHORTCUT = 'CommandOrControl+Shift+Space';
@@ -34,7 +35,7 @@ function render(seg: Segment): void {
       }
     }
   }
-  row.className = seg.final ? 'seg' : 'seg interim';
+  row.className = (seg.final ? 'seg' : 'seg interim') + (seg.zh ? '' : ' pending');
   row.querySelector('.en')!.textContent = seg.en;
   row.querySelector('.zh')!.textContent = seg.zh || (seg.final ? '…' : '');
   follow.settle();
@@ -71,6 +72,27 @@ listenBtn.addEventListener('click', async () => {
 });
 document.querySelector('#demo')!.addEventListener('click', () => void invoke('start_demo'));
 
+// Text size, background opacity and translation only (stored in settings).
+const zhOnly = document.querySelector<HTMLButtonElement>('#zh-only')!;
+await viewControls('captions', document.querySelector('#view')!, (v) => {
+  list.classList.toggle('zh-only', v.zh_only);
+  zhOnly.setAttribute('aria-pressed', String(v.zh_only));
+  follow.settle();
+});
+zhOnly.addEventListener('click', () => void setView({ zh_only: zhOnly.getAttribute('aria-pressed') !== 'true' }));
+
+// Click-through: on from here; off from the tray or the shortcut, since this window no longer
+// gets the mouse.
+const throughBtn = document.querySelector<HTMLButtonElement>('#through')!;
+const throughNote = document.querySelector<HTMLElement>('#through-note')!;
+const showThrough = (on: boolean): void => {
+  throughBtn.setAttribute('aria-pressed', String(on));
+  throughNote.classList.toggle('on', on);
+};
+throughBtn.addEventListener('click', () => void invoke('set_click_through', { on: true }));
+void listen<boolean>('click-through', (e) => showThrough(e.payload));
+showThrough(await invoke<boolean>('click_through'));
+
 void listen<Segment>('caption', (e) => render(e.payload));
 // A live hypothesis that ended with no final text.
 void listen<number>('caption-remove', (e) => {
@@ -93,7 +115,8 @@ status.textContent = snap.status;
 
 // Type a reply without leaving the meeting app: the shortcut opens and focuses the reply window.
 try {
-  await unregisterAll();
+  // Only this key: the Rust side owns the click-through key, which must survive a reload here.
+  if (await isRegistered(REPLY_SHORTCUT)) await unregister(REPLY_SHORTCUT);
   await register(REPLY_SHORTCUT, (e) => {
     if (e.state !== 'Pressed') return;
     void openWindow('reply').then(() => track('reply', document.querySelector('#reply')!));
