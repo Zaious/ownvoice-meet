@@ -30,6 +30,7 @@ rustls = { version = "0.23.46", default-features = false, features = ["ring", "s
 dotenvy = "0.15.7"
 chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
 tauri-plugin-opener = "2"
+ferrous-opencc = { version = "0.4.0", default-features = false, features = ["s2t-conversion"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"

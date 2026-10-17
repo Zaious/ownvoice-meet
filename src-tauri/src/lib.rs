@@ -23,6 +23,7 @@ mod stt_chunk;
 mod usage;
 mod vad;
 mod view;
+mod zh;
 
 use std::collections::HashMap;
 use std::sync::Mutex;

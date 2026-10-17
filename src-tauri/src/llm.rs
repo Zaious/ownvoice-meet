@@ -18,6 +18,7 @@ use crate::prompts;
 use crate::session::{Reply, Session};
 use crate::settings::{self, Settings};
 use crate::usage::{self, Tally};
+use crate::zh;
 
 const ANTHROPIC_URL: &str = "https://api.anthropic.com/v1/messages";
 const OPENAI_URL: &str = "https://api.openai.com/v1/chat/completions";
@@ -216,13 +217,13 @@ pub async fn translate(app: &AppHandle, id: u64, en: &str, early: bool, stop: &A
     let mut zh = String::new();
     let res = stream_until(&client, &t, system, prompts::listen_user(&ctx, en, early), |d| {
         zh.push_str(d);
-        show(&zh);
+        show(&zh::to_taiwan(&zh));
     }, || stop.load(Ordering::SeqCst))
     .await;
     match res {
         Ok(u) => {
             usage::add_tokens(app, &t.catalog_id, Tally { early: u64::from(early), ..u });
-            Ok(zh)
+            Ok(zh::to_taiwan(&zh))
         }
         Err(e) => Err(format!("翻譯失敗：{e}")),
     }
@@ -272,7 +273,7 @@ pub fn spawn_reply(app: AppHandle, id: u64, zh: String) {
 mod tests {
     use super::*;
 
-    fn target_for(id: &str, key: &str) -> Target {
+    pub(super) fn target_for(id: &str, key: &str) -> Target {
         let s = Settings { llm_id: id.into(), ..Settings::default() };
         let m = catalog::find(id).unwrap();
         let url = match m.provider {
@@ -365,6 +366,40 @@ mod compat_tests {
             println!("{id}: {err}");
             assert!(err.starts_with("401") || err.starts_with("400") || err.starts_with("403"), "{id}: status first: {err}");
             assert!(!err.contains("<html"), "{id}: readable message");
+        }
+    }
+}
+
+#[cfg(test)]
+mod script_probe {
+    use super::*;
+    use super::tests::target_for;
+    // Does the caption prompt keep to Traditional Chinese on long unfinished lines?
+    //   cargo test --lib -- --ignored --nocapture script_probe
+    #[tokio::test]
+    #[ignore]
+    async fn script_probe() {
+        let _ = dotenvy::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/../.env.local"));
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        let client = reqwest::Client::new();
+        let key = std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY");
+        let t = target_for("claude-haiku-5-5", &key);
+        let text = "read off some of the fixes that occurred in the sub. I don't normally do, but like I said, there's nothing else to talk about in this video, so to make this not only be two minutes long, let's read off some of the patch fixes. So, fix the crash when a Pokémon aura was broken by someone carrying no tools, such as another mod's automated block breaker. That has been fixed. Fixed the fossil revival research crashing on its catch a wild Pokémon objective, which relied on a fossil Pokémon specification that did not exist. Fixed a";
+        const SIMPLIFIED: &str = "这们说为么个会让时开发现补宝认实问题过还没对后体东动机种样门间将应网页视频话讲读写际响复谈坏块组赖规务击类";
+        for early in [true, false] {
+            let mut bad_runs = 0;
+            for _ in 0..10 {
+                let mut zh = String::new();
+                stream(&client, &t, prompts::system_blocks(prompts::LISTEN_SYSTEM, &[], ""), prompts::listen_user(&[], text, early), |d| zh.push_str(d)).await.unwrap();
+                let n = zh.chars().filter(|c| SIMPLIFIED.contains(*c)).count();
+                let fixed = crate::zh::to_taiwan(&zh);
+                let left = fixed.chars().filter(|c| SIMPLIFIED.contains(*c)).count();
+                if n == 0 { assert_eq!(fixed, zh, "Traditional output must not be touched"); }
+                println!("  after safety net: simplified_chars={left}");
+                if n > 0 { bad_runs += 1; }
+                println!("early={early} simplified_chars={n} | {}", zh.chars().take(40).collect::<String>());
+            }
+            println!("early={early}: {bad_runs}/10 runs had Simplified characters");
         }
     }
 }

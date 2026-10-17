@@ -8,9 +8,11 @@
   </head>
   <body>
     <form id="form" class="scroll settings">
-      <h2>聽：語音辨識</h2>
-      <p class="hint">每小時費用以連續一小時的音訊計。</p>
-      <div id="stt-list" class="choices"></div>
+      <details class="fold" name="pick">
+        <summary><h2>聽：語音辨識</h2><span id="stt-picked" class="picked"></span></summary>
+        <p class="hint">每小時費用以連續一小時的音訊計。</p>
+        <div id="stt-list" class="choices"></div>
+      </details>
       <div id="stt-local" class="local" hidden>
         <label>伺服器網址（OpenAI 相容，到 /v1 為止）<input name="local_stt_url" /></label>
         <label>模型名稱 <input name="local_stt_model" /></label>
@@ -22,9 +24,11 @@
         <datalist id="langs"><option value="en-US"></option><option value="en-GB"></option><option value="ja-JP"></option></datalist>
       </label>
 
-      <h2>翻：翻譯與回覆</h2>
-      <p class="hint">每小時費用為估算：600 句，每句約 300 個輸入 token、50 個輸出 token。</p>
-      <div id="llm-list" class="choices"></div>
+      <details class="fold" name="pick">
+        <summary><h2>翻：翻譯與回覆</h2><span id="llm-picked" class="picked"></span></summary>
+        <p class="hint">每小時費用為估算：600 句，每句約 300 個輸入 token、50 個輸出 token。</p>
+        <div id="llm-list" class="choices"></div>
+      </details>
       <div id="llm-local" class="local" hidden>
         <label>伺服器網址（OpenAI 相容，到 /v1 為止；Ollama 預設 http://localhost:11434/v1）<input name="local_llm_url" /></label>
         <label>模型名稱 <input name="local_llm_model" placeholder="例如 qwen3:8b" list="local-models" /></label>

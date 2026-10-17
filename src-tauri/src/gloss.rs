@@ -92,7 +92,7 @@ pub fn merge(script: &str, needs: &[Need], answers: &[String]) -> String {
                 match n.dir {
                     Dir::ToZh => {
                         out.push(raw.to_string());
-                        out.push(format!("> {a}"));
+                        out.push(format!("> {}", crate::zh::to_taiwan(a)));
                     }
                     Dir::ToEn => {
                         out.push(format!("{}{a}", n.prefix));

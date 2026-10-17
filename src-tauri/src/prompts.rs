@@ -54,10 +54,12 @@ pub fn system_blocks(instructions: &str, glossary: &[(String, String)], script: 
 /// `unfinished`: the speaker is still in the middle of this sentence (an early translation).
 pub fn listen_user(context: &[String], utterance: &str, unfinished: bool) -> String {
     let ctx = if context.is_empty() { "(none)".to_string() } else { context.join("\n") };
+    // The script is named in the request itself: with only the system prompt saying so, a long
+    // line now and then came back in Simplified Chinese.
     let ask = if unfinished {
-        "The speaker is still talking: this utterance stops mid-sentence. Translate only what is there, as a fragment, and output only the Chinese"
+        "The speaker is still talking: this utterance stops mid-sentence. Translate only what is there, as a fragment, into Traditional Chinese as used in Taiwan (繁體中文), and output only that"
     } else {
-        "Translate this utterance"
+        "Translate this utterance into Traditional Chinese as used in Taiwan (繁體中文)"
     };
     format!("Recent conversation, for context only (do not translate):\n{ctx}\n\n{ask}:\n{utterance}")
 }

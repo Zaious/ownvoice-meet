@@ -51,6 +51,16 @@ function renderChoices(list: HTMLElement, models: CatalogModel[], group: string,
   }
 }
 
+// The 聽 and 翻 lists fold away (settings.html <details>); the summary line names the current choice.
+const models = new Map<string, CatalogModel>();
+
+function showPicked(): void {
+  for (const group of ['stt', 'llm']) {
+    const m = models.get(chosen(group));
+    document.querySelector(`#${group}-picked`)!.textContent = m ? `${m.label} · ${hourlyLine(m)}` : '（未選）';
+  }
+}
+
 function chosen(group: string): string {
   return form.querySelector<HTMLInputElement>(`input[name="${group}"]:checked`)?.value ?? '';
 }
@@ -270,6 +280,8 @@ async function load(): Promise<void> {
   const [s, catalog] = await Promise.all([invoke<Settings>('get_settings'), invoke<CatalogModel[]>('catalog')]);
   renderChoices(document.querySelector('#stt-list')!, catalog.filter((m) => m.kind === 'stt'), 'stt', s.stt_id);
   renderChoices(document.querySelector('#llm-list')!, catalog.filter((m) => m.kind === 'llm'), 'llm', s.llm_id);
+  for (const m of catalog) models.set(m.id, m);
+  showPicked();
   field('stt_language').value = s.stt_language;
   field<HTMLSelectElement>('llm_effort').value = s.llm_effort;
   field('context_lines').value = String(s.context_lines);
@@ -289,7 +301,10 @@ hideFromCapture.addEventListener('change', () => void setView({ hide_from_captur
 void listen<Views>('view', (e) => (hideFromCapture.checked = e.payload.hide_from_capture));
 
 form.addEventListener('change', (e) => {
-  if ((e.target as HTMLInputElement).type === 'radio') showLocalFields();
+  if ((e.target as HTMLInputElement).type === 'radio') {
+    showLocalFields();
+    showPicked();
+  }
 });
 
 form.addEventListener('submit', async (e) => {

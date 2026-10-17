@@ -220,6 +220,47 @@ fn debug_log(app: &AppHandle, text: &str) {
 #[derive(Default)]
 struct Live {
     current: Option<u64>,
+    spacing: Respace,
+}
+
+/// Puts back spaces the live hypothesis drops. On long unbroken speech Gemini's interim text glues
+/// words it has already sent apart ("old built servers once every" becomes "oldbuild servers
+/// onceevery"; the final text is spaced correctly). A token is split where the previous hypothesis
+/// of the line had, at the same place, two words that it runs together: the first exactly, the
+/// second starting the same way (it may have been revised, as built became build). Recorded from a
+/// real session: tests below.
+#[derive(Default)]
+struct Respace {
+    prev: Vec<String>,
+}
+
+impl Respace {
+    fn fix(&mut self, text: &str) -> String {
+        let mut words: Vec<String> = Vec::new();
+        for token in text.split(' ').filter(|t| !t.is_empty()) {
+            let mut rest = token.to_string();
+            while let Some(b) = self.split(words.len(), &rest) {
+                words.push(rest[..rest.len() - b.len()].to_string());
+                rest = b;
+            }
+            words.push(rest);
+        }
+        self.prev = words.clone();
+        words.join(" ")
+    }
+
+    /// The second part, if `token` at word position `at` is the previous hypothesis's words at
+    /// `at` and `at + 1` run together.
+    fn split(&self, at: usize, token: &str) -> Option<String> {
+        let (a, b) = (self.prev.get(at)?, self.prev.get(at + 1)?);
+        let rest = token.strip_prefix(a.as_str())?;
+        let common = rest.chars().zip(b.chars()).take_while(|(x, y)| x == y).count();
+        (common >= 2).then(|| rest.to_string())
+    }
+
+    fn reset(&mut self) {
+        self.prev.clear();
+    }
 }
 
 impl Live {
@@ -237,11 +278,13 @@ impl Live {
         if text.is_empty() {
             return;
         }
+        let text = self.spacing.fix(text);
         let id = *self.current.get_or_insert_with(|| captions::open(app));
-        captions::interim(app, id, text);
+        captions::interim(app, id, &text);
     }
 
     fn finish(&mut self, app: &AppHandle, text: &str) {
+        self.spacing.reset();
         match self.current.take() {
             // Empty: nothing final came of the hypothesis, and the gray line is dropped.
             Some(id) => captions::finish(app, id, text),
@@ -254,6 +297,36 @@ impl Live {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn glued_words_in_the_live_hypothesis_are_spaced_again() {
+        // Gemini's interim text for one line, as it arrived (OWNVOICE_DEBUG log, 2026-10-17).
+        let arrived = [
+            "and then retire the old built servers",
+            "and then retire the old built servers once",
+            "and then retire the oldbuild servers once every single",
+            "and then retire the oldbuild servers onceevery single team has",
+            "and then retire the oldbuild servers once every single team has signed",
+            "and then retire the oldbuild servers onceevery single team has signed off on the",
+            "and then retire the oldbuild servers onceevery single team has signedoff on the migration checklist",
+            "and then retire the oldbuild servers onceevery single team has signedoff on the migrationchecklist that we shared last week.",
+        ];
+        let mut r = Respace::default();
+        let shown: Vec<String> = arrived.iter().map(|t| r.fix(t)).collect();
+        assert_eq!(shown.last().unwrap(), "and then retire the old build servers once every single team has signed off on the migration checklist that we shared last week.");
+        assert_eq!(shown[2], "and then retire the old build servers once every single");
+    }
+
+    #[test]
+    fn ordinary_words_are_not_split() {
+        let mut r = Respace::default();
+        r.fix("they said an other");
+        // "an other" stood somewhere else in the line: "another" here is a word of its own.
+        assert_eq!(r.fix("another day, they said an other"), "another day, they said an other");
+        assert_eq!(r.fix("the theory is"), "the theory is");
+        r.reset();
+        assert!(r.prev.is_empty());
+    }
 
     // Network checks against the real endpoint: cargo test --lib -- --ignored gemini
     #[tokio::test]
