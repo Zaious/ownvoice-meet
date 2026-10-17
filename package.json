@@ -1,6 +1,6 @@
 {
   "name": "ownvoice-meet",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "Understand the meeting. Answer in your own voice.",
   "license": "Apache-2.0",
