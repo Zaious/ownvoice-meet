@@ -13,3 +13,6 @@ src-tauri/gen/
 scripts/private/
 
 # env.example (no leading dot) is the public template; the filled .env.local is not
+
+# generated for release builds by scripts/third-party-licenses.mjs
+THIRD_PARTY_LICENSES.txt

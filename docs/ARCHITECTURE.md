@@ -71,7 +71,7 @@ Checked against real services and hardware (2026-10-17):
 - Every cloud path reports a rejected key as a readable error, without retrying.
 - Settings links open the three providers' key pages (and only those: `capabilities/settings-links.json`).
 
-Not yet: translation quality beyond single sentences (a blind comparison is planned), local vLLM / Ollama, Apple on-device options and macOS system audio (ScreenCaptureKit), the updater, release workflow.
+Not yet: translation quality beyond single sentences (a blind comparison is planned), local vLLM / Ollama, Apple on-device options and macOS system audio (ScreenCaptureKit); the in-app update has not yet been tried end to end (it needs a published release).
 
 ## Checking a build
 
@@ -80,3 +80,13 @@ Not yet: translation quality beyond single sentences (a blind comparison is plan
 - `scripts/e2e-listen.ps1` runs the whole listening chain against a settings folder of your choice.
 - `npm run typecheck`.
 - `npx tauri build --debug --no-bundle`, then `scripts/smoke-windows.ps1 -Exe src-tauri\target\debug\ownvoice-meet.exe -Out <folder>` launches the app in Demo mode, clicks through the windows with UI Automation and saves screenshots.
+
+## Releasing
+
+- CI (`.github/workflows/ci.yml`) runs on every push: typecheck and `npm test` on Linux, `cargo test --lib` and `tauri build --no-bundle` on Windows.
+- A tag `v<version>` runs `.github/workflows/release.yml`: it checks the tag against `package.json`, `Cargo.toml` and `tauri.conf.json`, writes `THIRD_PARTY_LICENSES.txt` (`scripts/third-party-licenses.mjs`), and builds a **draft** release with the NSIS installer (per user) and a portable zip. Nothing is public until the draft is published by hand.
+- `src-tauri/tauri.release.conf.json` adds the licence files to the installer. `src-tauri/tauri.updater.conf.json` adds the updater (public key, `latest.json` address) and the signed update files; the workflow merges it only when the `TAURI_SIGNING_PRIVATE_KEY` secret exists, and the app registers the updater plugin only when that config is present.
+- Only an installed copy updates itself: the `install_kind` command reports `installed` when `uninstall.exe` sits next to the app (the NSIS installer puts it there), `portable` otherwise, `other` for debug builds. Settings checks only when the user presses Check for updates.
+- The update key is made once by the maintainer with `tools/updater-key.ps1` (private key and password into the repository secrets, public key into `tauri.updater.conf.json`). Lose the key and installed copies can no longer update themselves.
+- The updater reads `releases/latest/download/latest.json` and the portable check reads the GitHub API without signing in, so neither sees anything while the repository is private.
+- A local dry run: `node scripts/third-party-licenses.mjs`, then `npx tauri build --bundles nsis --config src-tauri/tauri.release.conf.json`.

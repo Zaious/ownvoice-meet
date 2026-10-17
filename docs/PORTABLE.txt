@@ -1,0 +1,47 @@
+OwnVoice Meet: Understand the meeting. Answer in your own voice.
+Portable version for Windows: nothing to install, no administrator rights needed.
+
+1. Unzip this folder anywhere you can write to (Desktop, Documents, a USB stick).
+2. Run "OwnVoice Meet.exe".
+
+If Windows says "Windows protected your PC": the app is not code-signed yet.
+Click "More info", then "Run anyway". If the file came from the internet you can also
+right-click the .exe, choose Properties, and tick "Unblock" first.
+
+Needs the Microsoft Edge WebView2 Runtime. Windows 11 has it; most Windows 10 PCs
+get it with Edge. If OwnVoice Meet does not start, that is the usual reason.
+
+Settings and usage are kept in %APPDATA%\io.github.zaious.ownvoice-meet\, the web view's cache in
+%LOCALAPPDATA%\io.github.zaious.ownvoice-meet\, and API keys in Windows Credential Manager (entries
+ending in "ownvoice-meet"; Settings > Clear all keys removes them). Delete the two folders and this one to
+remove the rest.
+
+Meeting audio goes to the speech service you choose and text to the language model you choose,
+under your own keys. OwnVoice Meet only contacts GitHub when you press "Check for updates".
+This portable copy never updates itself: for a new version, download the new zip.
+
+Apache License 2.0: LICENSE.txt, NOTICE.txt and THIRD_PARTY_LICENSES.txt.
+Source and newer versions: https://github.com/Zaious/ownvoice-meet
+
+
+OwnVoice Meet 免安裝版（Windows）：不用安裝，也不需要系統管理員權限。
+
+1. 把這個資料夾解壓縮到任何你能寫入的地方（桌面、文件、隨身碟）。
+2. 執行「OwnVoice Meet.exe」。
+
+如果 Windows 顯示「Windows 已保護您的電腦」：這個程式還沒有數位簽章。
+按「其他資訊」，再按「仍要執行」。從網路下載的檔案，也可以先在 .exe 上按右鍵 →
+內容 → 勾選「解除封鎖」。
+
+需要 Microsoft Edge WebView2 執行階段。Windows 11 內建；大多數 Windows 10 會隨 Edge 一起裝好。
+OwnVoice Meet 打不開時，通常就是少了它。
+
+設定與用量存在 %APPDATA%\io.github.zaious.ownvoice-meet\，網頁元件的快取在
+%LOCALAPPDATA%\io.github.zaious.ownvoice-meet\，API key 存在 Windows 認證管理員（名稱以「ownvoice-meet」結尾的項目；
+設定 → 清除所有 key 會移除）。刪掉那兩個資料夾和這個資料夾，就清乾淨了。
+
+會議音訊送到你選的語音辨識服務，文字送到你選的語言模型，用的是你自己的 key。
+只有按「檢查更新」時才會連到 GitHub。免安裝版不會自己更新：有新版時，下載新的 zip 即可。
+
+Apache License 2.0 授權：LICENSE.txt、NOTICE.txt 與 THIRD_PARTY_LICENSES.txt。
+原始碼與新版本：https://github.com/Zaious/ownvoice-meet
