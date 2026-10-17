@@ -55,6 +55,8 @@ export interface UsageRow {
   provider: string;
   audio_secs: number;
   requests: number;
+  /** Of `requests`, translations of a sentence still being spoken. */
+  early: number;
   input: number;
   cached: number;
   cache_write: number;

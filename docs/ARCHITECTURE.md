@@ -34,6 +34,7 @@ Every option, with list prices and a description in one format (speed, strength,
 |---|---|---|
 | Listening | Gemini 3.5 Transcribe Live, OpenAI gpt-live-transcribe | streaming WebSocket (`gemini.rs`, `openai_rt.rs`) |
 | | OpenAI gpt-4o-mini-transcribe, local Whisper | one WAV per sentence to `/audio/transcriptions` (`stt_chunk.rs`, cut by `vad.rs`) |
+| | Windows Live Captions (Windows 11 22H2+, free, on the device; not listed elsewhere) | its caption text read with UI Automation every 25 ms (`live_captions.rs`), cut into sentences (`sentences.rs`) |
 | | Apple SpeechAnalyzer | planned (macOS) |
 | Translation and replies | Claude Haiku 5.5, Sonnet 5.5 | Anthropic Messages API, streaming |
 | | gpt-6-luna, gpt-6.1-sol, Gemini 3.5 Flash-Lite, Gemini 3.8 Flash, local vLLM / Ollama | Chat Completions, streaming (OpenAI, Gemini's OpenAI-compatible endpoint, local servers) |
@@ -43,7 +44,13 @@ A local setup is a URL and a model name in settings; `docs/LOCAL.md` explains th
 
 Keys are the user's own (bring your own key), stored in the OS keychain and never sent back to a web view. Debug builds also read a git-ignored `.env.local` (template: `env.example`).
 
-Usage (`usage.rs`) counts audio seconds sent to speech services and the token counts each language-model response reports, per model and per local day, and prices them from the catalog. These are estimates; each provider's billing page is the authority.
+## Captions and early translation
+
+Every listening option goes through `captions.rs`: a line opens, its gray text updates, and when the sentence ends it turns white and is translated (streaming). A sentence that keeps growing for 4 s without ending is translated as it stands, at most every 2 s, so long unbroken speech shows Chinese before the speaker pauses; the final translation replaces it once it has caught up. A translation that finishes cancels older ones still running for the same line, and an older one never overwrites a newer one. The sentence-by-sentence options (gpt-4o-mini-transcribe, local Whisper) have no gray text, so they only get the final translation.
+
+Windows Live Captions shows one rolling block of text rather than separate results. `sentences.rs` cleans it up and takes each sentence that ends in `. ? ! 。 ？ ！` as a finished line (a very short one joins the next), finishes the sentence being spoken once it has stayed unchanged for 1.25 s, and finds its place again when Live Captions revises earlier text or old lines scroll away. That logic is ported from LiveCaptions-Translator (Apache-2.0); see `THIRD_PARTY_NOTICES.md`.
+
+Usage (`usage.rs`) counts audio seconds sent to speech services and the token counts each language-model response reports (early translations counted apart as `early`), per model and per local day, and prices them from the catalog. These are estimates; each provider's billing page is the authority.
 
 ## Behaviors carried over from the prototype
 

@@ -79,7 +79,8 @@ let range: keyof UsageReport = 'session';
 
 function amount(r: UsageRow): string {
   if (r.audio_secs > 0) return `${(r.audio_secs / 60).toFixed(1)} 分鐘音訊`;
-  return `${r.requests} 次 · 輸入 ${r.input.toLocaleString()} · 快取 ${r.cached.toLocaleString()} · 輸出 ${r.output.toLocaleString()} token`;
+  const early = r.early > 0 ? `（其中 ${r.early} 次是句子沒講完先翻）` : '';
+  return `${r.requests} 次${early} · 輸入 ${r.input.toLocaleString()} · 快取 ${r.cached.toLocaleString()} · 輸出 ${r.output.toLocaleString()} token`;
 }
 
 function renderUsage(): void {

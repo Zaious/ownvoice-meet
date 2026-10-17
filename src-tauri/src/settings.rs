@@ -52,7 +52,7 @@ impl Default for Settings {
     }
 }
 
-fn config_dir(app: &AppHandle) -> Result<PathBuf, String> {
+pub fn config_dir(app: &AppHandle) -> Result<PathBuf, String> {
     if let Some(dir) = std::env::var_os("OWNVOICE_CONFIG_DIR").filter(|d| !d.is_empty()) {
         return Ok(PathBuf::from(dir));
     }

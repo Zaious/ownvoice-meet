@@ -1,16 +1,19 @@
 // The desktop shell: the session state, the commands the windows call, and window lifetime.
 // Listening = system audio (audio.rs) -> the speech-to-text option chosen in settings (gemini.rs,
-// openai_rt.rs, stt_chunk.rs) -> captions; each finished caption is translated by the chosen
-// language model (llm.rs), which also writes replies. Options and prices live in catalog.rs.
+// openai_rt.rs, stt_chunk.rs) -> captions; or Windows Live Captions read on the device
+// (live_captions.rs, sentences.rs) -> captions. Captions are translated by the chosen language model
+// (captions.rs, llm.rs), which also writes replies. Options and prices live in catalog.rs.
 
 mod audio;
 mod captions;
 mod catalog;
 mod demo;
 mod gemini;
+mod live_captions;
 mod llm;
 mod openai_rt;
 mod prompts;
+mod sentences;
 mod session;
 mod settings;
 mod stt_chunk;
@@ -30,12 +33,56 @@ type Shared<'a> = State<'a, Mutex<Session>>;
 
 const SCRIPT_MAX_BYTES: usize = 512 * 1024;
 
-/// The running capture, if listening. `generation` tells a finished pipeline whether it is still
-/// the current one before it tidies up.
+/// What is listening, if anything. `generation` tells a finished pipeline whether it is still the
+/// current one before it tidies up.
 #[derive(Default)]
 struct Listener {
     generation: u64,
-    capture: Option<audio::Capture>,
+    running: Option<Running>,
+}
+
+enum Running {
+    /// System audio feeding a speech-to-text pipeline; stopping it closes the audio channel, which
+    /// ends the pipeline.
+    Audio(audio::Capture),
+    LiveCaptions(live_captions::Listening),
+}
+
+impl Running {
+    fn stop(self) {
+        match self {
+            Running::Audio(cap) => cap.stop(),
+            Running::LiveCaptions(l) => l.stop(),
+        }
+    }
+}
+
+/// Stop listening and wait for it to wind down. Not called with the listener locked: Live Captions'
+/// thread takes that lock as it ends.
+fn stop_listening(app: &AppHandle) {
+    let running = app.state::<Mutex<Listener>>().lock().ok().and_then(|mut l| l.running.take());
+    if let Some(r) = running {
+        r.stop();
+    }
+}
+
+/// A pipeline ended on its own (a rejected key, Live Captions not set up): tidy up if it is still
+/// the current one.
+fn pipeline_ended(app: &AppHandle, generation: u64) {
+    usage::flush(app);
+    let running = app.state::<Mutex<Listener>>().lock().ok().and_then(|mut l| if l.generation == generation { l.running.take() } else { None });
+    match running {
+        Some(Running::Audio(cap)) => cap.stop(),
+        // Its thread is the one ending: nothing to wait for.
+        Some(Running::LiveCaptions(_)) => {}
+        None => return,
+    }
+    set_listening_flag(app, false);
+}
+
+/// The options this computer can use: Live Captions only where Windows has it.
+fn offered() -> Vec<catalog::Model> {
+    catalog::MODELS.iter().filter(|m| m.provider != "windows" || live_captions::installed()).copied().collect()
 }
 
 fn lock<'a>(state: &'a Shared<'_>) -> Result<std::sync::MutexGuard<'a, Session>, String> {
@@ -87,23 +134,30 @@ fn compose_reply(app: AppHandle, state: Shared<'_>, zh: String) -> Result<u64, S
 /// Start or stop capturing system audio and transcribing it.
 #[tauri::command]
 fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool) -> Result<bool, String> {
-    let mut l = listener.lock().map_err(|_| "listener state is poisoned")?;
     if !on {
-        if let Some(cap) = l.capture.take() {
-            cap.stop(); // closes the audio channel; the Gemini session ends itself
-        }
+        stop_listening(&app);
         set_listening_flag(&app, false);
         set_status(&app, "已停止");
         return Ok(false);
     }
-    if l.capture.is_some() {
+    let mut l = listener.lock().map_err(|_| "listener state is poisoned")?;
+    if l.running.is_some() {
         return Ok(true);
     }
     let s = settings::load(&app);
-    let Some(m) = catalog::find(&s.stt_id).filter(|m| m.available) else {
+    let Some(m) = offered().into_iter().find(|m| m.id == s.stt_id && m.available) else {
         set_status(&app, "請到「設定」選一個可用的語音辨識");
         return Ok(false);
     };
+    if m.transport == live_captions::TRANSPORT {
+        l.generation += 1;
+        let generation = l.generation;
+        let end_app = app.clone();
+        l.running = Some(Running::LiveCaptions(live_captions::start(app.clone(), move || pipeline_ended(&end_app, generation))));
+        drop(l);
+        set_listening_flag(&app, true);
+        return Ok(true);
+    }
     // Each option needs its own key (local servers may not need one).
     let key = settings::get_key(m.provider);
     if key.is_none() && m.provider != "local" {
@@ -123,7 +177,7 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
     set_status(&app, format!("連線中…（{} · {}）", m.label, cap.device));
     l.generation += 1;
     let generation = l.generation;
-    l.capture = Some(cap);
+    l.running = Some(Running::Audio(cap));
     drop(l);
     set_listening_flag(&app, true);
 
@@ -144,25 +198,16 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
                 stt_chunk::run(a, cfg, rx).await
             }
         }
-        usage::flush(&task_app);
         // The pipeline ended on its own (a rejected key, say): stop the capture it was fed by.
-        let slot = task_app.state::<Mutex<Listener>>();
-        if let Ok(mut l) = slot.lock() {
-            if l.generation == generation {
-                if let Some(cap) = l.capture.take() {
-                    cap.stop();
-                    set_listening_flag(&task_app, false);
-                }
-            }
-        };
+        pipeline_ended(&task_app, generation);
     });
     Ok(true)
 }
 
 /// The options shown in the settings switcher, with prices and descriptions.
 #[tauri::command]
-fn catalog() -> &'static [catalog::Model] {
-    catalog::MODELS
+fn catalog() -> Vec<catalog::Model> {
+    offered()
 }
 
 /// Estimated usage and cost: this run, today, this month.
@@ -217,10 +262,13 @@ pub fn run() {
         .manage(Mutex::new(Session::default()))
         .manage(Mutex::new(Listener::default()))
         .manage(Mutex::new(usage::Usage::default()))
+        .manage(captions::Lines::default())
         .manage(llm::Http(reqwest::Client::new()))
         // Closing the captions window quits; the optional windows go with it.
         .on_window_event(|window, event| {
             if window.label() == "main" && matches!(event, tauri::WindowEvent::Destroyed) {
+                // Closes the Live Captions this app started, rather than leave it running hidden.
+                stop_listening(window.app_handle());
                 usage::flush(window.app_handle());
                 window.app_handle().exit(0);
             }

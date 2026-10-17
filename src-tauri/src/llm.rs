@@ -6,6 +6,7 @@
 //                  and local servers (vLLM, Ollama). `choices[0].delta.content` carries text; with
 //                  stream_options.include_usage the last chunk carries usage.
 
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 
 use futures_util::StreamExt;
@@ -62,7 +63,12 @@ pub fn target(s: &Settings) -> Result<Target, String> {
 }
 
 /// Stream one completion; `on_delta` gets each piece of text as it arrives. Returns token usage.
-pub async fn stream(client: &reqwest::Client, t: &Target, system: Vec<Value>, user: String, mut on_delta: impl FnMut(&str)) -> Result<Tally, String> {
+pub async fn stream(client: &reqwest::Client, t: &Target, system: Vec<Value>, user: String, on_delta: impl FnMut(&str)) -> Result<Tally, String> {
+    stream_until(client, t, system, user, on_delta, || false).await
+}
+
+/// `stream`, ending early (with the usage known so far) once `stop` returns true.
+async fn stream_until(client: &reqwest::Client, t: &Target, system: Vec<Value>, user: String, mut on_delta: impl FnMut(&str), stop: impl Fn() -> bool) -> Result<Tally, String> {
     let anthropic = t.transport == "anthropic";
     let req = if anthropic {
         let mut body = json!({
@@ -113,6 +119,9 @@ pub async fn stream(client: &reqwest::Client, t: &Target, system: Vec<Value>, us
     // Bytes, not text: a Chinese character can be split across two network chunks.
     let mut buf: Vec<u8> = Vec::new();
     while let Some(chunk) = bytes.next().await {
+        if stop() {
+            break; // dropping the stream closes the request
+        }
         buf.extend_from_slice(&chunk.map_err(|e| format!("stream: {e}"))?);
         while let Some(end) = buf.iter().position(|&b| b == b'\n') {
             let line = String::from_utf8_lossy(&buf[..end]).trim_end_matches('\r').to_string();
@@ -195,32 +204,28 @@ fn gather(app: &AppHandle, before: Option<u64>) -> (Settings, Vec<String>, Strin
     (s, ctx, script)
 }
 
-/// Translate a finished caption; the Chinese streams into the caption as it arrives.
-pub fn spawn_translate(app: AppHandle, id: u64, en: String) {
-    tauri::async_runtime::spawn(async move {
-        let set = |zh: &str| {
-            if let Ok(mut sess) = app.state::<Mutex<Session>>().lock() {
-                sess.set_zh(&app, id, zh);
-            }
-        };
-        let (s, ctx, script) = gather(&app, Some(id));
-        let t = match target(&s) {
-            Ok(t) => t,
-            Err(e) => return set(&format!("〔{e}〕")),
-        };
-        let system = prompts::system_blocks(prompts::LISTEN_SYSTEM, &prompts::parse_glossary(&s.glossary), &script);
-        let client = app.state::<Http>().0.clone();
-        let mut zh = String::new();
-        let res = stream(&client, &t, system, prompts::listen_user(&ctx, &en), |d| {
-            zh.push_str(d);
-            set(&zh);
-        })
-        .await;
-        match res {
-            Ok(u) => usage::add_tokens(&app, &t.catalog_id, u),
-            Err(e) => set(&format!("〔翻譯失敗：{e}〕")),
+/// Translate caption `id`'s English (captions.rs decides when and what to show). `show` gets the
+/// Chinese so far as it streams; once `stop` is set the request ends early. `early` marks a
+/// sentence still being spoken, counted apart in usage. Returns the whole Chinese, or the error to
+/// show in its place.
+pub async fn translate(app: &AppHandle, id: u64, en: &str, early: bool, stop: &AtomicBool, mut show: impl FnMut(&str)) -> Result<String, String> {
+    let (s, ctx, script) = gather(app, Some(id));
+    let t = target(&s)?;
+    let system = prompts::system_blocks(prompts::LISTEN_SYSTEM, &prompts::parse_glossary(&s.glossary), &script);
+    let client = app.state::<Http>().0.clone();
+    let mut zh = String::new();
+    let res = stream_until(&client, &t, system, prompts::listen_user(&ctx, en, early), |d| {
+        zh.push_str(d);
+        show(&zh);
+    }, || stop.load(Ordering::SeqCst))
+    .await;
+    match res {
+        Ok(u) => {
+            usage::add_tokens(app, &t.catalog_id, Tally { early: u64::from(early), ..u });
+            Ok(zh)
         }
-    });
+        Err(e) => Err(format!("翻譯失敗：{e}")),
+    }
 }
 
 /// Turn typed Chinese into English to read aloud; the reply window follows the `reply` events.
@@ -314,7 +319,7 @@ mod tests {
             let t0 = std::time::Instant::now();
             let mut first = None;
             let r = stream(&client, &t, prompts::system_blocks(prompts::LISTEN_SYSTEM, &[], script),
-                prompts::listen_user(&[], "Could you share your screen and walk us through the timeline?"),
+                prompts::listen_user(&[], "Could you share your screen and walk us through the timeline?", false),
                 |d| { first.get_or_insert(t0.elapsed()); zh.push_str(d); }).await;
             match r {
                 Ok(u) => {

@@ -17,6 +17,8 @@ use crate::catalog;
 pub struct Tally {
     pub audio_secs: f64,
     pub requests: u64,
+    /// Of `requests`, translations of a sentence still being spoken (captions.rs).
+    pub early: u64,
     pub input: u64,
     pub cached: u64,
     pub cache_write: u64,
@@ -27,6 +29,7 @@ impl Tally {
     fn add(&mut self, o: &Tally) {
         self.audio_secs += o.audio_secs;
         self.requests += o.requests;
+        self.early += o.early;
         self.input += o.input;
         self.cached += o.cached;
         self.cache_write += o.cache_write;
