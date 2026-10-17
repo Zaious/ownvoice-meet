@@ -12,5 +12,4 @@ src-tauri/gen/
 *.local.md
 scripts/private/
 
-# the template is public; the filled copy is not
-!.env.example
+# env.example (no leading dot) is the public template; the filled .env.local is not

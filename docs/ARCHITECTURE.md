@@ -41,7 +41,7 @@ Every option, with list prices and a description in one format (speed, strength,
 
 A local setup is a URL and a model name in settings; `docs/LOCAL.md` explains the servers. Each request uses the model's lowest thinking setting unless the user picks one (Claude `low`, OpenAI `none`, Gemini `minimal`), since a subtitle that arrives late is worth less.
 
-Keys are the user's own (bring your own key), stored in the OS keychain and never sent back to a web view. Debug builds also read a git-ignored `.env.local` (see `.env.example`).
+Keys are the user's own (bring your own key), stored in the OS keychain and never sent back to a web view. Debug builds also read a git-ignored `.env.local` (template: `env.example`).
 
 Usage (`usage.rs`) counts audio seconds sent to speech services and the token counts each language-model response reports, per model and per local day, and prices them from the catalog. These are estimates; each provider's billing page is the authority.
 

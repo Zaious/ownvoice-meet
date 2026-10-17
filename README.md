@@ -48,7 +48,7 @@ npm install
 npx tauri dev
 ```
 
-Press **Demo** to see captions without audio or keys. For development, copy `.env.example` to `.env.local` (git-ignored) and fill in keys; debug builds read it.
+Press **Demo** to see captions without audio or keys. For development, copy `env.example` to `.env.local` (git-ignored) and fill in keys; debug builds read it.
 
 Checks: `npm test`, `npm run typecheck`, and `cargo test --lib` in `src-tauri`. Tests that call real services or need speakers are marked ignored; [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) lists them.
 
