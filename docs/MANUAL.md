@@ -7,8 +7,8 @@
 ## 1. 安裝
 
 1. 到 [Releases](https://github.com/Zaious/ownvoice-meet/releases) 下載：
-   - **安裝版** `…_x64-setup.exe`：只裝給目前使用者，不需要系統管理員權限。
-   - **免安裝版** `…_x64_portable.zip`：解壓縮到任何地方，執行 `OwnVoice Meet.exe`。
+   - **安裝版** `…_x64-setup.exe`：只裝給目前使用者，不需要系統管理員權限。之後在設定 → **檢查更新** 就能一鍵更新。
+   - **免安裝版** `…_x64_portable.zip`：解壓縮到任何地方，執行 `OwnVoice Meet.exe`。不會自己更新，有新版要重新下載。
 2. 程式還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按 **其他資訊** → **仍要執行**。
 3. 需要 Microsoft Edge WebView2 Runtime：Windows 11 內建；Windows 10 若打不開，請先到微軟官網安裝 WebView2 Runtime。
 
