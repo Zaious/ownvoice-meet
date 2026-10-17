@@ -330,10 +330,19 @@ fn key_status() -> HashMap<String, bool> {
     settings::PROVIDERS.iter().map(|p| (p.to_string(), settings::get_key(p).is_some())).collect()
 }
 
-/// Play the canned demo exchange through the normal caption path.
+/// Play the canned demo exchange through the normal caption path. It is all canned text: no audio,
+/// no network, nothing billed.
 #[tauri::command]
 fn start_demo(app: AppHandle) {
     demo::start(app);
+}
+
+/// Empty the captions (and stop a demo that is playing).
+#[tauri::command]
+fn clear_captions(app: AppHandle, state: Shared<'_>) {
+    if let Ok(mut s) = state.lock() {
+        s.clear_captions(&app);
+    }
 }
 
 /// How this copy was installed. "installed" (the Windows installer, which writes uninstall.exe next to
@@ -374,6 +383,9 @@ pub fn run() {
         .manage(llm::Http(reqwest::Client::new()))
         // Closing the captions window quits; the optional windows go with it.
         .on_window_event(|window, event| {
+            if window.label() == "reply" && matches!(event, tauri::WindowEvent::CloseRequested { .. }) {
+                view::remember_reply(window.app_handle(), false);
+            }
             if window.label() == "main" && matches!(event, tauri::WindowEvent::Destroyed) {
                 // Closes the Live Captions this app started, rather than leave it running hidden.
                 stop_listening(window.app_handle());
@@ -399,6 +411,7 @@ pub fn run() {
             local_models,
             live_captions_open,
             start_demo,
+            clear_captions,
             install_kind,
             get_view,
             set_view,

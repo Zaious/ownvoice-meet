@@ -6,7 +6,7 @@ import { listen } from '@tauri-apps/api/event';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut';
 import { FollowBottom } from '../shared/follow.ts';
-import type { Automation, Segment, Session } from '../shared/types.ts';
+import type { Automation, Segment, Session, Views } from '../shared/types.ts';
 import { setView, viewControls } from '../shared/view.ts';
 import { openWindow, toggleWindow, type OptionalWindow } from '../shared/windows.ts';
 
@@ -71,6 +71,7 @@ listenBtn.addEventListener('click', async () => {
   }
 });
 document.querySelector('#demo')!.addEventListener('click', () => void invoke('start_demo'));
+document.querySelector('#clear')!.addEventListener('click', () => void invoke('clear_captions'));
 
 // Text size, background opacity and translation only (stored in settings).
 const zhOnly = document.querySelector<HTMLButtonElement>('#zh-only')!;
@@ -94,6 +95,13 @@ void listen<boolean>('click-through', (e) => showThrough(e.payload));
 showThrough(await invoke<boolean>('click_through'));
 
 void listen<Segment>('caption', (e) => render(e.payload));
+void listen('captions-clear', () => {
+  rows.clear();
+  const empty = document.createElement('div');
+  empty.className = 'empty';
+  empty.textContent = '按「聆聽」開始擷取系統音訊，或按 Demo 看示範。';
+  list.replaceChildren(empty);
+});
 // A live hypothesis that ended with no final text.
 void listen<number>('caption-remove', (e) => {
   rows.get(e.payload)?.remove();
@@ -123,6 +131,12 @@ try {
   });
 } catch (e) {
   status.textContent = `快捷鍵註冊失敗（可能被其他程式占用）：${String(e)}`;
+}
+
+// The reply window opens with the app unless the user closed it last time (view.rs remembers).
+if ((await invoke<Views>('get_view')).reply_open) {
+  await openWindow('reply', false);
+  await track('reply', document.querySelector<HTMLButtonElement>('#reply')!);
 }
 
 // Scripted demos and checks (debug builds only): open windows and start listening without the mouse.

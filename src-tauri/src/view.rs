@@ -39,6 +39,17 @@ pub fn on_window_ready(w: Window) {
     if PRIVATE.contains(&w.label()) {
         let _ = w.set_content_protected(settings::load(w.app_handle()).view.hide_from_capture);
     }
+    if w.label() == "reply" {
+        remember_reply(w.app_handle(), true);
+    }
+}
+
+/// Whether the reply window opens with the app next time: the user opened it, or closed it.
+/// Quitting the app does not count as closing it.
+pub fn remember_reply(app: &AppHandle, open: bool) {
+    if settings::load(app).view.reply_open != open {
+        let _ = settings::update_view(app, &settings::ViewPatch { reply_open: Some(open), ..Default::default() });
+    }
 }
 
 pub fn click_through(app: &AppHandle) -> bool {

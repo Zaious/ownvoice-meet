@@ -67,11 +67,13 @@ pub struct Views {
     pub hide_from_capture: bool,
     /// Captions show only the translation (English stays until its translation arrives).
     pub zh_only: bool,
+    /// The reply window opens with the app. Closing it turns this off; opening it turns it back on.
+    pub reply_open: bool,
 }
 
 impl Default for Views {
     fn default() -> Self {
-        Self { captions: View::default(), reply: View::default(), script: View::default(), hide_from_capture: true, zh_only: false }
+        Self { captions: View::default(), reply: View::default(), script: View::default(), hide_from_capture: true, zh_only: false, reply_open: true }
     }
 }
 
@@ -85,6 +87,7 @@ pub struct ViewPatch {
     pub opacity: Option<u32>,
     pub hide_from_capture: Option<bool>,
     pub zh_only: Option<bool>,
+    pub reply_open: Option<bool>,
 }
 
 impl Views {
@@ -108,6 +111,9 @@ impl Views {
         }
         if let Some(z) = p.zh_only {
             self.zh_only = z;
+        }
+        if let Some(r) = p.reply_open {
+            self.reply_open = r;
         }
         Ok(())
     }
@@ -238,10 +244,27 @@ pub fn display_name(provider: &str) -> &str {
     }
 }
 
-/// Store a key; an empty key removes it.
+/// Which provider a key belongs to, judging by its prefix; None when the format is not recognised.
+fn key_owner(key: &str) -> Option<&'static str> {
+    if key.starts_with("sk-ant-") {
+        Some("anthropic")
+    } else if key.starts_with("sk-") {
+        Some("openai")
+    } else if key.starts_with("AIza") || key.starts_with("AQ.") {
+        Some("gemini")
+    } else {
+        None
+    }
+}
+
+/// Store a key; an empty key removes it. A key that is plainly another provider's (pasted into the
+/// wrong field) is refused with a message saying where it goes.
 pub fn set_key(provider: &str, key: &str) -> Result<(), String> {
     let e = entry(provider)?;
     let key = key.trim();
+    if let Some(owner) = key_owner(key).filter(|o| *o != provider && provider != "local") {
+        return Err(format!("貼在「{}」的這把看起來是 {} 的 key，請貼到「{}」那一欄", display_name(provider), display_name(owner), display_name(owner)));
+    }
     if key.is_empty() {
         return match e.delete_credential() {
             Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
@@ -269,10 +292,24 @@ mod tests {
     use super::*;
 
     #[test]
+    fn keys_pasted_into_the_wrong_field_are_recognised() {
+        assert_eq!(key_owner("sk-ant-api03-x"), Some("anthropic"));
+        assert_eq!(key_owner("sk-proj-x"), Some("openai"));
+        assert_eq!(key_owner("AIzaSyX"), Some("gemini"));
+        assert_eq!(key_owner("AQ.Ab8X"), Some("gemini"));
+        assert_eq!(key_owner("whatever"), None);
+        // Refused before the keychain is touched.
+        let err = set_key("gemini", "sk-proj-x").unwrap_err();
+        assert!(err.contains("OpenAI"), "{err}");
+        assert!(set_key("anthropic", "AIzaSyX").unwrap_err().contains("Gemini"));
+    }
+
+    #[test]
     fn old_settings_files_get_the_default_view() {
         let s: Settings = serde_json::from_str(r#"{"stt_id":"gemini-live"}"#).unwrap();
         assert_eq!(s.view, Views::default());
         assert!(s.view.hide_from_capture, "notes stay out of screen sharing unless the user turns it off");
+        assert!(s.view.reply_open, "the reply window opens with the app until the user closes it");
     }
 
     #[test]

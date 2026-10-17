@@ -39,6 +39,9 @@ pub struct Session {
     /// English the user read aloud, placed after the caption that was last when they sent it.
     #[serde(skip)]
     pub my_lines: Vec<(u64, String)>,
+    /// Bumped by every Demo start and every clear; a running demo stops when it no longer matches.
+    #[serde(skip)]
+    pub demo_run: u64,
 }
 
 impl Session {
@@ -61,6 +64,14 @@ impl Session {
     pub fn set_en(&mut self, app: &AppHandle, id: u64, en: &str, is_final: bool) {
         let zh = self.segments.iter().rev().find(|s| s.id == id).map(|s| s.zh.clone()).unwrap_or_default();
         self.upsert_segment(app, Segment { id, en: en.to_string(), zh, is_final });
+    }
+
+    /// Empty the captions in every window, and stop a demo that is playing.
+    pub fn clear_captions(&mut self, app: &AppHandle) {
+        self.segments.clear();
+        self.my_lines.clear();
+        self.demo_run += 1;
+        let _ = app.emit("captions-clear", ());
     }
 
     /// Drop a caption that came to nothing (a hypothesis with no final text).

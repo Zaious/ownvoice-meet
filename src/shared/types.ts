@@ -41,6 +41,8 @@ export interface Views {
   script: View;
   hide_from_capture: boolean;
   zh_only: boolean;
+  /** The reply window opens with the app; closing it turns this off. */
+  reply_open: boolean;
 }
 
 export interface ViewPatch {

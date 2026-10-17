@@ -23,22 +23,33 @@ const LINES: &[(&str, &str)] = &[
 
 pub fn start(app: AppHandle) {
     fill_other_windows(&app);
-    thread::spawn(move || {
+    // Starting again, or clearing the captions, stops this run (Session::demo_run).
+    let (base, run) = {
         let state = app.state::<Mutex<Session>>();
-        let base = state.lock().map(|s| s.segments.last().map_or(0, |x| x.id)).unwrap_or(0);
+        let Ok(mut s) = state.lock() else { return };
+        s.demo_run += 1;
+        (s.segments.last().map_or(0, |x| x.id), s.demo_run)
+    };
+    thread::spawn(move || {
         for (i, (en, zh)) in LINES.iter().enumerate() {
             let id = base + i as u64 + 1;
             // Interim words first (gray), then the final line, then the translation streaming in.
             let words: Vec<&str> = en.split(' ').collect();
             for n in (3..words.len()).step_by(3) {
-                push(&app, Segment { id, en: words[..n].join(" "), ..Default::default() });
+                if !push(&app, run, Segment { id, en: words[..n].join(" "), ..Default::default() }) {
+                    return;
+                }
                 thread::sleep(Duration::from_millis(350));
             }
-            push(&app, Segment { id, en: en.to_string(), is_final: true, ..Default::default() });
+            if !push(&app, run, Segment { id, en: en.to_string(), is_final: true, ..Default::default() }) {
+                return;
+            }
             let chars: Vec<char> = zh.chars().collect();
             for n in (4..=chars.len()).step_by(4).chain([chars.len()]) {
                 let zh: String = chars[..n].iter().collect();
-                push(&app, Segment { id, en: en.to_string(), zh, is_final: true });
+                if !push(&app, run, Segment { id, en: en.to_string(), zh, is_final: true }) {
+                    return;
+                }
                 thread::sleep(Duration::from_millis(60));
             }
             thread::sleep(Duration::from_millis(900));
@@ -60,8 +71,13 @@ fn fill_other_windows(app: &AppHandle) {
     let _ = app.emit("reply", reply);
 }
 
-fn push(app: &AppHandle, seg: Segment) {
-    if let Ok(mut s) = app.state::<Mutex<Session>>().lock() {
-        s.upsert_segment(app, seg);
+/// Show one step of the demo, unless it has been stopped; false means stop.
+fn push(app: &AppHandle, run: u64, seg: Segment) -> bool {
+    let state = app.state::<Mutex<Session>>();
+    let Ok(mut s) = state.lock() else { return false };
+    if s.demo_run != run {
+        return false;
     }
+    s.upsert_segment(app, seg);
+    true
 }
