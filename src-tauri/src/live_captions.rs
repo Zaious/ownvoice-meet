@@ -28,6 +28,55 @@ pub fn installed() -> bool {
     imp::installed()
 }
 
+/// How far Live Captions is set up for the meeting language. Settings shows it as a checklist and
+/// listening waits until `ready`.
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize)]
+pub struct Setup {
+    pub installed: bool,
+    /// The user agreed in Live Captions' first-run prompt ("是，繼續").
+    pub consented: bool,
+    /// Installed speech files for the meeting language (a locale such as "en-US"), if any.
+    pub speech: Option<String>,
+    /// The language Live Captions is set to.
+    pub language: Option<String>,
+    /// The meeting language (settings; en-US when empty).
+    pub meeting: String,
+    pub ready: bool,
+}
+
+/// Judge the setup from what Windows reports. `packs` are the locales of the installed speech files.
+fn evaluate(installed: bool, consented: bool, packs: &[String], language: Option<&str>, meeting: &str) -> Setup {
+    let meeting = if meeting.trim().is_empty() { "en-US".to_string() } else { meeting.trim().to_string() };
+    let same = |a: &str, b: &str| captions::iso639(a) == captions::iso639(b);
+    // The exact locale if installed, else another variant of the same language (en-GB for en-US).
+    let speech = packs.iter().find(|p| p.eq_ignore_ascii_case(&meeting)).or_else(|| packs.iter().find(|p| same(p, &meeting))).cloned();
+    let language = language.map(str::to_string);
+    let ready = installed && consented && speech.is_some() && language.as_deref().is_some_and(|l| same(l, &meeting));
+    Setup { installed, consented, speech, language, meeting, ready }
+}
+
+pub fn setup(meeting: &str) -> Setup {
+    evaluate(imp::installed(), imp::consented(), &imp::speech_packs(), imp::caption_language().as_deref(), meeting)
+}
+
+/// `setup`, after doing the one step the app can do itself: once the meeting language's speech
+/// files are installed, switch Live Captions to it. Live Captions reads this setting when it starts.
+pub fn prepare(meeting: &str) -> Setup {
+    let s = setup(meeting);
+    if let (true, true, Some(locale)) = (s.installed, s.consented, &s.speech) {
+        if !s.language.as_deref().is_some_and(|l| captions::iso639(l) == captions::iso639(&s.meeting)) && imp::set_caption_language(locale) {
+            return setup(meeting);
+        }
+    }
+    s
+}
+
+/// Open what a setup step needs: "live-captions" (its first-run prompt and language list) or
+/// "language-settings" (Windows Settings, where speech files for a language are installed).
+pub fn open_step(what: &str) -> Result<(), String> {
+    imp::open_step(what)
+}
+
 pub struct Listening {
     stop: Arc<AtomicBool>,
     thread: Option<JoinHandle<()>>,
@@ -117,7 +166,7 @@ mod imp {
     use windows::core::{w, PCWSTR};
     use windows::Win32::Foundation::{CloseHandle, HWND, RECT};
     use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CoUninitialize, CLSCTX_INPROC_SERVER, COINIT_MULTITHREADED};
-    use windows::Win32::System::Registry::{RegGetValueW, HKEY_CURRENT_USER, RRF_RT_REG_SZ};
+    use windows::Win32::System::Registry::{RegGetValueW, RegSetKeyValueW, HKEY_CURRENT_USER, REG_SZ, RRF_RT_REG_DWORD, RRF_RT_REG_SZ};
     use windows::Win32::System::Threading::{OpenProcess, TerminateProcess, WaitForSingleObject, PROCESS_SYNCHRONIZE, PROCESS_TERMINATE};
     use windows::Win32::System::Variant::VARIANT;
     use windows::Win32::UI::Accessibility::{CUIAutomation, IUIAutomation, IUIAutomationElement, TreeScope_Descendants, UIA_AutomationIdPropertyId};
@@ -152,12 +201,47 @@ mod imp {
         }
     }
 
+    const UI_KEY: PCWSTR = w!("Software\\Microsoft\\LiveCaptions\\UI");
+
+    /// Whether the user agreed in the first-run prompt (UI key, HasUserConsented = 1).
+    pub fn consented() -> bool {
+        let mut v = 0u32;
+        let mut len = 4u32;
+        let err = unsafe { RegGetValueW(HKEY_CURRENT_USER, UI_KEY, w!("HasUserConsented"), RRF_RT_REG_DWORD, None, Some((&mut v as *mut u32).cast()), Some(&mut len)) };
+        err.is_ok() && v == 1
+    }
+
+    /// Locales of the installed speech files: packages named MicrosoftWindows.Speech.<locale>.<n>.
+    pub fn speech_packs() -> Vec<String> {
+        let Some(dir) = std::env::var_os("LOCALAPPDATA").map(|d| PathBuf::from(d).join("Packages")) else { return Vec::new() };
+        let Ok(entries) = std::fs::read_dir(dir) else { return Vec::new() };
+        entries
+            .filter_map(|e| e.ok()?.file_name().into_string().ok())
+            .filter_map(|n| n.strip_prefix("MicrosoftWindows.Speech.").and_then(|r| r.split('.').next()).map(str::to_string))
+            .collect()
+    }
+
+    pub fn set_caption_language(locale: &str) -> bool {
+        let data: Vec<u16> = locale.encode_utf16().chain([0]).collect();
+        let err = unsafe { RegSetKeyValueW(HKEY_CURRENT_USER, UI_KEY, w!("CaptionLanguage"), REG_SZ.0, Some(data.as_ptr().cast()), (data.len() * 2) as u32) };
+        err.is_ok()
+    }
+
+    pub fn open_step(what: &str) -> Result<(), String> {
+        let started = match what {
+            "live-captions" => std::process::Command::new(exe().ok_or("找不到 Windows 資料夾")?).spawn(),
+            "language-settings" => std::process::Command::new("explorer.exe").arg("ms-settings:regionlanguage").spawn(),
+            other => return Err(format!("unknown step {other}")),
+        };
+        started.map(|_| ()).map_err(|e| format!("無法開啟：{e}"))
+    }
+
     /// The language Live Captions recognizes (HKCU\Software\Microsoft\LiveCaptions\UI, CaptionLanguage).
-    fn caption_language() -> Option<String> {
+    pub fn caption_language() -> Option<String> {
         let mut buf = [0u16; 64];
         let mut len = (buf.len() * 2) as u32;
         let err = unsafe {
-            RegGetValueW(HKEY_CURRENT_USER, w!("Software\\Microsoft\\LiveCaptions\\UI"), w!("CaptionLanguage"), RRF_RT_REG_SZ, None, Some(buf.as_mut_ptr().cast()), Some(&mut len))
+            RegGetValueW(HKEY_CURRENT_USER, UI_KEY, w!("CaptionLanguage"), RRF_RT_REG_SZ, None, Some(buf.as_mut_ptr().cast()), Some(&mut len))
         };
         if err.is_err() {
             return None;
@@ -323,6 +407,26 @@ mod imp {
         false
     }
 
+    pub fn consented() -> bool {
+        false
+    }
+
+    pub fn speech_packs() -> Vec<String> {
+        Vec::new()
+    }
+
+    pub fn caption_language() -> Option<String> {
+        None
+    }
+
+    pub fn set_caption_language(_: &str) -> bool {
+        false
+    }
+
+    pub fn open_step(_: &str) -> Result<(), String> {
+        Err("只有 Windows 11 有即時輔助字幕".into())
+    }
+
     pub fn run(_: &AppHandle, _: &AtomicBool, _: &mut Lines, _: &str) -> Result<(), String> {
         Err("只有 Windows 11 有即時輔助字幕".into())
     }
@@ -331,6 +435,27 @@ mod imp {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn setup_is_ready_only_with_consent_speech_files_and_the_meeting_language() {
+        let zh = vec!["zh-TW".to_string()];
+        let both = vec!["zh-TW".to_string(), "en-US".to_string()];
+        // A Chinese Windows that only agreed: English speech files still missing.
+        let s = evaluate(true, true, &zh, Some("zh-TW"), "en-US");
+        assert_eq!((s.speech.as_deref(), s.ready), (None, false));
+        // English installed but Live Captions still on Chinese: the app switches it (prepare).
+        let s = evaluate(true, true, &both, Some("zh-TW"), "en-US");
+        assert_eq!((s.speech.as_deref(), s.ready), (Some("en-US"), false));
+        assert!(evaluate(true, true, &both, Some("en-US"), "en-US").ready);
+        // Not agreed yet, or no Live Captions at all.
+        assert!(!evaluate(true, false, &both, Some("en-US"), "en-US").ready);
+        assert!(!evaluate(false, true, &both, Some("en-US"), "en-US").ready);
+        // Another English variant counts; an empty meeting language means English.
+        let gb = vec!["en-GB".to_string()];
+        assert_eq!(evaluate(true, true, &gb, Some("en-GB"), "en-US").speech.as_deref(), Some("en-GB"));
+        assert!(evaluate(true, true, &gb, Some("en-GB"), "").ready);
+        assert_eq!(evaluate(true, true, &gb, None, " ").meeting, "en-US");
+    }
 
     #[test]
     fn a_live_captions_language_other_than_the_meetings_is_pointed_out() {

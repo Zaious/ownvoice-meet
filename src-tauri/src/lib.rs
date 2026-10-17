@@ -150,6 +150,12 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
         return Ok(false);
     };
     if m.transport == live_captions::TRANSPORT {
+        // First use needs the user's consent and the meeting language's speech files; Settings walks
+        // through both and switches the language itself.
+        if !live_captions::prepare(&s.stt_language).ready {
+            set_status(&app, "即時輔助字幕還沒準備好：請開「設定」，照「Windows 即時輔助字幕」下面的步驟做完");
+            return Ok(false);
+        }
         l.generation += 1;
         let generation = l.generation;
         let end_app = app.clone();
@@ -208,6 +214,19 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
 #[tauri::command]
 fn catalog() -> Vec<catalog::Model> {
     offered()
+}
+
+/// How far Windows Live Captions is set up for `language` (the meeting language in the settings
+/// form). Switches its language when the speech files are already there.
+#[tauri::command]
+fn live_captions_setup(language: String) -> live_captions::Setup {
+    live_captions::prepare(&language)
+}
+
+/// Open what a Live Captions setup step needs: "live-captions" or "language-settings".
+#[tauri::command]
+fn live_captions_open(what: String) -> Result<(), String> {
+    live_captions::open_step(&what)
 }
 
 /// Estimated usage and cost: this run, today, this month.
@@ -284,6 +303,8 @@ pub fn run() {
             key_status,
             catalog,
             usage_report,
+            live_captions_setup,
+            live_captions_open,
             start_demo
         ])
         .setup(|app| {

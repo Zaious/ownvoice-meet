@@ -4,7 +4,7 @@
 
 import { invoke } from '@tauri-apps/api/core';
 import { openUrl } from '@tauri-apps/plugin-opener';
-import type { CatalogModel, Settings, UsageReport, UsageRow } from '../shared/types.ts';
+import type { CatalogModel, LiveCaptionsSetup, Settings, UsageReport, UsageRow } from '../shared/types.ts';
 import { hourlyLine, money, priceLine } from './price.ts';
 
 const PROVIDERS = ['anthropic', 'openai', 'gemini', 'local'] as const;
@@ -54,7 +54,70 @@ function chosen(group: string): string {
 function showLocalFields(): void {
   document.querySelector<HTMLElement>('#stt-local')!.hidden = chosen('stt') !== 'local-whisper';
   document.querySelector<HTMLElement>('#llm-local')!.hidden = chosen('llm') !== 'local-llm';
+  followLiveCaptions(chosen('stt') === 'windows-live-captions');
 }
+
+// ---------- Windows Live Captions: a checklist that checks itself ----------
+// First use needs the user's consent in Live Captions and the meeting language's speech files.
+// The app cannot click those for the user, so it shows each step, opens the right place, and ticks
+// the step off as soon as Windows reports it done. Switching Live Captions' language is done by the app.
+const lcBox = document.querySelector<HTMLElement>('#stt-lc')!;
+let lcTimer: ReturnType<typeof setInterval> | undefined;
+
+function followLiveCaptions(on: boolean): void {
+  lcBox.hidden = !on;
+  if (lcTimer) clearInterval(lcTimer);
+  lcTimer = undefined;
+  if (!on) return;
+  void checkLiveCaptions();
+  lcTimer = setInterval(() => void checkLiveCaptions(), 2000);
+}
+
+function openButton(label: string, what: string): HTMLButtonElement {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.textContent = label;
+  b.addEventListener('click', () => void invoke('live_captions_open', { what }).catch((e) => (saved.textContent = String(e))));
+  return b;
+}
+
+function lcStep(done: boolean, title: string, ...how: (string | HTMLElement)[]): HTMLElement {
+  const li = el('li', done ? 'done' : '');
+  const body = el('div', '');
+  body.append(el('strong', '', title));
+  const box = el('div', 'how');
+  for (const h of how) box.append(typeof h === 'string' ? el('div', '', h) : h);
+  body.append(box);
+  li.append(el('span', 'mark', done ? '✓' : '○'), body);
+  return li;
+}
+
+async function checkLiveCaptions(): Promise<void> {
+  const s = await invoke<LiveCaptionsSetup>('live_captions_setup', { language: field('stt_language').value.trim() });
+  if (lcBox.hidden) return;
+  const english = s.meeting.toLowerCase().startsWith('en');
+  const lang = english ? '英文' : s.meeting;
+  const pick = english ? 'English (United States)' : s.meeting;
+  const steps = el('ol', '');
+  steps.append(
+    lcStep(s.consented, '1. 同意使用即時輔助字幕（只需一次）',
+      '按下面的按鈕，螢幕上方會出現「您要繼續並設定即時輔助字幕嗎？」，請按「是，繼續」。',
+      openButton('開啟即時輔助字幕', 'live-captions')),
+    lcStep(s.speech !== null, `2. 下載${lang}語音（只需一次，約幾分鐘）`,
+      `接著出現「正準備在下列項目中顯示即時字幕」時，按語言旁邊的 ˅，選「${pick}」，再按「繼續」，等它下載完。`,
+      `如果沒有出現那一行：按下面的按鈕開啟 Windows 語言設定，按「新增語言」，搜尋「${pick}」，勾選語音相關的項目後安裝。`,
+      openButton('開啟 Windows 語言設定', 'language-settings')),
+    lcStep(s.ready, `3. 即時輔助字幕改用${lang}`,
+      `第 2 步完成後，App 會自動切換，不用動手。`),
+  );
+  const left = [s.consented, s.speech !== null, s.ready].filter((d) => !d).length;
+  const verdict = el('p', 'verdict', s.ready ? '✓ 都準備好了，可以按「聆聽」。' : `還差 ${left} 步。這個清單每 2 秒自動檢查一次，做完會自己打勾。`);
+  lcBox.replaceChildren(el('h3', '', '第一次使用前的準備'), steps, verdict);
+}
+
+field('stt_language').addEventListener('change', () => {
+  if (!lcBox.hidden) void checkLiveCaptions();
+});
 
 async function showKeyState(): Promise<void> {
   const status = await invoke<Record<string, boolean>>('key_status');

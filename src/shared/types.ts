@@ -48,6 +48,17 @@ export interface CatalogModel {
   available: boolean;
 }
 
+/** Mirrors live_captions.rs Setup: how far Windows Live Captions is set up. */
+export interface LiveCaptionsSetup {
+  installed: boolean;
+  consented: boolean;
+  /** Installed speech files for the meeting language, e.g. "en-US". */
+  speech: string | null;
+  language: string | null;
+  meeting: string;
+  ready: boolean;
+}
+
 /** Mirrors usage.rs. */
 export interface UsageRow {
   id: string;
