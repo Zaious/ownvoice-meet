@@ -1,5 +1,4 @@
 :root {
-  --bg: #14161a;
   --panel: #1c1f24;
   --line: #2c3036;
   --text: #e8e8e8;
@@ -12,12 +11,15 @@
   --font-ui: 'Microsoft JhengHei UI', 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif;
   --font-read: 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
   --base: 15px;
+  /* Background opacity of a reading window (shared/view.ts); text stays opaque. */
+  --bg-alpha: 1;
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
+html { background: transparent; }
 body {
-  background: var(--bg);
+  background: rgb(20 22 26 / var(--bg-alpha));
   color: var(--text);
   font: var(--base)/1.5 var(--font-ui);
   display: flex;
@@ -32,8 +34,18 @@ body {
   padding: 8px 10px;
   border-bottom: 1px solid var(--line);
   flex: none;
+  flex-wrap: wrap;
 }
-.bar .grow { flex: 1; }
+.bar .grow { flex: 1; min-width: 0; }
+/* Status keeps room to be read; buttons that do not fit wrap to a second row. */
+.bar .status { flex-basis: 12em; }
+.viewctl { display: inline-flex; align-items: center; gap: 4px; }
+.viewctl button { padding: 4px 7px; }
+.viewctl input[type='range'] { width: 70px; accent-color: var(--accent); }
+.private { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.private[data-on='true'] { color: #7ee2a8; }
+.through { display: none; padding: 4px 12px; font-size: 12px; color: #111; background: #f0c674; }
+.through.on { display: block; }
 .status { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 button {
@@ -90,12 +102,15 @@ kbd { font: 11px var(--font-read); color: var(--muted); }
 .seg .en { color: var(--text); }
 .seg.interim .en { color: var(--interim); }
 .seg .zh { color: var(--zh); }
+/* Translation only: English shows until its translation arrives, so nothing said is lost. */
+.zh-only .seg:not(.pending) .en { display: none; }
+.zh-only .seg.pending .en { color: var(--interim); }
 .empty { color: var(--muted); padding: 24px 4px; }
 
 /* reply */
 .prompter { flex: 1; overflow-y: auto; padding: 14px 16px; }
-.prompter .zh { color: var(--muted); font-size: 14px; }
-.prompter .en { font: 600 26px/1.45 var(--font-read); color: #fff; white-space: pre-wrap; }
+.prompter .zh { color: var(--muted); font-size: 0.93em; }
+.prompter .en { font: 600 1.73em/1.45 var(--font-read); color: #fff; white-space: pre-wrap; }
 textarea {
   flex: none;
   margin: 0 10px 10px;
@@ -121,3 +136,5 @@ textarea {
 .script .gloss { color: var(--zh); margin: 0 0 12px; }
 .script .copy { background: #0d1117; border-radius: 6px; padding: 8px 10px; margin: 4px 0 10px; }
 .script .copy pre { margin: 0 0 6px; white-space: pre-wrap; font: 0.9em/1.4 Consolas, monospace; color: #c9d1d9; }
+.settings label.check { display: flex; gap: 8px; align-items: flex-start; color: var(--text); }
+.settings label.check input { display: inline; width: auto; margin: 3px 0 0; }

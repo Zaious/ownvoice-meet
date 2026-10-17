@@ -3,8 +3,10 @@
 // glossary, and estimated usage.
 
 import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
 import { openUrl } from '@tauri-apps/plugin-opener';
-import type { CatalogModel, Settings, UsageReport, UsageRow } from '../shared/types.ts';
+import type { CatalogModel, Settings, UsageReport, UsageRow, Views } from '../shared/types.ts';
+import { setView } from '../shared/view.ts';
 import { hourlyLine, money, priceLine } from './price.ts';
 
 const PROVIDERS = ['anthropic', 'openai', 'gemini', 'local'] as const;
@@ -129,8 +131,14 @@ async function load(): Promise<void> {
   field('local_llm_url').value = s.local_llm_url;
   field('local_llm_model').value = s.local_llm_model;
   showLocalFields();
+  hideFromCapture.checked = s.view.hide_from_capture;
   await Promise.all([showKeyState(), loadUsage()]);
 }
+
+// Applies at once, like the controls in the reading windows; the save button does not touch it.
+const hideFromCapture = document.querySelector<HTMLInputElement>('#hide_from_capture')!;
+hideFromCapture.addEventListener('change', () => void setView({ hide_from_capture: hideFromCapture.checked }));
+void listen<Views>('view', (e) => (hideFromCapture.checked = e.payload.hide_from_capture));
 
 form.addEventListener('change', (e) => {
   if ((e.target as HTMLInputElement).type === 'radio') showLocalFields();
@@ -138,7 +146,8 @@ form.addEventListener('change', (e) => {
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const value: Settings = {
+  // The view is not on this form; the Rust side keeps what the windows last set.
+  const value: Omit<Settings, 'view'> = {
     stt_id: chosen('stt'),
     stt_language: field('stt_language').value.trim(),
     llm_id: chosen('llm'),

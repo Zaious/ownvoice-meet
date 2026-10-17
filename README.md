@@ -16,6 +16,8 @@ Three windows; use the ones you need and put each where it helps.
 | **Captions** | What others say, in English as they speak, with the meaning in Chinese under each sentence. |
 | **Script & notes** | Your talk, prepared answers and notes, each line with its meaning, in tabs, with copy buttons for links and commands. |
 
+Each window has its own text size (A− / A+) and background opacity, remembered between runs. Captions can show the translation only, and can let clicks pass through to the meeting underneath (turn it off with `Ctrl+Shift+F8` or the tray icon). When you share your screen, the Reply and Script windows stay off the share, recordings and screenshots (Windows 10 2004 or later; can be turned off in Settings). The Captions window is not hidden.
+
 ## What it does not do
 
 It does not answer for you. There are no AI-written replies and no synthetic voice: you decide what to say, and you say it. OwnVoice Meet helps with the English.

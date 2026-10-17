@@ -6,9 +6,10 @@ import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 
 export type OptionalWindow = 'reply' | 'script' | 'settings';
 
-const SPEC: Record<OptionalWindow, { url: string; title: string; width: number; height: number }> = {
-  reply: { url: 'reply.html', title: 'OwnVoice Meet · Reply', width: 640, height: 360 },
-  script: { url: 'script.html', title: 'OwnVoice Meet · Script', width: 620, height: 760 },
+// Reading windows are transparent so their background can fade (shared/view.ts); settings is not.
+const SPEC: Record<OptionalWindow, { url: string; title: string; width: number; height: number; transparent?: boolean }> = {
+  reply: { url: 'reply.html', title: 'OwnVoice Meet · Reply', width: 640, height: 360, transparent: true },
+  script: { url: 'script.html', title: 'OwnVoice Meet · Script', width: 620, height: 760, transparent: true },
   settings: { url: 'settings.html', title: 'OwnVoice Meet · Settings', width: 560, height: 720 },
 };
 
@@ -35,6 +36,7 @@ export async function openWindow(name: OptionalWindow, focus = true): Promise<We
       minWidth: 280,
       minHeight: 140,
       alwaysOnTop: true,
+      transparent: spec.transparent ?? false,
       focus,
     });
     void w.once('tauri://created', () => resolve(w));

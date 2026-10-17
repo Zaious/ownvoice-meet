@@ -3,6 +3,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import type { Reply, Session } from '../shared/types.ts';
+import { privacyNote, viewControls } from '../shared/view.ts';
 
 const prompter = document.querySelector<HTMLElement>('#prompter')!;
 const input = document.querySelector<HTMLTextAreaElement>('#input')!;
@@ -29,6 +30,9 @@ input.addEventListener('keydown', (e) => {
   show({ id: 0, zh, en: '', done: false });
   invoke('compose_reply', { zh }).catch((err) => show({ id: 0, zh, en: `[${String(err)}]`, done: true }));
 });
+
+const bar = document.querySelector<HTMLElement>('#bar')!;
+await viewControls('reply', bar, privacyNote(bar));
 
 void listen<Reply>('reply', (e) => show(e.payload));
 const snap = await invoke<Session>('snapshot');

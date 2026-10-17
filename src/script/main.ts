@@ -4,6 +4,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import type { Session } from '../shared/types.ts';
+import { privacyNote, viewControls } from '../shared/view.ts';
 import { missingGloss, parse } from './format.ts';
 
 const body = document.querySelector<HTMLElement>('#body')!;
@@ -68,6 +69,9 @@ file.addEventListener('change', async () => {
   }
   file.value = '';
 });
+
+const bar = document.querySelector<HTMLElement>('.bar')!;
+await viewControls('script', bar, privacyNote(bar));
 
 void listen<string>('script', (e) => render(e.payload));
 const snap = await invoke<Session>('snapshot');

@@ -2,6 +2,7 @@
 // Listening = system audio (audio.rs) -> the speech-to-text option chosen in settings (gemini.rs,
 // openai_rt.rs, stt_chunk.rs) -> captions; each finished caption is translated by the chosen
 // language model (llm.rs), which also writes replies. Options and prices live in catalog.rs.
+// Text size, opacity, click-through and capture exclusion: settings.rs (stored) and view.rs.
 
 mod audio;
 mod captions;
@@ -16,6 +17,7 @@ mod settings;
 mod stt_chunk;
 mod usage;
 mod vad;
+mod view;
 
 use std::collections::HashMap;
 use std::sync::Mutex;
@@ -24,7 +26,7 @@ use tauri_plugin_window_state::StateFlags;
 use tokio::sync::mpsc;
 
 use session::{Reply, Session};
-use settings::Settings;
+use settings::{Settings, ViewPatch, Views};
 
 type Shared<'a> = State<'a, Mutex<Session>>;
 
@@ -181,6 +183,34 @@ fn save_settings(app: AppHandle, value: Settings) -> Result<(), String> {
     settings::save(&app, &value)
 }
 
+/// Text size and opacity per window, capture exclusion, and the translation-only captions.
+#[tauri::command]
+fn get_view(app: AppHandle) -> Views {
+    settings::load(&app).view
+}
+
+/// Change part of the view; every window redraws from the "view" event.
+#[tauri::command]
+fn set_view(app: AppHandle, patch: ViewPatch) -> Result<Views, String> {
+    let v = settings::update_view(&app, &patch)?;
+    if patch.hide_from_capture.is_some() {
+        view::protect(&app, v.hide_from_capture);
+    }
+    app.emit("view", &v).map_err(|e| e.to_string())?;
+    Ok(v)
+}
+
+#[tauri::command]
+fn click_through(app: AppHandle) -> bool {
+    view::click_through(&app)
+}
+
+/// Turn click-through on from the captions window; the tray or Ctrl+Shift+F8 turns it off.
+#[tauri::command]
+fn set_click_through(app: AppHandle, on: bool) {
+    view::set_click_through(&app, on);
+}
+
 /// Store or (with an empty key) remove a provider's API key in the OS keychain.
 #[tauri::command]
 fn set_key(provider: String, key: String) -> Result<(), String> {
@@ -214,9 +244,12 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         // Opens the providers' key pages from Settings; capabilities/settings-links.json lists them.
         .plugin(tauri_plugin_opener::init())
+        // The reply and script windows leave screen capture as they are made, not after they draw.
+        .plugin(tauri::plugin::Builder::<tauri::Wry>::new("view").on_window_ready(view::on_window_ready).build())
         .manage(Mutex::new(Session::default()))
         .manage(Mutex::new(Listener::default()))
         .manage(Mutex::new(usage::Usage::default()))
+        .manage(view::ClickThrough::default())
         .manage(llm::Http(reqwest::Client::new()))
         // Closing the captions window quits; the optional windows go with it.
         .on_window_event(|window, event| {
@@ -236,9 +269,14 @@ pub fn run() {
             key_status,
             catalog,
             usage_report,
-            start_demo
+            start_demo,
+            get_view,
+            set_view,
+            click_through,
+            set_click_through
         ])
         .setup(|app| {
+            view::setup(app.handle())?;
             // OWNVOICE_DEMO=1 starts the demo on launch (screenshots and smoke checks).
             if std::env::var_os("OWNVOICE_DEMO").is_some_and(|v| v == "1") {
                 demo::start(app.handle().clone());
