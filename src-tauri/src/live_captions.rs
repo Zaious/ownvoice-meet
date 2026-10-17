@@ -43,19 +43,32 @@ impl Listening {
     }
 }
 
-/// Start listening; `ended` runs on the listening thread when it ends, stopped or on its own.
-pub fn start(app: AppHandle, ended: impl FnOnce() + Send + 'static) -> Listening {
+/// Start listening; `language` is the meeting's (settings, BCP-47). `ended` runs on the listening
+/// thread when it ends, stopped or on its own.
+pub fn start(app: AppHandle, language: String, ended: impl FnOnce() + Send + 'static) -> Listening {
     let stop = Arc::new(AtomicBool::new(false));
     let flag = stop.clone();
     let thread = std::thread::spawn(move || {
         let mut lines = Lines::default();
-        if let Err(e) = imp::run(&app, &flag, &mut lines) {
+        if let Err(e) = imp::run(&app, &flag, &mut lines, &language) {
             captions::status(&app, format!("Windows 即時輔助字幕：{e}"));
         }
         lines.close(&app);
         ended();
     });
     Listening { stop, thread: Some(thread) }
+}
+
+/// The status line while listening. Live Captions recognizes the one language chosen in its own
+/// settings (with that language's speech files installed); English heard by a Chinese model comes
+/// out as nonsense, so a mismatch with the meeting language says so.
+fn listening_status(live: Option<&str>, meeting: &str) -> String {
+    match live {
+        Some(live) if !captions::iso639(meeting).is_empty() && captions::iso639(live) != captions::iso639(meeting) => format!(
+            "即時輔助字幕現在辨識 {live}，會議語言是 {meeting}：請在即時輔助字幕的 ⚙ ›「變更語言」改成會議的語言（第一次要下載語音檔），再重新按聆聽"
+        ),
+        _ => "聆聽中（Windows 即時輔助字幕）".into(),
+    }
 }
 
 /// The caption line the sentence being spoken is shown in.
@@ -104,6 +117,7 @@ mod imp {
     use windows::core::{w, PCWSTR};
     use windows::Win32::Foundation::{CloseHandle, HWND, RECT};
     use windows::Win32::System::Com::{CoCreateInstance, CoInitializeEx, CoUninitialize, CLSCTX_INPROC_SERVER, COINIT_MULTITHREADED};
+    use windows::Win32::System::Registry::{RegGetValueW, HKEY_CURRENT_USER, RRF_RT_REG_SZ};
     use windows::Win32::System::Threading::{OpenProcess, TerminateProcess, WaitForSingleObject, PROCESS_SYNCHRONIZE, PROCESS_TERMINATE};
     use windows::Win32::System::Variant::VARIANT;
     use windows::Win32::UI::Accessibility::{CUIAutomation, IUIAutomation, IUIAutomationElement, TreeScope_Descendants, UIA_AutomationIdPropertyId};
@@ -112,7 +126,7 @@ mod imp {
         WS_EX_TOOLWINDOW,
     };
 
-    use super::Lines;
+    use super::{listening_status, Lines};
     use crate::captions;
 
     /// LiveCaptionsHandler reads the text in 10-20 ms; SyncLoop polls every 25 ms.
@@ -138,7 +152,21 @@ mod imp {
         }
     }
 
-    pub fn run(app: &AppHandle, stop: &AtomicBool, lines: &mut Lines) -> Result<(), String> {
+    /// The language Live Captions recognizes (HKCU\Software\Microsoft\LiveCaptions\UI, CaptionLanguage).
+    fn caption_language() -> Option<String> {
+        let mut buf = [0u16; 64];
+        let mut len = (buf.len() * 2) as u32;
+        let err = unsafe {
+            RegGetValueW(HKEY_CURRENT_USER, w!("Software\\Microsoft\\LiveCaptions\\UI"), w!("CaptionLanguage"), RRF_RT_REG_SZ, None, Some(buf.as_mut_ptr().cast()), Some(&mut len))
+        };
+        if err.is_err() {
+            return None;
+        }
+        let n = (len as usize / 2).saturating_sub(1).min(buf.len());
+        Some(String::from_utf16_lossy(&buf[..n])).filter(|l| !l.is_empty())
+    }
+
+    pub fn run(app: &AppHandle, stop: &AtomicBool, lines: &mut Lines, language: &str) -> Result<(), String> {
         unsafe { CoInitializeEx(None, COINIT_MULTITHREADED) }.ok().map_err(|e| format!("COM: {e}"))?;
         let _com = Com;
         let uia: IUIAutomation = unsafe { CoCreateInstance(&CUIAutomation, None, CLSCTX_INPROC_SERVER) }.map_err(|e| format!("UI Automation: {e}"))?;
@@ -159,7 +187,7 @@ mod imp {
                     return Err(e);
                 }
             };
-            captions::status(app, "聆聽中（Windows 即時輔助字幕）");
+            captions::status(app, listening_status(caption_language().as_deref(), language));
             if first && !win.started {
                 // It was already running: what it showed before is not part of this meeting.
                 lines.tracker.skip(&unsafe { text.CurrentName() }.map(|b| b.to_string()).unwrap_or_default());
@@ -295,7 +323,22 @@ mod imp {
         false
     }
 
-    pub fn run(_: &AppHandle, _: &AtomicBool, _: &mut Lines) -> Result<(), String> {
+    pub fn run(_: &AppHandle, _: &AtomicBool, _: &mut Lines, _: &str) -> Result<(), String> {
         Err("只有 Windows 11 有即時輔助字幕".into())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_live_captions_language_other_than_the_meetings_is_pointed_out() {
+        assert_eq!(listening_status(Some("en-US"), "en-US"), "聆聽中（Windows 即時輔助字幕）");
+        assert_eq!(listening_status(Some("en-GB"), "en-US"), "聆聽中（Windows 即時輔助字幕）");
+        assert_eq!(listening_status(None, "en-US"), "聆聽中（Windows 即時輔助字幕）");
+        assert_eq!(listening_status(Some("zh-TW"), ""), "聆聽中（Windows 即時輔助字幕）");
+        let w = listening_status(Some("zh-TW"), "en-US");
+        assert!(w.contains("zh-TW") && w.contains("en-US") && w.contains("變更語言"), "{w}");
     }
 }

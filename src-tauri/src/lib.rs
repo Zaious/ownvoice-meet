@@ -153,7 +153,7 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
         l.generation += 1;
         let generation = l.generation;
         let end_app = app.clone();
-        l.running = Some(Running::LiveCaptions(live_captions::start(app.clone(), move || pipeline_ended(&end_app, generation))));
+        l.running = Some(Running::LiveCaptions(live_captions::start(app.clone(), s.stt_language.clone(), move || pipeline_ended(&end_app, generation))));
         drop(l);
         set_listening_flag(&app, true);
         return Ok(true);

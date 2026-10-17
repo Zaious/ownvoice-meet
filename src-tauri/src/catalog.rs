@@ -112,7 +112,7 @@ pub const MODELS: &[Model] = &[
         price_note: "Windows 內建，在電腦上辨識",
         speed: "即時：說話中就有灰字",
         strength: "免費、不用 key，音訊不離開電腦",
-        caution: "辨識語言在即時輔助字幕自己的設定裡選；第一次使用要先按 Win+Ctrl+L 下載語音檔",
+        caution: "辨識語言在即時輔助字幕自己的 ⚙ ›「變更語言」裡選，要裝好會議語言的語音檔（語言不符時聆聽狀態會提醒）",
         needs: "Windows 11 22H2 以上（其他系統不會列出）",
         available: true,
     },
