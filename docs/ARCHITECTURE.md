@@ -1,6 +1,6 @@
 # Architecture
 
-OwnVoice Meet helps someone take part in an online meeting held in a language they read better than they speak. It does three jobs, each in its own window:
+OwnVoice Meet helps someone take part in an online meeting held in a language they can follow but can't always answer in on the spot. It does three jobs, each in its own window:
 
 | Window | Required | What it does |
 |---|---|---|

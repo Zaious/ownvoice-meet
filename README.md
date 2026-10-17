@@ -4,7 +4,7 @@
 
 *Understand the meeting. Answer in your own voice.* · [English](#english)
 
-給英文「看得懂、說不太出口」的人。想說什麼就用中文打，OwnVoice Meet 把它變成好唸的口語英文短句，你照著唸。話是你自己的，聲音也是你自己的。
+給開會時一下子想不出英文怎麼說，但還是想用自己的話、自己開口的人。想說什麼就用中文打，OwnVoice Meet 把它變成好唸的口語英文短句，你照著唸。話是你自己的，聲音也是你自己的。
 
 > 狀態：0.1.1，Windows。已經接上真實服務使用。架構說明見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
@@ -32,7 +32,7 @@
 
 ## 起源
 
-我是 Zaious，來自台灣的獨立研究者（ChronicleCore Studio 編年史記工作室），英文看得懂、說不太出口。2026 年 10 月 16 日，我要在 JCDL 2026（ACM/IEEE 數位圖書館聯合會議）的線上 Demo 場發表：一分鐘簡報，接著在 breakout room 回答提問。當天下午我花大約兩小時做出第一版（Python、自己 GPU 上的 Whisper、Claude Haiku 5.5），開著它撐完 1.5 小時的場次：別人說話時看字幕和中文意思，旁邊是中英對照的講稿和準備好的回答，沒準備到的就用回覆框。
+我是 Zaious，來自台灣的獨立研究者（ChronicleCore Studio 編年史記工作室），英文看得懂，但開會時常常一下子想不出該怎麼說。2026 年 10 月 16 日，我要在 JCDL 2026（ACM/IEEE 數位圖書館聯合會議）的線上 Demo 場發表：一分鐘簡報，接著在 breakout room 回答提問。當天下午我花大約兩小時做出第一版（Python、自己 GPU 上的 Whisper、Claude Haiku 5.5），開著它撐完 1.5 小時的場次：別人說話時看字幕和中文意思，旁邊是中英對照的講稿和準備好的回答，沒準備到的就用回覆框。
 
 那一整天的翻譯費用是 **0.11 美元**（Claude Haiku 5.5，Claude Console 數字）：輸入 5,570,065 個 token、輸出 28,585 個，包含開發時的測試。輸入大多是講稿：每次請求都會帶著它，名字和術語才會對；它從提示快取讀取，所以幾乎不花錢。語音辨識跑在自己的 GPU 上，不用錢。
 
@@ -102,7 +102,7 @@ Apache License 2.0，見 [LICENSE](LICENSE) 與 [NOTICE](NOTICE)；從其他專�
 
 **Understand the meeting. Answer in your own voice.**
 
-For people who join meetings, talks and Q&A in English but read it better than they speak it. Type what you mean in your own language; OwnVoice Meet turns it into short, natural English that you read aloud. The words are yours, and so is the voice. The interface is in Traditional Chinese for now.
+For people who can follow a meeting in English but can't always find the words in the moment, and still want to answer in their own words and their own voice. Type what you mean in your own language; OwnVoice Meet turns it into short, natural English that you read aloud. The words are yours, and so is the voice. The interface is in Traditional Chinese for now.
 
 Status: 0.1.1, Windows. Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The demo above was recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script; the questions are text-to-speech.
 
@@ -124,7 +124,7 @@ It does not answer for you. There are no AI-written replies and no synthetic voi
 
 ### How it started
 
-I'm Zaious, an independent researcher from Taiwan, and I read English much better than I speak it. On 16 October 2026 I had an online demo at JCDL 2026, the ACM/IEEE Joint Conference on Digital Libraries: a one-minute pitch, then questions in breakout rooms. That afternoon I built a first version in about two hours (Python, Whisper on my own GPU, Claude Haiku 5.5) and kept it open through the whole 1.5-hour session: captions with the Chinese meaning while others spoke, my bilingual script and prepared answers beside them, and the reply box for anything I had not prepared.
+I'm Zaious, an independent researcher from Taiwan. I read English well, but in a meeting I often can't find the words in time. On 16 October 2026 I had an online demo at JCDL 2026, the ACM/IEEE Joint Conference on Digital Libraries: a one-minute pitch, then questions in breakout rooms. That afternoon I built a first version in about two hours (Python, Whisper on my own GPU, Claude Haiku 5.5) and kept it open through the whole 1.5-hour session: captions with the Chinese meaning while others spoke, my bilingual script and prepared answers beside them, and the reply box for anything I had not prepared.
 
 Translation for that whole day cost **US$0.11** on Claude Haiku 5.5, according to the Claude Console: 5,570,065 input tokens and 28,585 output tokens, including the testing while I built it. Most of the input is the prepared script, which goes with every request so names and terms come out right; it is read from the prompt cache, which is why it costs so little. Speech recognition ran on my own GPU, so it cost nothing.
 
