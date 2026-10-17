@@ -158,7 +158,9 @@ try {
   $slider = Find-Desc $main ([System.Windows.Automation.ControlType]::Slider)
   $sr = $slider.Current.BoundingRectangle
   [void][Win]::SetForegroundWindow((Hwnd $main)); Start-Sleep -Milliseconds 300
-  ClickAt ($sr.X + 2) ($sr.Y + $sr.Height / 2); Start-Sleep -Milliseconds 800
+  # Set the value through UI Automation: it fires the page's input event like a drag does, and does
+  # not depend on where the slider sits once the toolbar wraps (a click there could hit the backdrop).
+  $slider.GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).SetValue(40); Start-Sleep -Milliseconds 800
   $after = & $px
   "opacity_fades_background=" + ($before.R -lt 40 -and $after.R -gt 100) + " (pixel $($before.R),$($before.G),$($before.B) -> $($after.R),$($after.G),$($after.B))"
   "opacity_saved=" + ((View-Setting).captions.opacity) + "%"

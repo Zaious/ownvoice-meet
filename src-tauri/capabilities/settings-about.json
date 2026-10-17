@@ -1,0 +1,16 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "settings-about",
+  "description": "The About section in Settings may open the sponsor page, the source repository and the credited project, and nothing else.",
+  "windows": ["settings"],
+  "permissions": [
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        { "url": "https://portaly.cc/chroniclecore" },
+        { "url": "https://github.com/Zaious/ownvoice-meet" },
+        { "url": "https://github.com/SakiRinn/LiveCaptions-Translator" }
+      ]
+    }
+  ]
+}

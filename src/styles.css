@@ -98,6 +98,9 @@ kbd { font: 11px var(--font-read); color: var(--muted); }
 .lc-setup .how { color: var(--muted); margin: 2px 0 0; }
 .lc-setup .how button { margin-top: 4px; }
 .lc-setup .verdict { margin: 8px 0 0; font-size: 13px; }
+.about-name { margin: 0 0 4px; }
+.extlink { color: var(--accent); font-size: 13px; text-decoration: none; }
+.extlink:hover { text-decoration: underline; }
 .getkey, .outlink { color: var(--accent); font-size: 12px; text-decoration: none; margin-left: 4px; }
 .getkey:hover, .outlink:hover { text-decoration: underline; }
 .usage { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }

@@ -133,7 +133,9 @@ async function showKeyState(): Promise<void> {
 }
 
 // Key pages open in the browser (only these three are allowed: capabilities/settings-links.json).
-for (const link of document.querySelectorAll<HTMLAnchorElement>('a.getkey')) {
+// Key pages and About links open in the browser; capabilities/settings-links.json and
+// settings-about.json list the only addresses allowed.
+for (const link of document.querySelectorAll<HTMLAnchorElement>('a.getkey, a.extlink')) {
   link.addEventListener('click', (e) => {
     e.preventDefault();
     void openUrl(link.href);
