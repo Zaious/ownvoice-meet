@@ -44,6 +44,22 @@ OwnVoice Meet sends Chat Completions requests with streaming to `POST <server>/c
 
 Small local models vary a lot in Traditional Chinese and Taiwanese usage. Try a few sentences from a real meeting before relying on one; the glossary in Settings helps with names and terms.
 
+### A ChatGPT account instead of an API key (unofficial, at your own risk)
+
+[openai-oauth](https://github.com/EvanZhouDev/openai-oauth) (Apache-2.0) runs a local OpenAI-compatible endpoint backed by your own ChatGPT account, so translation can work without an OpenAI API key:
+
+```
+npx openai-oauth@latest
+```
+
+It prints an endpoint such as `http://127.0.0.1:10531/v1` and the models your account can use. In Settings choose **本機模型**, put that address in 伺服器網址 and one of the listed models in 模型名稱.
+
+Know what you are using:
+- It is a community project, not affiliated with OpenAI. It signs in the way the Codex CLI does (credentials in `~/.codex`). OpenAI can change or block that at any time, and you are responsible for following OpenAI's terms for your account.
+- Use only your own account; never share the credentials.
+- It covers translation and replies only. Listening still needs a speech option (Gemini, an OpenAI API key, or a local Whisper server).
+- OwnVoice Meet does not bundle it or sign in for you; you run it yourself.
+
 ## Apple devices (planned)
 
 On-device speech recognition (SpeechAnalyzer) and translation (Foundation Models) need macOS 26 on Apple Silicon. They appear in the switcher as planned and are not built yet; macOS system-audio capture comes first.
