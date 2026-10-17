@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "eztrans",
+  "productName": "OwnVoice Meet",
   "version": "0.1.0",
-  "identifier": "io.github.zaious.eztrans",
+  "identifier": "io.github.zaious.ownvoice-meet",
   "build": {
     "devUrl": "http://localhost:1420",
     "frontendDist": "../dist",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "eztrans",
+        "title": "OwnVoice Meet",
         "url": "index.html",
         "width": 760,
         "height": 460,
@@ -33,9 +33,9 @@
     "publisher": "ChronicleCore Studio",
     "copyright": "Copyright 2026 ChronicleCore Studio. Apache License 2.0.",
     "category": "Productivity",
-    "shortDescription": "Live meeting interpreter.",
-    "longDescription": "Captions with translation for online meetings, a teleprompter that turns what you type into English to read aloud, and a bilingual script panel.",
-    "homepage": "https://github.com/Zaious/eztrans",
+    "shortDescription": "Understand the meeting. Answer in your own voice.",
+    "longDescription": "Type what you mean in your own language and read short, natural English aloud in your own voice. Live captions with translation and a bilingual script panel help you follow and prepare.",
+    "homepage": "https://github.com/Zaious/ownvoice-meet",
     "resources": {
       "../LICENSE": "LICENSE.txt",
       "../NOTICE": "NOTICE.txt"

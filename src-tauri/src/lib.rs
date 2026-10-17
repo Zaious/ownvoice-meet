@@ -201,9 +201,9 @@ fn start_demo(app: AppHandle) {
 
 pub fn run() {
     // Development keys from the repo's git-ignored .env.local; release builds never read it.
-    // EZTRANS_NO_DEV_KEYS=1 skips it, so checks can see the app as a new user would.
+    // OWNVOICE_NO_DEV_KEYS=1 skips it, so checks can see the app as a new user would.
     #[cfg(debug_assertions)]
-    if std::env::var_os("EZTRANS_NO_DEV_KEYS").is_none_or(|v| v != "1") {
+    if std::env::var_os("OWNVOICE_NO_DEV_KEYS").is_none_or(|v| v != "1") {
         let _ = dotenvy::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/../.env.local"));
     }
     // One TLS crypto provider for both the WebSocket and the HTTP client.
@@ -239,12 +239,12 @@ pub fn run() {
             start_demo
         ])
         .setup(|app| {
-            // EZTRANS_DEMO=1 starts the demo on launch (screenshots and smoke checks).
-            if std::env::var_os("EZTRANS_DEMO").is_some_and(|v| v == "1") {
+            // OWNVOICE_DEMO=1 starts the demo on launch (screenshots and smoke checks).
+            if std::env::var_os("OWNVOICE_DEMO").is_some_and(|v| v == "1") {
                 demo::start(app.handle().clone());
             }
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("error while running eztrans");
+        .expect("error while running OwnVoice Meet");
 }

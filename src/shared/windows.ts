@@ -7,9 +7,9 @@ import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 export type OptionalWindow = 'reply' | 'script' | 'settings';
 
 const SPEC: Record<OptionalWindow, { url: string; title: string; width: number; height: number }> = {
-  reply: { url: 'reply.html', title: 'eztrans · Reply', width: 640, height: 360 },
-  script: { url: 'script.html', title: 'eztrans · Script', width: 620, height: 760 },
-  settings: { url: 'settings.html', title: 'eztrans · Settings', width: 560, height: 720 },
+  reply: { url: 'reply.html', title: 'OwnVoice Meet · Reply', width: 640, height: 360 },
+  script: { url: 'script.html', title: 'OwnVoice Meet · Script', width: 620, height: 760 },
+  settings: { url: 'settings.html', title: 'OwnVoice Meet · Settings', width: 560, height: 720 },
 };
 
 const creating = new Map<OptionalWindow, Promise<WebviewWindow | null>>();

@@ -48,7 +48,7 @@ impl Default for Usage {
 }
 
 fn path(app: &AppHandle) -> Option<PathBuf> {
-    if let Some(dir) = std::env::var_os("EZTRANS_CONFIG_DIR").filter(|d| !d.is_empty()) {
+    if let Some(dir) = std::env::var_os("OWNVOICE_CONFIG_DIR").filter(|d| !d.is_empty()) {
         return Some(PathBuf::from(dir).join("usage.json"));
     }
     app.path().app_config_dir().ok().map(|d| d.join("usage.json"))

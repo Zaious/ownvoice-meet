@@ -1,8 +1,8 @@
 {
-  "name": "eztrans",
+  "name": "ownvoice-meet",
   "version": "0.1.0",
   "private": true,
-  "description": "Live meeting interpreter: captions with translation, a reply teleprompter, and a bilingual script panel.",
+  "description": "Understand the meeting. Answer in your own voice.",
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {

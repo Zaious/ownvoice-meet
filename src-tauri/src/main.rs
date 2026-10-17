@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    eztrans_lib::run()
+    ownvoice_meet_lib::run()
 }

@@ -5,7 +5,7 @@
 //   serverContent.interimInputTranscription.text  live hypothesis while someone talks (gray)
 //   serverContent.inputTranscription.text         finalized text at a pause (white, translated)
 // A session streams for up to 10 minutes, so it is replaced before that, at a pause when possible.
-// EZTRANS_DEBUG=1 appends every raw server message to gemini-debug.log in the config folder.
+// OWNVOICE_DEBUG=1 appends every raw server message to gemini-debug.log in the config folder.
 
 use std::io::Write as _;
 use std::sync::Mutex;
@@ -208,7 +208,7 @@ fn parse(msg: Message, log: &impl Fn(&str)) -> Parsed {
 }
 
 fn debug_log(app: &AppHandle, text: &str) {
-    if std::env::var_os("EZTRANS_DEBUG").is_none_or(|v| v != "1") {
+    if std::env::var_os("OWNVOICE_DEBUG").is_none_or(|v| v != "1") {
         return;
     }
     let Ok(dir) = app.path().app_config_dir() else { return };

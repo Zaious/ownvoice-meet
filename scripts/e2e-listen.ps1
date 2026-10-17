@@ -1,6 +1,6 @@
-﻿# End-to-end listening check on Windows: launches eztrans with a given config folder, presses
+﻿# End-to-end listening check on Windows: launches OwnVoice Meet with a given config folder, presses
 # Listen, speaks English through the default speakers with Windows TTS, and reports the captions.
-#   powershell -ExecutionPolicy Bypass -File scripts\e2e-listen.ps1 -Exe src-tauri\target\debug\eztrans.exe -ConfigDir <folder>
+#   powershell -ExecutionPolicy Bypass -File scripts\e2e-listen.ps1 -Exe src-tauri\target\debug\ownvoice-meet.exe -ConfigDir <folder>
 # The config folder holds settings.json (which speech and translation options to use).
 param([string]$Exe, [string]$ConfigDir, [int]$WaitSeconds = 8)
 $ErrorActionPreference = 'Stop'
@@ -18,11 +18,11 @@ $UIA = [System.Windows.Automation.AutomationElement]
 $Scope = [System.Windows.Automation.TreeScope]
 $CT = [System.Windows.Automation.ControlType]
 
-$env:EZTRANS_CONFIG_DIR = $ConfigDir
+$env:OWNVOICE_CONFIG_DIR = $ConfigDir
 $p = Start-Process $Exe -PassThru
 function Main-Window {
   $byPid = New-Object System.Windows.Automation.PropertyCondition($UIA::ProcessIdProperty, $p.Id)
-  $byName = New-Object System.Windows.Automation.PropertyCondition($UIA::NameProperty, 'eztrans')
+  $byName = New-Object System.Windows.Automation.PropertyCondition($UIA::NameProperty, 'OwnVoice Meet')
   $UIA::RootElement.FindFirst($Scope::Children, (New-Object System.Windows.Automation.AndCondition($byPid, $byName)))
 }
 function Texts($w) {

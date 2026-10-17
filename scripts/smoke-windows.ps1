@@ -14,7 +14,7 @@ $A = [System.Windows.Automation.AutomationElement]
 $T = [System.Windows.Automation.TreeScope]
 
 function Find-Window($title, $timeout = 15) {
-  # Match the process too: another running app may also have a window titled "eztrans".
+  # Match the process too: another running app may also have a window titled "OwnVoice Meet".
   $byName = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty, $title)
   $byPid = New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::ProcessIdProperty, $p.Id)
   $cond = New-Object System.Windows.Automation.AndCondition($byName, $byPid)
@@ -54,12 +54,12 @@ function Texts($w) {
 
 # UIA reports physical pixels; without this, SetCursorPos is scaled on a 125% display and clicks drift.
 [void][Win]::SetProcessDPIAware()
-$env:EZTRANS_DEMO = '1'
+$env:OWNVOICE_DEMO = '1'
 # See the app as a new user would: no development keys from .env.local.
-$env:EZTRANS_NO_DEV_KEYS = '1'
+$env:OWNVOICE_NO_DEV_KEYS = '1'
 $p = Start-Process $Exe -PassThru
 try {
-  $main = Find-Window 'eztrans'
+  $main = Find-Window 'OwnVoice Meet'
   if (-not $main) { throw 'captions window not found' }
   Start-Sleep -Seconds 9   # let the demo play a few lines
   Shot $main "$Out\main.png"
@@ -68,10 +68,10 @@ try {
   "captions_has_en=" + ($t -match 'project update')
 
   "click_script=" + (Click $main '講稿')
-  $script = Find-Window 'eztrans · Script' 10
+  $script = Find-Window 'OwnVoice Meet · Script' 10
   "script_window=" + [bool]$script
   "click_reply=" + (Click $main '回覆')
-  $reply = Find-Window 'eztrans · Reply' 10
+  $reply = Find-Window 'OwnVoice Meet · Reply' 10
   "reply_window=" + [bool]$reply
   if ($reply) {
     # The web view's accessibility tree fills in after the window appears: wait for the text box.
@@ -98,7 +98,7 @@ try {
 
   # Settings opens; listening without a Gemini key points the user to it instead of failing quietly.
   "click_settings=" + (Click $main '⚙')
-  $settings = Find-Window 'eztrans · Settings' 10
+  $settings = Find-Window 'OwnVoice Meet · Settings' 10
   "settings_window=" + [bool]$settings
   if ($settings) { Start-Sleep -Milliseconds 800; Shot $settings "$Out\settings.png"; "settings_shows_key_state=" + ((Texts $settings) -match '已設定|未設定') }
   "click_listen=" + (Click $main '▶')
@@ -107,13 +107,13 @@ try {
 
   # closing the reply window by itself must flip the main button back
   if ($reply) { $reply.GetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern).Close(); Start-Sleep -Milliseconds 600 }
-  "reply_closed=" + (-not (Find-Window 'eztrans · Reply' 1))
+  "reply_closed=" + (-not (Find-Window 'OwnVoice Meet · Reply' 1))
   "app_alive_after_child_close=" + (-not $p.HasExited)
   # closing the captions window quits the whole app
   $main.GetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern).Close()
   [void]$p.WaitForExit(8000)
   "app_exited_with_main=" + $p.HasExited
-  "script_closed_with_main=" + (-not (Find-Window 'eztrans · Script' 1))
+  "script_closed_with_main=" + (-not (Find-Window 'OwnVoice Meet · Script' 1))
 } finally {
   if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force }
 }

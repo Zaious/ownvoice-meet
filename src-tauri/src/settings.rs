@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 
 const SETTINGS_MAX_BYTES: u64 = 256 * 1024;
-const KEYCHAIN_SERVICE: &str = "eztrans";
+const KEYCHAIN_SERVICE: &str = "ownvoice-meet";
 /// Keys the app can hold. "local" is optional (a vLLM server started with --api-key needs it).
 pub const PROVIDERS: [&str; 4] = ["anthropic", "openai", "gemini", "local"];
 
@@ -53,7 +53,7 @@ impl Default for Settings {
 }
 
 fn config_dir(app: &AppHandle) -> Result<PathBuf, String> {
-    if let Some(dir) = std::env::var_os("EZTRANS_CONFIG_DIR").filter(|d| !d.is_empty()) {
+    if let Some(dir) = std::env::var_os("OWNVOICE_CONFIG_DIR").filter(|d| !d.is_empty()) {
         return Ok(PathBuf::from(dir));
     }
     app.path().app_config_dir().map_err(|e| e.to_string())

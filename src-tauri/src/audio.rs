@@ -199,7 +199,7 @@ mod hardware {
         let (tx, mut rx) = mpsc::channel(256);
         let cap = start(16_000, tx, |_| {}).expect("capture starts");
         println!("device: {}", cap.device);
-        let ps = "Add-Type -AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('Testing the loopback capture for eztrans.')";
+        let ps = "Add-Type -AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('Testing the loopback capture for OwnVoice Meet.')";
         std::process::Command::new("powershell").args(["-NoProfile", "-Command", ps]).status().expect("tts");
         std::thread::sleep(Duration::from_millis(500));
         cap.stop();

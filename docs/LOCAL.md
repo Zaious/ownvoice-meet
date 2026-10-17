@@ -1,12 +1,12 @@
-# Running eztrans against your own servers
+# Running OwnVoice Meet against your own servers
 
-eztrans talks to local servers through the same doors as the cloud: an OpenAI-compatible transcription endpoint for listening, and an OpenAI-compatible chat endpoint for translation. There is no separate local code path; a local setup is a URL and a model name in **Settings**.
+OwnVoice Meet talks to local servers through the same doors as the cloud: an OpenAI-compatible transcription endpoint for listening, and an OpenAI-compatible chat endpoint for translation. There is no separate local code path; a local setup is a URL and a model name in **Settings**.
 
-Audio and text then stay on your machine. eztrans does not use a system proxy, so `localhost` addresses are reached directly.
+Audio and text then stay on your machine. OwnVoice Meet does not use a system proxy, so `localhost` addresses are reached directly.
 
 ## Listening: a local Whisper server
 
-eztrans posts each sentence as a 16 kHz mono WAV file to `POST <server>/audio/transcriptions` (multipart fields `file`, `model`, `language`, `response_format=json`) and reads `text` from the JSON reply. Any server that does that works.
+OwnVoice Meet posts each sentence as a 16 kHz mono WAV file to `POST <server>/audio/transcriptions` (multipart fields `file`, `model`, `language`, `response_format=json`) and reads `text` from the JSON reply. Any server that does that works.
 
 ### The bundled minimal server (tested)
 
@@ -35,7 +35,7 @@ Servers that implement the OpenAI transcription API should work the same way: pu
 
 ## Translation: a local language model
 
-eztrans sends Chat Completions requests with streaming to `POST <server>/chat/completions`. vLLM, Ollama and LM Studio all serve this API. Not yet tested by us; please report what works.
+OwnVoice Meet sends Chat Completions requests with streaming to `POST <server>/chat/completions`. vLLM, Ollama and LM Studio all serve this API. Not yet tested by us; please report what works.
 
 | Server | Start | Settings 伺服器網址 | 模型名稱 |
 |---|---|---|---|
@@ -50,8 +50,8 @@ On-device speech recognition (SpeechAnalyzer) and translation (Foundation Models
 
 ## Checking a setup
 
-`scripts/e2e-listen.ps1` launches eztrans with a settings folder of your choice, presses Listen, plays two English sentences through the speakers with Windows text-to-speech, and prints the captions:
+`scripts/e2e-listen.ps1` launches OwnVoice Meet with a settings folder of your choice, presses Listen, plays two English sentences through the speakers with Windows text-to-speech, and prints the captions:
 
 ```
-powershell -ExecutionPolicy Bypass -File scripts\e2e-listen.ps1 -Exe src-tauri\target\debug\eztrans.exe -ConfigDir <folder with settings.json>
+powershell -ExecutionPolicy Bypass -File scripts\e2e-listen.ps1 -Exe src-tauri\target\debug\ownvoice-meet.exe -ConfigDir <folder with settings.json>
 ```

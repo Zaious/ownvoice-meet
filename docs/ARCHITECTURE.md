@@ -1,6 +1,6 @@
 # Architecture
 
-eztrans helps someone take part in an online meeting held in a language they read better than they speak. It does three jobs, each in its own window:
+OwnVoice Meet helps someone take part in an online meeting held in a language they read better than they speak. It does three jobs, each in its own window:
 
 | Window | Required | What it does |
 |---|---|---|
@@ -79,4 +79,4 @@ Not yet: translation quality beyond single sentences (a blind comparison is plan
 - Hardware and network checks are `#[ignore]`d: `cargo test --lib -- --ignored --nocapture loopback` (needs a speaker as default output), `_bad` (rejected keys on every cloud path), `live_models` (translates with every model whose key is in `.env.local`, with timings and cost), `gemini_real`, `openai_rt_real`.
 - `scripts/e2e-listen.ps1` runs the whole listening chain against a settings folder of your choice.
 - `npm run typecheck`.
-- `npx tauri build --debug --no-bundle`, then `scripts/smoke-windows.ps1 -Exe src-tauri\target\debug\eztrans.exe -Out <folder>` launches the app in Demo mode, clicks through the windows with UI Automation and saves screenshots.
+- `npx tauri build --debug --no-bundle`, then `scripts/smoke-windows.ps1 -Exe src-tauri\target\debug\ownvoice-meet.exe -Out <folder>` launches the app in Demo mode, clicks through the windows with UI Automation and saves screenshots.

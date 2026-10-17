@@ -3,9 +3,9 @@
     pip install faster-whisper
     python scripts/local_whisper_server.py --model large-v3 --device cuda --port 8000
 
-Then in eztrans: Settings > 本機 Whisper, server http://localhost:8000/v1.
+Then in OwnVoice Meet: Settings > 本機 Whisper, server http://localhost:8000/v1.
 It implements only POST /v1/audio/transcriptions (multipart: file, model, language,
-response_format=json), which is all eztrans sends. For a fuller server, see docs/LOCAL.md.
+response_format=json), which is all OwnVoice Meet sends. For a fuller server, see docs/LOCAL.md.
 Standard library only, apart from faster-whisper; audio never leaves this machine.
 """
 import argparse
