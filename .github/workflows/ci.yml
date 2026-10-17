@@ -1,0 +1,49 @@
+# Every branch push and pull request: types and front-end tests on Linux; the Rust tests and a
+# release build (no installer) on a clean Windows machine, the platform OwnVoice Meet ships for.
+# Tests that call real services or need speakers are #[ignore] and do not run here.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      # The front end first: tauri's build script embeds dist/ into the crate.
+      - run: npm run build
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test --lib
+      - run: npm run tauri build -- --no-bundle
+      - name: The app was built
+        shell: pwsh
+        run: Get-Item src-tauri/target/release/ownvoice-meet.exe | Format-List Name, Length

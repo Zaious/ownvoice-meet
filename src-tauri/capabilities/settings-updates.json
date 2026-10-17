@@ -1,0 +1,17 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "settings-updates",
+  "description": "The settings window checks for a newer version: an installed copy downloads, verifies and installs it and restarts; any copy may open the release page in the browser.",
+  "windows": ["settings"],
+  "permissions": [
+    "updater:default",
+    "process:allow-restart",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        { "url": "https://github.com/Zaious/ownvoice-meet/releases" },
+        { "url": "https://github.com/Zaious/ownvoice-meet/releases/*" }
+      ]
+    }
+  ]
+}

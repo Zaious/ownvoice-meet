@@ -62,6 +62,15 @@
       </div>
       <table id="usage" class="usage"></table>
       <p class="hint">依官方牌價估算；實際費用以各家帳單為準。本機與裝置上的選項不計費。</p>
+
+      <h2>版本</h2>
+      <div class="actions">
+        <span id="version"></span>
+        <button type="button" id="check-update">檢查更新</button>
+        <button type="button" id="install-update" hidden>更新並重新啟動</button>
+        <a id="release-link" class="outlink" href="https://github.com/Zaious/ownvoice-meet/releases" hidden>下載頁 ↗</a>
+      </div>
+      <p id="update-note" class="hint">只有按「檢查更新」時才會連到 GitHub。</p>
     </form>
     <script type="module" src="/src/settings/main.ts"></script>
   </body>

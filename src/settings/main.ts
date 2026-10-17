@@ -1,11 +1,13 @@
 // The settings window: the speech and translation switchers (prices and descriptions from the Rust
 // catalog), local server fields, API keys (write-only; only whether a key is set comes back), the
-// glossary, and estimated usage.
+// glossary, estimated usage, and the version with "Check for updates".
 
+import { getVersion } from '@tauri-apps/api/app';
 import { invoke } from '@tauri-apps/api/core';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import type { CatalogModel, Settings, UsageReport, UsageRow } from '../shared/types.ts';
 import { hourlyLine, money, priceLine } from './price.ts';
+import { findNewer, installKind, installNewer, RELEASES_URL, type InstallKind, type Newer } from './updates.ts';
 
 const PROVIDERS = ['anthropic', 'openai', 'gemini', 'local'] as const;
 const form = document.querySelector<HTMLFormElement>('#form')!;
@@ -115,6 +117,62 @@ for (const b of document.querySelectorAll<HTMLButtonElement>('#usage-tabs [data-
 }
 document.querySelector('#usage-refresh')!.addEventListener('click', () => void loadUsage());
 
+// ---------- version and updates ----------
+// Nothing is asked until the user presses "Check for updates". Only an installed copy updates
+// itself; a portable copy or a dev build gets the release page.
+const checkBtn = document.querySelector<HTMLButtonElement>('#check-update')!;
+const installBtn = document.querySelector<HTMLButtonElement>('#install-update')!;
+const releaseLink = document.querySelector<HTMLAnchorElement>('#release-link')!;
+const updateNote = document.querySelector<HTMLElement>('#update-note')!;
+let appVersion = '';
+let kind: InstallKind = 'other';
+let newer: Newer | null = null;
+
+const KIND_LABEL: Record<InstallKind, string> = { installed: '安裝版', portable: '免安裝版', other: '開發版' };
+
+async function showVersion(): Promise<void> {
+  [appVersion, kind] = await Promise.all([getVersion().catch(() => ''), installKind()]);
+  document.querySelector('#version')!.textContent = `OwnVoice Meet ${appVersion}（${KIND_LABEL[kind]}）`;
+}
+
+checkBtn.addEventListener('click', async () => {
+  checkBtn.disabled = true;
+  installBtn.hidden = true;
+  updateNote.textContent = '檢查中…';
+  newer = await findNewer(appVersion, kind);
+  checkBtn.disabled = false;
+  if (!newer) {
+    updateNote.textContent = '已是最新版本（或暫時連不到 GitHub）。';
+    return;
+  }
+  releaseLink.href = newer.url;
+  releaseLink.hidden = false;
+  if (newer.update) {
+    installBtn.hidden = false;
+    updateNote.textContent = `有新版本 ${newer.tag}。按「更新並重新啟動」：下載、驗證簽章、安裝，然後重新開啟。`;
+  } else {
+    updateNote.textContent = kind === 'portable'
+      ? `有新版本 ${newer.tag}。免安裝版不會自己更新：到下載頁下載新的 zip。`
+      : `有新版本 ${newer.tag}，見下載頁。`;
+  }
+});
+
+installBtn.addEventListener('click', async () => {
+  if (!newer?.update) return;
+  installBtn.disabled = checkBtn.disabled = true;
+  try {
+    await installNewer(newer, (pct) => { updateNote.textContent = pct === null ? '下載中…' : `下載中… ${pct}%`; });
+  } catch (err) {
+    updateNote.textContent = `更新失敗：${String(err)}。可以到下載頁手動安裝。`;
+    installBtn.disabled = checkBtn.disabled = false;
+  }
+});
+
+releaseLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  void openUrl(releaseLink.href || RELEASES_URL);
+});
+
 // ---------- load and save ----------
 async function load(): Promise<void> {
   const [s, catalog] = await Promise.all([invoke<Settings>('get_settings'), invoke<CatalogModel[]>('catalog')]);
@@ -129,7 +187,7 @@ async function load(): Promise<void> {
   field('local_llm_url').value = s.local_llm_url;
   field('local_llm_model').value = s.local_llm_model;
   showLocalFields();
-  await Promise.all([showKeyState(), loadUsage()]);
+  await Promise.all([showKeyState(), loadUsage(), showVersion()]);
 }
 
 form.addEventListener('change', (e) => {

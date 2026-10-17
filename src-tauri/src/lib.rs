@@ -199,6 +199,19 @@ fn start_demo(app: AppHandle) {
     demo::start(app);
 }
 
+/// How this copy was installed. "installed" (the Windows installer, which writes uninstall.exe next to
+/// the app) may update itself; "portable" (the zip) and "other" (a dev build, other platforms for now)
+/// only get a link to the download page.
+#[tauri::command]
+fn install_kind() -> &'static str {
+    if cfg!(debug_assertions) || !cfg!(target_os = "windows") {
+        return "other";
+    }
+    let Ok(exe) = std::env::current_exe() else { return "other" };
+    let installed = exe.parent().is_some_and(|d| d.join("uninstall.exe").is_file());
+    if installed { "installed" } else { "portable" }
+}
+
 pub fn run() {
     // Development keys from the repo's git-ignored .env.local; release builds never read it.
     // OWNVOICE_NO_DEV_KEYS=1 skips it, so checks can see the app as a new user would.
@@ -236,9 +249,18 @@ pub fn run() {
             key_status,
             catalog,
             usage_report,
-            start_demo
+            start_demo,
+            install_kind
         ])
+        // The restart after an in-app update.
+        .plugin(tauri_plugin_process::init())
         .setup(|app| {
+            // In-app updates (only when the user presses Update). The updater's key and address come
+            // from tauri.updater.conf.json, which only release builds made with the update key merge
+            // in; without it the plugin is left out and Settings offers the download page instead.
+            if app.config().plugins.0.contains_key("updater") {
+                app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
+            }
             // OWNVOICE_DEMO=1 starts the demo on launch (screenshots and smoke checks).
             if std::env::var_os("OWNVOICE_DEMO").is_some_and(|v| v == "1") {
                 demo::start(app.handle().clone());

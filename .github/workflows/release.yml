@@ -1,0 +1,95 @@
+# A version tag (v0.1.0) builds Windows into a DRAFT release: nothing is public until the maintainer
+# reads it and presses Publish. Two downloads: the installer (per user, no admin; can update itself)
+# and a portable zip (never updates itself).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: The tag matches the version in package.json, Cargo.toml and tauri.conf.json
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'.TrimStart('v')
+          $versions = @{
+            'package.json' = (Get-Content -Raw package.json | ConvertFrom-Json).version
+            'src-tauri/tauri.conf.json' = (Get-Content -Raw src-tauri/tauri.conf.json | ConvertFrom-Json).version
+            'src-tauri/Cargo.toml' = ([regex]::Match((Get-Content -Raw src-tauri/Cargo.toml), '(?m)^version = "([^"]+)"')).Groups[1].Value
+          }
+          $bad = $versions.GetEnumerator() | Where-Object { $_.Value -ne $tag }
+          $versions.GetEnumerator() | ForEach-Object { "$($_.Key): $($_.Value)" }
+          if ($bad) { throw "tag v$tag does not match every version above" }
+      - run: npm ci
+      - name: Third-party licences
+        run: node scripts/third-party-licenses.mjs
+      # In-app updates: with the maintainer's update key (tools/updater-key.ps1), the installer also
+      # gets a signed update file and the release a latest.json, which installed copies read from the
+      # latest release. Without the key (a fork) the build goes on as before, and its copies only see
+      # a link to the download page. Only secrets that exist are passed on: Tauri treats a variable
+      # that is set but empty as a key, and fails.
+      - name: Update signing key
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          if [ -n "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            if grep -q REPLACE_WITH_UPDATER_PUBLIC_KEY src-tauri/tauri.updater.conf.json; then
+              echo "::error::The update key is set but src-tauri/tauri.updater.conf.json still has the placeholder public key. Commit the file tools/updater-key.ps1 wrote."
+              exit 1
+            fi
+            {
+              echo "TAURI_SIGNING_PRIVATE_KEY<<KEY_EOF"; echo "$TAURI_SIGNING_PRIVATE_KEY"; echo "KEY_EOF"
+              echo "TAURI_SIGNING_PRIVATE_KEY_PASSWORD<<KEY_EOF"; echo "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD"; echo "KEY_EOF"
+              echo "UPDATER_CONFIG=--config src-tauri/tauri.updater.conf.json"
+            } >> "$GITHUB_ENV"
+            echo "update key: set"
+          else
+            echo "update key: not set"
+          fi
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: OwnVoice Meet ${{ github.ref_name }}
+          releaseBody: |
+            Windows 10 and 11. Two downloads:
+            - `OwnVoice.Meet_*_x64-setup.exe`: installs for your user only (no administrator rights) and can update itself from Settings.
+            - `OwnVoice.Meet_*_x64_portable.zip`: unzip and run; never updates itself.
+            The builds are not code-signed yet: Windows may say "Windows protected your PC"; choose More info, then Run anyway.
+          releaseDraft: true
+          prerelease: false
+          args: --bundles nsis --config src-tauri/tauri.release.conf.json ${{ env.UPDATER_CONFIG }}
+      - name: Windows portable zip (no install, no admin)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $v = '${{ github.ref_name }}'.TrimStart('v')
+          $dir = "OwnVoice Meet ${v} portable"
+          New-Item -ItemType Directory $dir | Out-Null
+          Copy-Item src-tauri/target/release/ownvoice-meet.exe "$dir/OwnVoice Meet.exe"
+          Copy-Item LICENSE "$dir/LICENSE.txt"
+          Copy-Item NOTICE "$dir/NOTICE.txt"
+          Copy-Item THIRD_PARTY_LICENSES.txt "$dir/THIRD_PARTY_LICENSES.txt"
+          Copy-Item docs/PORTABLE.txt "$dir/README.txt"
+          $zip = "OwnVoice.Meet_${v}_x64_portable.zip"
+          Compress-Archive -Path $dir -DestinationPath $zip
+          gh release upload '${{ github.ref_name }}' $zip --clobber
