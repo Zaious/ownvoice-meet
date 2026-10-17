@@ -33,8 +33,8 @@ No. I type what I mean in Chinese, and it gives me short English to read aloud.
 > 不會。我用中文打我想說的，它給我好唸的英文短句。
 Q: How much does it cost?
 > 問：要花多少錢？
-Translation cost about eleven cents for my whole conference day, with my own key.
-> 我整個研討會那天的翻譯費大約 0.11 美元，用我自己的 key。
+Translation cost about eleven cents for my ninety-minute session, with my own key.
+> 我那場一個半小時的場次，翻譯費大約 0.11 美元，用我自己的 key。
 
 ## 救急句
 Sorry, could you repeat the question?

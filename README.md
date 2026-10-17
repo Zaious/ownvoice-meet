@@ -34,7 +34,7 @@
 
 我是 Zaious，來自台灣的獨立研究者（ChronicleCore Studio 編年史記工作室），英文看得懂，但開會時常常一下子想不出該怎麼說。2026 年 10 月 16 日，我要在 JCDL 2026（ACM/IEEE 數位圖書館聯合會議）的線上 Demo 場發表：一分鐘簡報，接著在 breakout room 回答提問。當天下午我花大約兩小時做出第一版（Python、自己 GPU 上的 Whisper、Claude Haiku 5.5），開著它撐完 1.5 小時的場次：別人說話時看字幕和中文意思，旁邊是中英對照的講稿和準備好的回答，沒準備到的就用回覆框。
 
-那一整天的翻譯費用是 **0.11 美元**（Claude Haiku 5.5，Claude Console 數字）：輸入 5,570,065 個 token、輸出 28,585 個，包含開發時的測試。輸入大多是講稿：每次請求都會帶著它，名字和術語才會對；它從提示快取讀取，所以幾乎不花錢。語音辨識跑在自己的 GPU 上，不用錢。
+那一晚一個半多小時的場次，翻譯費用是 **0.11 美元**（Claude Haiku 5.5，Claude Console 數字）：輸入 5,570,065 個 token、輸出 28,585 個。輸入大多是講稿：每次請求都會帶著它，名字和術語才會對；它從提示快取讀取，所以幾乎不花錢。語音辨識跑在自己的 GPU 上，不用錢。
 
 之後很多人來要這個工具。OwnVoice Meet 就是為了分享而重做的版本：語音辨識可以走雲端或在電腦上跑，不需要 GPU，服務也由你挑。那天晚上講稿的公開部分（簡報和準備好的回答）在 [examples/scripts/journal-atlas-jcdl2026.md](examples/scripts/journal-atlas-jcdl2026.md)。
 
@@ -68,7 +68,7 @@
 
 ## 下載
 
-Windows 10、11，到 [Releases](https://github.com/Zaious/ownvoice-meet/releases)：
+Windows 10、11，到 [最新版下載頁](https://github.com/Zaious/ownvoice-meet/releases/latest)：
 
 - **安裝版**（`OwnVoice.Meet_<版本>_x64-setup.exe`）：只裝給目前使用者，不需要系統管理員權限。設定 → 檢查更新會找到新版，按「更新並重新啟動」會先驗證簽章再安裝。
 - **免安裝版**（`OwnVoice.Meet_<版本>_x64_portable.zip`）：解壓縮到任何地方，執行 `OwnVoice Meet.exe`。不會自己更新；檢查更新會帶你到下載頁。
@@ -126,7 +126,7 @@ It does not answer for you. There are no AI-written replies and no synthetic voi
 
 I'm Zaious, an independent researcher from Taiwan. I read English well, but in a meeting I often can't find the words in time. On 16 October 2026 I had an online demo at JCDL 2026, the ACM/IEEE Joint Conference on Digital Libraries: a one-minute pitch, then questions in breakout rooms. That afternoon I built a first version in about two hours (Python, Whisper on my own GPU, Claude Haiku 5.5) and kept it open through the whole 1.5-hour session: captions with the Chinese meaning while others spoke, my bilingual script and prepared answers beside them, and the reply box for anything I had not prepared.
 
-Translation for that whole day cost **US$0.11** on Claude Haiku 5.5, according to the Claude Console: 5,570,065 input tokens and 28,585 output tokens, including the testing while I built it. Most of the input is the prepared script, which goes with every request so names and terms come out right; it is read from the prompt cache, which is why it costs so little. Speech recognition ran on my own GPU, so it cost nothing.
+Translation for that evening, a session of an hour and a half and a bit, cost **US$0.11** on Claude Haiku 5.5, according to the Claude Console: 5,570,065 input tokens and 28,585 output tokens. Most of the input is the prepared script, which goes with every request so names and terms come out right; it is read from the prompt cache, which is why it costs so little. Speech recognition ran on my own GPU, so it cost nothing.
 
 Many people asked for the tool afterwards. OwnVoice Meet is that tool rebuilt to be shared: speech recognition in the cloud or on the device, so you do not need a GPU, and your choice of providers. Press **Demo** to see all three windows without audio or keys.
 
@@ -152,7 +152,7 @@ Meeting audio goes to the speech service you choose, and text to the language mo
 
 ### Download
 
-Windows 10 and 11, from [Releases](https://github.com/Zaious/ownvoice-meet/releases):
+Windows 10 and 11, from [the latest release](https://github.com/Zaious/ownvoice-meet/releases/latest):
 
 - **Installer** (`OwnVoice.Meet_<version>_x64-setup.exe`): installs for your user only, no administrator rights. Settings > Check for updates finds a newer version, and Update installs it after checking its signature.
 - **Portable** (`OwnVoice.Meet_<version>_x64_portable.zip`): unzip anywhere and run `OwnVoice Meet.exe`. It never updates itself; Check for updates links to the download page.

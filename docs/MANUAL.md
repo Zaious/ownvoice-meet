@@ -6,7 +6,7 @@
 
 ## 1. 安裝
 
-1. 到 [Releases](https://github.com/Zaious/ownvoice-meet/releases) 下載：
+1. 到 [最新版下載頁](https://github.com/Zaious/ownvoice-meet/releases/latest) 下載：
    - **安裝版** `…_x64-setup.exe`：只裝給目前使用者，不需要系統管理員權限。之後在設定 → **檢查更新** 就能一鍵更新。
    - **免安裝版** `…_x64_portable.zip`：解壓縮到任何地方，執行 `OwnVoice Meet.exe`。不會自己更新，有新版要重新下載。
 2. 程式還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按 **其他資訊** → **仍要執行**。
@@ -93,13 +93,13 @@
 | **雲端、有灰字** | Gemini 3.5 Transcribe Live（US$0.54） | 同上 | **US$0.57** | 最順的即時字幕 |
 | 雲端、有灰字 | OpenAI gpt-live-transcribe（US$1.02） | 同上 | US$1.05 | 已經用 OpenAI 的人 |
 
-實例：作者在 JCDL 2026 一整天（含 1.5 小時場次與開發測試）的 Claude Haiku 5.5 翻譯費用是 **0.11 美元**；那時語音辨識跑在自己的顯卡上，不用錢。
+實例：作者在 JCDL 2026 那一晚一個半多小時的場次，Claude Haiku 5.5 翻譯費用是 **0.11 美元**；那時語音辨識跑在自己的顯卡上，不用錢。
 
 ### 省錢技巧
 
 1. **翻譯選最快一級**：Claude Haiku 5.5、gpt-6-luna（每小時約 0.03 美元）。Sonnet 5.5、gpt-6.1-sol 約貴 20 倍，即時字幕通常用不到；Gemini 3.8 Flash 實測每句 4–7 秒，對字幕太慢。
 2. **不開會就按停止**：Gemini Live 連**安靜的時間**也照秒計費；OpenAI gpt-live-transcribe 只送有人講話的部分。休息、等人時按 ■ 停止。
-3. **講稿長沒關係**：講稿每次都會一起送出，但走「快取讀取」，費用約一般輸入的一成。JCDL 那天 557 萬個輸入 token 只花 0.11 美元，大部分就是講稿。
+3. **講稿長沒關係**：講稿每次都會一起送出，但走「快取讀取」，費用約一般輸入的一成。JCDL 那一晚 557 萬個輸入 token 只花 0.11 美元，大部分就是講稿。
 4. **長句先翻**會多幾次翻譯呼叫（用量裡標示 `early`），每小時多幾美分；想再省可以選不出灰字的辨識。
 5. **用 ChatGPT 帳號翻譯**（非官方、風險自負）：見 [docs/LOCAL.md](LOCAL.md) 的 openai-oauth 一節，翻譯可以不用 OpenAI API key。
 6. **Gemini 免費層**：不付費也能用，但會議內容會被 Google 拿去改進產品。要省錢還是要隱私，由你決定；會議有保密要求就用付費層。
