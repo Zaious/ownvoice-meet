@@ -1,14 +1,21 @@
 // The desktop shell: the session state, the commands the windows call, and window lifetime.
-// Listening = system audio (audio.rs) -> Gemini Live (gemini.rs) -> captions; each finished caption
-// is translated by Claude (llm.rs). Replies go through Claude too.
+// Listening = system audio (audio.rs) -> the speech-to-text option chosen in settings (gemini.rs,
+// openai_rt.rs, stt_chunk.rs) -> captions; each finished caption is translated by the chosen
+// language model (llm.rs), which also writes replies. Options and prices live in catalog.rs.
 
 mod audio;
+mod captions;
+mod catalog;
 mod demo;
 mod gemini;
 mod llm;
+mod openai_rt;
 mod prompts;
 mod session;
 mod settings;
+mod stt_chunk;
+mod usage;
+mod vad;
 
 use std::collections::HashMap;
 use std::sync::Mutex;
@@ -92,17 +99,28 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
     if l.capture.is_some() {
         return Ok(true);
     }
-    let Some(key) = settings::get_key("gemini") else {
-        set_status(&app, "請先到「設定」填 Gemini API key");
+    let s = settings::load(&app);
+    let Some(m) = catalog::find(&s.stt_id).filter(|m| m.available) else {
+        set_status(&app, "請到「設定」選一個可用的語音辨識");
         return Ok(false);
     };
-    let s = settings::load(&app);
+    // Each option needs its own key (local servers may not need one).
+    let key = settings::get_key(m.provider);
+    if key.is_none() && m.provider != "local" {
+        set_status(&app, format!("請先到「設定」填 {} 的 API key", settings::display_name(m.provider)));
+        return Ok(false);
+    }
+    let rate = match m.transport {
+        "openai-live" => openai_rt::RATE,
+        "gemini-live" => gemini::RATE,
+        _ => stt_chunk::RATE,
+    };
     let (tx, rx) = mpsc::channel::<Vec<i16>>(64);
     let level_app = app.clone();
-    let cap = audio::start(tx, move |rms| {
+    let cap = audio::start(rate, tx, move |rms| {
         let _ = level_app.emit("level", rms);
     })?;
-    set_status(&app, format!("連線中…（{}）", cap.device));
+    set_status(&app, format!("連線中…（{} · {}）", m.label, cap.device));
     l.generation += 1;
     let generation = l.generation;
     l.capture = Some(cap);
@@ -110,8 +128,23 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
     set_listening_flag(&app, true);
 
     let task_app = app.clone();
+    let language = s.stt_language.clone();
     tauri::async_runtime::spawn(async move {
-        gemini::run(task_app.clone(), key, s.stt_model, s.stt_language, rx).await;
+        let a = task_app.clone();
+        match m.transport {
+            "gemini-live" => gemini::run(a, key.unwrap_or_default(), m.api_model.into(), language, rx).await,
+            "openai-live" => openai_rt::run(a, m.id.into(), key.unwrap_or_default(), m.api_model.into(), captions::iso639(&language), rx).await,
+            _ => {
+                let (base_url, model) = if m.provider == "local" {
+                    (s.local_stt_url.clone(), s.local_stt_model.clone())
+                } else {
+                    ("https://api.openai.com/v1".to_string(), m.api_model.to_string())
+                };
+                let cfg = stt_chunk::Config { catalog_id: m.id.into(), base_url, key, model, language: captions::iso639(&language) };
+                stt_chunk::run(a, cfg, rx).await
+            }
+        }
+        usage::flush(&task_app);
         // The pipeline ended on its own (a rejected key, say): stop the capture it was fed by.
         let slot = task_app.state::<Mutex<Listener>>();
         if let Ok(mut l) = slot.lock() {
@@ -124,6 +157,18 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
         };
     });
     Ok(true)
+}
+
+/// The options shown in the settings switcher, with prices and descriptions.
+#[tauri::command]
+fn catalog() -> &'static [catalog::Model] {
+    catalog::MODELS
+}
+
+/// Estimated usage and cost: this run, today, this month.
+#[tauri::command]
+fn usage_report(app: AppHandle) -> usage::Report {
+    usage::report(&app)
 }
 
 #[tauri::command]
@@ -155,6 +200,9 @@ fn start_demo(app: AppHandle) {
 }
 
 pub fn run() {
+    // Development keys from the repo's git-ignored .env.local; release builds never read it.
+    #[cfg(debug_assertions)]
+    let _ = dotenvy::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/../.env.local"));
     // One TLS crypto provider for both the WebSocket and the HTTP client.
     let _ = rustls::crypto::ring::default_provider().install_default();
     tauri::Builder::default()
@@ -163,10 +211,12 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .manage(Mutex::new(Session::default()))
         .manage(Mutex::new(Listener::default()))
+        .manage(Mutex::new(usage::Usage::default()))
         .manage(llm::Http(reqwest::Client::new()))
         // Closing the captions window quits; the optional windows go with it.
         .on_window_event(|window, event| {
             if window.label() == "main" && matches!(event, tauri::WindowEvent::Destroyed) {
+                usage::flush(window.app_handle());
                 window.app_handle().exit(0);
             }
         })
@@ -179,6 +229,8 @@ pub fn run() {
             save_settings,
             set_key,
             key_status,
+            catalog,
+            usage_report,
             start_demo
         ])
         .setup(|app| {

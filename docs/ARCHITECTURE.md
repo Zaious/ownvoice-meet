@@ -28,14 +28,22 @@ Separate windows let each one sit where it helps: captions along the bottom of t
 
 ## Providers (cloud first, local through the same doors)
 
-| Job | Default | Local option |
+Every option, with list prices and a description in one format (speed, strength, caution, needs), is defined once in `src-tauri/src/catalog.rs`. The settings switcher, the usage costs and these docs read from it.
+
+| Job | Options | Wire format |
 |---|---|---|
-| Speech-to-text | A streaming cloud service with interim results | Any server that speaks the OpenAI transcription API (for example a self-hosted faster-whisper server) |
-| Translation and replies | Anthropic Claude, `claude-haiku-5-5` at low effort | Any OpenAI-compatible endpoint (vLLM, Ollama) |
+| Listening | Gemini 3.5 Transcribe Live, OpenAI gpt-live-transcribe | streaming WebSocket (`gemini.rs`, `openai_rt.rs`) |
+| | OpenAI gpt-4o-mini-transcribe, local Whisper | one WAV per sentence to `/audio/transcriptions` (`stt_chunk.rs`, cut by `vad.rs`) |
+| | Apple SpeechAnalyzer | planned (macOS) |
+| Translation and replies | Claude Haiku 5.5, Sonnet 5.5 | Anthropic Messages API, streaming |
+| | gpt-6-luna, gpt-6.1-sol, Gemini 3.5 Flash-Lite, Gemini 3.8 Flash, local vLLM / Ollama | Chat Completions, streaming (OpenAI, Gemini's OpenAI-compatible endpoint, local servers) |
+| | Apple Foundation Models | planned (macOS) |
 
-There is no local code path: a local setup is a URL in settings. `docs/LOCAL.md` (to come) explains how to run those servers.
+A local setup is a URL and a model name in settings; `docs/LOCAL.md` explains the servers. Each request uses the model's lowest thinking setting unless the user picks one (Claude `low`, OpenAI `none`, Gemini `minimal`), since a subtitle that arrives late is worth less.
 
-Keys are the user's own (bring your own key) and will be stored in the OS keychain, never in a plain file.
+Keys are the user's own (bring your own key), stored in the OS keychain and never sent back to a web view. Debug builds also read a git-ignored `.env.local` (see `.env.example`).
+
+Usage (`usage.rs`) counts audio seconds sent to speech services and the token counts each language-model response reports, per model and per local day, and prices them from the catalog. These are estimates; each provider's billing page is the authority.
 
 ## Behaviors carried over from the prototype
 
@@ -55,19 +63,20 @@ The first version was a PyQt app used at a live conference demo. These held up a
 
 ## Status
 
-Working and checked:
-- System audio capture (`audio.rs`): default output device in WASAPI loopback, 16 kHz mono 16-bit PCM in 100 ms chunks. Checked on real hardware with Windows TTS.
-- Gemini Live speech-to-text (`gemini.rs`): setup, audio, interim (gray) and final (white) captions, silence fill while loopback is quiet, reconnect before the 10-minute session limit, a bad key reported once instead of retried. The bad-key path was checked against the real endpoint; a full run needs a Gemini key.
-- Claude over the Messages API with streaming (`llm.rs`): caption translation and replies, script as a cached system block, glossary. Checked against the real API.
-- Settings window, keys in the OS keychain (environment variables as a development fallback).
+Checked against real services and hardware:
+- System audio capture (WASAPI loopback) with Windows text-to-speech.
+- Local Whisper end to end: loopback -> segmenter -> `scripts/local_whisper_server.py` -> captions (`scripts/e2e-listen.ps1`), both test sentences word for word.
+- Claude translation and replies (real key, earlier session).
+- Every cloud path reaches its real endpoint and reports a rejected key as a readable error, without retrying: Gemini Live, OpenAI realtime (the `?intent=transcription` URL passed the handshake), OpenAI and Gemini Chat Completions, Claude.
 
-Not yet: OpenAI-compatible providers (OpenAI, Groq, Gemini chat, vLLM, Ollama), other streaming speech providers, `docs/LOCAL.md`, the updater, release workflow. macOS needs ScreenCaptureKit (or a virtual audio device) for system audio and comes after Windows.
+Still to check with real keys: Gemini Live and OpenAI realtime transcripts (whether Gemini's interim text is the whole hypothesis or new words only; `EZTRANS_DEBUG=1` logs raw messages), gpt-6-luna and Gemini translation quality and speed, gpt-4o-mini-transcribe. Local vLLM / Ollama are untested.
 
-Open question to confirm with a real Gemini key: whether `interimInputTranscription.text` carries the whole hypothesis or only new words. The code treats it as the whole line; run with `EZTRANS_DEBUG=1` to log raw server messages to `gemini-debug.log` in the config folder.
+Not yet: Apple on-device options and macOS system audio (ScreenCaptureKit), the updater, release workflow.
 
 ## Checking a build
 
 - `npm test` runs the script-format tests; `cargo test --lib` (in `src-tauri`) runs the Rust unit tests.
-- Hardware and network checks are `#[ignore]`d: `cargo test --lib -- --ignored --nocapture loopback` (needs a speaker as default output), `gemini_bad` / `claude_bad` (network), `claude_translates` (needs `ANTHROPIC_API_KEY`), `gemini_real` (needs `GEMINI_API_KEY`).
+- Hardware and network checks are `#[ignore]`d: `cargo test --lib -- --ignored --nocapture loopback` (needs a speaker as default output), `_bad` (rejected keys on every cloud path), `live_models` (translates with every model whose key is in `.env.local`, with timings and cost), `gemini_real`, `openai_rt_real`.
+- `scripts/e2e-listen.ps1` runs the whole listening chain against a settings folder of your choice.
 - `npm run typecheck`.
 - `npx tauri build --debug --no-bundle`, then `scripts/smoke-windows.ps1 -Exe src-tauri\target\debug\eztrans.exe -Out <folder>` launches the app in Demo mode, clicks through the windows with UI Automation and saves screenshots.

@@ -8,38 +8,60 @@
   </head>
   <body>
     <form id="form" class="scroll settings">
-      <h2>語音辨識（Gemini Live）</h2>
-      <label>Gemini API key <span class="keystate" data-provider="gemini"></span>
-        <input name="key_gemini" type="password" autocomplete="off" placeholder="留空＝不變更" />
-      </label>
-      <p class="hint">用付費層的 key：免費層的資料會被 Google 用來改進產品。</p>
-      <label>模型 <input name="stt_model" required /></label>
+      <h2>聽：語音辨識</h2>
+      <p class="hint">每小時費用以連續一小時的音訊計。</p>
+      <div id="stt-list" class="choices"></div>
+      <div id="stt-local" class="local" hidden>
+        <label>伺服器網址（OpenAI 相容，到 /v1 為止）<input name="local_stt_url" /></label>
+        <label>模型名稱 <input name="local_stt_model" /></label>
+      </div>
       <label>語言（BCP-47，例如 en-US；留空＝自動偵測）
         <input name="stt_language" list="langs" />
-        <datalist id="langs"><option value="en-US"></option><option value="en-GB"></option><option value="ja-JP"></option><option value="cmn-Hans-CN"></option></datalist>
+        <datalist id="langs"><option value="en-US"></option><option value="en-GB"></option><option value="ja-JP"></option></datalist>
       </label>
 
-      <h2>翻譯與回覆（Anthropic Claude）</h2>
-      <label>Anthropic API key <span class="keystate" data-provider="anthropic"></span>
-        <input name="key_anthropic" type="password" autocomplete="off" placeholder="留空＝不變更" />
-      </label>
-      <label>模型 <input name="llm_model" required /></label>
-      <label>Effort
-        <select name="llm_effort"><option>low</option><option>medium</option><option>high</option></select>
+      <h2>翻：翻譯與回覆</h2>
+      <p class="hint">每小時費用為估算：600 句，每句約 300 個輸入 token、50 個輸出 token。</p>
+      <div id="llm-list" class="choices"></div>
+      <div id="llm-local" class="local" hidden>
+        <label>伺服器網址（OpenAI 相容，到 /v1 為止；Ollama 預設 http://localhost:11434/v1）<input name="local_llm_url" /></label>
+        <label>模型名稱 <input name="local_llm_model" placeholder="例如 qwen3:8b" /></label>
+      </div>
+      <label>思考深度
+        <select name="llm_effort">
+          <option value="auto">自動（該模型最快的設定）</option>
+          <option value="low">low</option><option value="medium">medium</option><option value="high">high</option>
+        </select>
       </label>
       <label>上下文行數 <input name="context_lines" type="number" min="0" max="50" /></label>
 
+      <h2>API key</h2>
+      <p class="hint">存在 Windows 認證管理員（macOS 鑰匙圈），不會寫進檔案，也不會傳回這個視窗。留空＝不變更。</p>
+      <label>Anthropic <span class="keystate" data-provider="anthropic"></span><input name="key_anthropic" type="password" autocomplete="off" /></label>
+      <label>OpenAI <span class="keystate" data-provider="openai"></span><input name="key_openai" type="password" autocomplete="off" /></label>
+      <label>Gemini（請用付費層）<span class="keystate" data-provider="gemini"></span><input name="key_gemini" type="password" autocomplete="off" /></label>
+      <label>本機伺服器（選填）<span class="keystate" data-provider="local"></span><input name="key_local" type="password" autocomplete="off" /></label>
+
       <h2>術語表</h2>
       <label>每行「中文 = English」，兩個方向都會套用
-        <textarea name="glossary" rows="8" placeholder="季度營收 = quarterly revenue"></textarea>
+        <textarea name="glossary" rows="6" placeholder="季度營收 = quarterly revenue"></textarea>
       </label>
 
       <div class="actions">
         <button type="submit">儲存</button>
-        <button type="button" id="clear-keys">清除兩把 key</button>
+        <button type="button" id="clear-keys">清除所有 key</button>
         <span id="saved" class="status"></span>
       </div>
-      <p class="hint">key 存在 Windows 認證管理員（macOS 鑰匙圈），不會寫進檔案，也不會傳回這個視窗。</p>
+
+      <h2>用量（估算）</h2>
+      <div class="tabs" id="usage-tabs">
+        <button type="button" data-range="session" aria-pressed="true">這次開啟</button>
+        <button type="button" data-range="today" aria-pressed="false">今天</button>
+        <button type="button" data-range="month" aria-pressed="false">本月</button>
+        <button type="button" id="usage-refresh">重新整理</button>
+      </div>
+      <table id="usage" class="usage"></table>
+      <p class="hint">依官方牌價估算；實際費用以各家帳單為準。本機與裝置上的選項不計費。</p>
     </form>
     <script type="module" src="/src/settings/main.ts"></script>
   </body>

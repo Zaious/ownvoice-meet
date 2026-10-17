@@ -18,10 +18,13 @@ use tauri::{AppHandle, Manager};
 use tokio::sync::mpsc;
 use tokio_tungstenite::tungstenite::{self, Message};
 
-use crate::audio::CHUNK;
+use crate::audio::chunk_len;
 use crate::llm;
 use crate::session::{Segment, Session};
+use crate::usage;
 
+/// Gemini Live takes 16 kHz PCM.
+pub const RATE: u32 = 16_000;
 const ENDPOINT: &str = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent";
 const ROTATE_AT_PAUSE: Duration = Duration::from_secs(9 * 60);
 const ROTATE_ANYWAY: Duration = Duration::from_secs(9 * 60 + 50);
@@ -129,13 +132,15 @@ async fn session(
     let mut last_audio = Instant::now();
     let mut going_away = false;
     let mut tick = tokio::time::interval(Duration::from_millis(100));
-    let silence = vec![0i16; CHUNK];
+    let silence = vec![0i16; chunk_len(RATE)];
     loop {
         tokio::select! {
             chunk = audio.recv() => match chunk {
                 Some(chunk) => {
                     last_audio = Instant::now();
                     tx.send(audio_message(&chunk)).await.map_err(retry)?;
+                    // Gemini bills every second streamed, silence included.
+                    usage::add_audio(app, "gemini-live", chunk.len() as f64 / RATE as f64);
                 }
                 None => {
                     // Listening stopped: end the stream and give the last words a moment to arrive.
@@ -166,6 +171,7 @@ async fn session(
             _ = tick.tick() => {
                 if last_audio.elapsed() > SILENCE_AFTER {
                     tx.send(audio_message(&silence)).await.map_err(retry)?;
+                    usage::add_audio(app, "gemini-live", silence.len() as f64 / RATE as f64);
                 }
                 let quiet = live.current.is_none();
                 if (going_away && quiet) || (started.elapsed() > ROTATE_AT_PAUSE && quiet) || started.elapsed() > ROTATE_ANYWAY {

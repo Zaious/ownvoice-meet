@@ -89,7 +89,7 @@ try {
     Start-Sleep -Milliseconds 800
     $rt = Texts $reply
     "reply_shows_input=" + ($rt -match '我同意')
-    "reply_points_to_key=" + ($rt -match 'No Anthropic key')
+    "reply_points_to_key=" + ($rt -match 'API key')
     Shot $reply "$Out\reply.png"
   }
   if ($script) { Shot $script "$Out\script.png" }
@@ -101,7 +101,7 @@ try {
   if ($settings) { Start-Sleep -Milliseconds 800; Shot $settings "$Out\settings.png"; "settings_shows_key_state=" + ((Texts $settings) -match '已設定|未設定') }
   "click_listen=" + (Click $main '▶')
   Start-Sleep -Milliseconds 800
-  "listen_without_key_hint=" + ((Texts $main) -match 'Gemini API key')
+  "listen_without_key_hint=" + ((Texts $main) -match '設定.*API key')
 
   # closing the reply window by itself must flip the main button back
   if ($reply) { $reply.GetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern).Close(); Start-Sleep -Milliseconds 600 }

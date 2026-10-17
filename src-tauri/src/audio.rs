@@ -1,6 +1,6 @@
 // System-audio capture: the default output device recorded in WASAPI loopback mode (cpal turns an
-// input stream on an output device into loopback), downmixed and resampled to 16 kHz mono 16-bit
-// PCM in 100 ms chunks, which is what Gemini Live expects.
+// input stream on an output device into loopback), downmixed and resampled to mono 16-bit PCM at
+// the rate a provider asks for (Gemini Live 16 kHz, OpenAI realtime 24 kHz), in 100 ms chunks.
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{mpsc as std_mpsc, Arc};
@@ -11,8 +11,10 @@ use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::SampleFormat;
 use tokio::sync::mpsc;
 
-pub const RATE: u32 = 16_000;
-pub const CHUNK: usize = 1_600; // 100 ms at 16 kHz
+/// Samples in a 100 ms chunk at `rate`.
+pub fn chunk_len(rate: u32) -> usize {
+    rate as usize / 10
+}
 
 pub struct Capture {
     stop: Arc<AtomicBool>,
@@ -31,13 +33,13 @@ impl Capture {
 
 /// Start capturing. Chunks go to `tx` (dropped when the receiver lags, so audio never piles up);
 /// `on_level` gets each chunk's RMS for the level meter.
-pub fn start(tx: mpsc::Sender<Vec<i16>>, on_level: impl Fn(f32) + Send + 'static) -> Result<Capture, String> {
+pub fn start(rate: u32, tx: mpsc::Sender<Vec<i16>>, on_level: impl Fn(f32) + Send + 'static) -> Result<Capture, String> {
     let stop = Arc::new(AtomicBool::new(false));
     let (ready_tx, ready_rx) = std_mpsc::channel::<Result<String, String>>();
     let stop_t = stop.clone();
     // cpal streams are not Send on every platform: the stream lives and dies on its own thread.
     let thread = std::thread::spawn(move || {
-        let stream = match open(tx, on_level) {
+        let stream = match open(rate, tx, on_level) {
             Ok((stream, name)) => {
                 let _ = ready_tx.send(Ok(name));
                 stream
@@ -59,14 +61,14 @@ pub fn start(tx: mpsc::Sender<Vec<i16>>, on_level: impl Fn(f32) + Send + 'static
     }
 }
 
-fn open(tx: mpsc::Sender<Vec<i16>>, on_level: impl Fn(f32) + Send + 'static) -> Result<(cpal::Stream, String), String> {
+fn open(rate: u32, tx: mpsc::Sender<Vec<i16>>, on_level: impl Fn(f32) + Send + 'static) -> Result<(cpal::Stream, String), String> {
     let host = cpal::default_host();
     let device = host.default_output_device().ok_or("no default output device")?;
     let name = device.description().map(|d| d.name().to_string()).unwrap_or_else(|_| "output".into());
     let supported = device.default_output_config().map_err(|e| format!("output config: {e}"))?;
     let format = supported.sample_format();
     let config = supported.config();
-    let mut proc = Downmix::new(config.channels as usize, config.sample_rate, tx, on_level);
+    let mut proc = Downmix::new(config.channels as usize, config.sample_rate, rate, tx, on_level);
     let on_err = |e| eprintln!("audio stream error: {e}");
     let stream = match format {
         SampleFormat::F32 => device.build_input_stream(
@@ -88,7 +90,7 @@ fn open(tx: mpsc::Sender<Vec<i16>>, on_level: impl Fn(f32) + Send + 'static) -> 
     Ok((stream, name))
 }
 
-/// Interleaved frames in, 16 kHz mono i16 chunks out. A box average over one input period per
+/// Interleaved frames in, mono i16 chunks at the target rate out. A box average over one input period per
 /// output sample keeps aliasing down well enough for speech; linear interpolation does the rest.
 struct Downmix<L: Fn(f32)> {
     channels: usize,
@@ -98,14 +100,15 @@ struct Downmix<L: Fn(f32)> {
     window: Vec<f32>,
     win_i: usize,
     win_sum: f32,
+    chunk_len: usize,
     chunk: Vec<i16>,
     tx: mpsc::Sender<Vec<i16>>,
     on_level: L,
 }
 
 impl<L: Fn(f32)> Downmix<L> {
-    fn new(channels: usize, in_rate: u32, tx: mpsc::Sender<Vec<i16>>, on_level: L) -> Self {
-        let step = in_rate as f64 / RATE as f64;
+    fn new(channels: usize, in_rate: u32, out_rate: u32, tx: mpsc::Sender<Vec<i16>>, on_level: L) -> Self {
+        let step = in_rate as f64 / out_rate as f64;
         let win = (step.round() as usize).max(1);
         Self {
             channels: channels.max(1),
@@ -115,7 +118,8 @@ impl<L: Fn(f32)> Downmix<L> {
             window: vec![0.0; win],
             win_i: 0,
             win_sum: 0.0,
-            chunk: Vec::with_capacity(CHUNK),
+            chunk_len: chunk_len(out_rate),
+            chunk: Vec::with_capacity(chunk_len(out_rate)),
             tx,
             on_level,
         }
@@ -152,8 +156,8 @@ impl<L: Fn(f32)> Downmix<L> {
 
     fn emit(&mut self, y: f32) {
         self.chunk.push((y.clamp(-1.0, 1.0) * 32767.0) as i16);
-        if self.chunk.len() >= CHUNK {
-            let chunk = std::mem::replace(&mut self.chunk, Vec::with_capacity(CHUNK));
+        if self.chunk.len() >= self.chunk_len {
+            let chunk = std::mem::replace(&mut self.chunk, Vec::with_capacity(self.chunk_len));
             let rms = (chunk.iter().map(|&s| (s as f32 / 32768.0).powi(2)).sum::<f32>() / chunk.len() as f32).sqrt();
             (self.on_level)(rms);
             let _ = self.tx.try_send(chunk);
@@ -168,7 +172,7 @@ mod tests {
     #[test]
     fn downsamples_48k_stereo_to_16k_chunks() {
         let (tx, mut rx) = mpsc::channel(16);
-        let mut d = Downmix::new(2, 48_000, tx, |_| {});
+        let mut d = Downmix::new(2, 48_000, 16_000, tx, |_| {});
         // 0.2 s of a 440 Hz tone, stereo
         let frames: Vec<f32> = (0..9_600).flat_map(|i| {
             let v = (i as f32 * 440.0 * std::f32::consts::TAU / 48_000.0).sin() * 0.5;
@@ -177,8 +181,8 @@ mod tests {
         d.feed(frames.into_iter());
         let a = rx.try_recv().expect("first 100 ms chunk");
         let b = rx.try_recv().expect("second 100 ms chunk");
-        assert_eq!(a.len(), CHUNK);
-        assert_eq!(b.len(), CHUNK);
+        assert_eq!(a.len(), 1_600);
+        assert_eq!(b.len(), 1_600);
         let peak = b.iter().map(|s| s.unsigned_abs()).max().unwrap();
         assert!(peak > 12_000 && peak < 17_000, "tone survives downsampling, peak {peak}");
     }
@@ -193,7 +197,7 @@ mod hardware {
     #[ignore]
     fn loopback_hears_windows_tts() {
         let (tx, mut rx) = mpsc::channel(256);
-        let cap = start(tx, |_| {}).expect("capture starts");
+        let cap = start(16_000, tx, |_| {}).expect("capture starts");
         println!("device: {}", cap.device);
         let ps = "Add-Type -AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('Testing the loopback capture for eztrans.')";
         std::process::Command::new("powershell").args(["-NoProfile", "-Command", ps]).status().expect("tts");

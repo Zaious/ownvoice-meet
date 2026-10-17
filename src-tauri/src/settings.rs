@@ -1,7 +1,7 @@
 // Settings (a JSON file in the app config folder) and API keys (the OS keychain: Windows
 // Credential Manager, macOS Keychain). Keys never go back to a web view; windows only learn
-// whether one is set. For development, GEMINI_API_KEY / ANTHROPIC_API_KEY are used when the
-// keychain has none.
+// whether one is set. For development, ANTHROPIC_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY (from
+// the environment, or .env.local in debug builds) are used when the keychain has none.
 
 use std::path::PathBuf;
 
@@ -10,30 +10,44 @@ use tauri::{AppHandle, Manager};
 
 const SETTINGS_MAX_BYTES: u64 = 256 * 1024;
 const KEYCHAIN_SERVICE: &str = "eztrans";
-pub const PROVIDERS: [&str; 2] = ["gemini", "anthropic"];
+/// Keys the app can hold. "local" is optional (a vLLM server started with --api-key needs it).
+pub const PROVIDERS: [&str; 4] = ["anthropic", "openai", "gemini", "local"];
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
-    pub stt_model: String,
+    /// Catalog id of the speech-to-text option (catalog.rs).
+    pub stt_id: String,
     /// BCP-47 code such as en-US; empty lets the model detect the language.
     pub stt_language: String,
-    pub llm_model: String,
+    /// Catalog id of the translation model.
+    pub llm_id: String,
+    /// "auto" = the lowest thinking setting the model accepts (fastest); or low / medium / high.
     pub llm_effort: String,
     pub context_lines: usize,
     /// `中文 = English` per line.
     pub glossary: String,
+    /// OpenAI-compatible transcription server, e.g. a self-hosted faster-whisper server.
+    pub local_stt_url: String,
+    pub local_stt_model: String,
+    /// OpenAI-compatible chat server, e.g. vLLM or Ollama.
+    pub local_llm_url: String,
+    pub local_llm_model: String,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            stt_model: "gemini-3.5-transcribe-live".into(),
+            stt_id: "gemini-live".into(),
             stt_language: "en-US".into(),
-            llm_model: "claude-haiku-5-5".into(),
-            llm_effort: "low".into(),
+            llm_id: "claude-haiku-5-5".into(),
+            llm_effort: "auto".into(),
             context_lines: 12,
             glossary: String::new(),
+            local_stt_url: "http://localhost:8000/v1".into(),
+            local_stt_model: "Systran/faster-whisper-large-v3".into(),
+            local_llm_url: "http://localhost:11434/v1".into(),
+            local_llm_model: String::new(),
         }
     }
 }
@@ -73,6 +87,17 @@ fn entry(provider: &str) -> Result<keyring::Entry, String> {
     keyring::Entry::new(KEYCHAIN_SERVICE, provider).map_err(|e| e.to_string())
 }
 
+/// How a provider is named to the user.
+pub fn display_name(provider: &str) -> &str {
+    match provider {
+        "anthropic" => "Anthropic",
+        "openai" => "OpenAI",
+        "gemini" => "Gemini",
+        "local" => "本機伺服器",
+        other => other,
+    }
+}
+
 /// Store a key; an empty key removes it.
 pub fn set_key(provider: &str, key: &str) -> Result<(), String> {
     let e = entry(provider)?;
@@ -89,7 +114,12 @@ pub fn set_key(provider: &str, key: &str) -> Result<(), String> {
 pub fn get_key(provider: &str) -> Option<String> {
     let from_keychain = entry(provider).ok().and_then(|e| e.get_password().ok()).filter(|k| !k.is_empty());
     from_keychain.or_else(|| {
-        let var = if provider == "gemini" { "GEMINI_API_KEY" } else { "ANTHROPIC_API_KEY" };
+        let var = match provider {
+            "gemini" => "GEMINI_API_KEY",
+            "openai" => "OPENAI_API_KEY",
+            "local" => "LOCAL_API_KEY",
+            _ => "ANTHROPIC_API_KEY",
+        };
         std::env::var(var).ok().filter(|k| !k.is_empty())
     })
 }
