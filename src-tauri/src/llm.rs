@@ -324,10 +324,12 @@ mod tests {
                         m.id, first.map_or(0, |d| d.as_millis()), t0.elapsed().as_millis(), u.input, u.cached, u.output);
                     assert!(zh.chars().any(|c| ('\u{4e00}'..='\u{9fff}').contains(&c)), "{}: Chinese expected", m.id);
                 }
-                Err(e) => panic!("{}: {e}", m.id),
+                // One account may not have every model (a workspace limit, say): report and go on.
+                Err(e) => println!("{:<22} ERROR {}", m.id, e.chars().take(160).collect::<String>()),
             }
         }
         println!("ran {ran} models");
+        assert!(ran > 0, "no model could be reached");
     }
 
     #[tokio::test]

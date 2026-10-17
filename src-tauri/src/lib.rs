@@ -201,14 +201,19 @@ fn start_demo(app: AppHandle) {
 
 pub fn run() {
     // Development keys from the repo's git-ignored .env.local; release builds never read it.
+    // EZTRANS_NO_DEV_KEYS=1 skips it, so checks can see the app as a new user would.
     #[cfg(debug_assertions)]
-    let _ = dotenvy::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/../.env.local"));
+    if std::env::var_os("EZTRANS_NO_DEV_KEYS").is_none_or(|v| v != "1") {
+        let _ = dotenvy::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/../.env.local"));
+    }
     // One TLS crypto provider for both the WebSocket and the HTTP client.
     let _ = rustls::crypto::ring::default_provider().install_default();
     tauri::Builder::default()
         .plugin(tauri_plugin_window_state::Builder::default().with_state_flags(StateFlags::POSITION | StateFlags::SIZE).build())
         // The reply window's focus key works while Zoom or Teams has focus; the web view registers it.
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        // Opens the providers' key pages from Settings; capabilities/settings-links.json lists them.
+        .plugin(tauri_plugin_opener::init())
         .manage(Mutex::new(Session::default()))
         .manage(Mutex::new(Listener::default()))
         .manage(Mutex::new(usage::Usage::default()))

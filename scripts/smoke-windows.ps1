@@ -55,6 +55,8 @@ function Texts($w) {
 # UIA reports physical pixels; without this, SetCursorPos is scaled on a 125% display and clicks drift.
 [void][Win]::SetProcessDPIAware()
 $env:EZTRANS_DEMO = '1'
+# See the app as a new user would: no development keys from .env.local.
+$env:EZTRANS_NO_DEV_KEYS = '1'
 $p = Start-Process $Exe -PassThru
 try {
   $main = Find-Window 'eztrans'

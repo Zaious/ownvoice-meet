@@ -3,6 +3,7 @@
 // glossary, and estimated usage.
 
 import { invoke } from '@tauri-apps/api/core';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import type { CatalogModel, Settings, UsageReport, UsageRow } from '../shared/types.ts';
 import { hourlyLine, money, priceLine } from './price.ts';
 
@@ -62,6 +63,14 @@ async function showKeyState(): Promise<void> {
     node.textContent = set ? '（已設定）' : '（未設定）';
     node.style.color = set ? 'var(--zh)' : 'var(--muted)';
   }
+}
+
+// Key pages open in the browser (only these three are allowed: capabilities/settings-links.json).
+for (const link of document.querySelectorAll<HTMLAnchorElement>('a.getkey')) {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    void openUrl(link.href);
+  });
 }
 
 // ---------- usage ----------

@@ -1,0 +1,16 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "settings-links",
+  "description": "The settings window may open the providers' API key pages in the browser, and nothing else.",
+  "windows": ["settings"],
+  "permissions": [
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        { "url": "https://platform.claude.com/settings/keys" },
+        { "url": "https://platform.openai.com/settings/organization/api-keys" },
+        { "url": "https://aistudio.google.com/api-keys" }
+      ]
+    }
+  ]
+}

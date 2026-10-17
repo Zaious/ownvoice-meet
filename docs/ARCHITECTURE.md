@@ -63,15 +63,15 @@ The first version was a PyQt app used at a live conference demo. These held up a
 
 ## Status
 
-Checked against real services and hardware:
-- System audio capture (WASAPI loopback) with Windows text-to-speech.
-- Local Whisper end to end: loopback -> segmenter -> `scripts/local_whisper_server.py` -> captions (`scripts/e2e-listen.ps1`), both test sentences word for word.
-- Claude translation and replies (real key, earlier session).
-- Every cloud path reaches its real endpoint and reports a rejected key as a readable error, without retrying: Gemini Live, OpenAI realtime (the `?intent=transcription` URL passed the handshake), OpenAI and Gemini Chat Completions, Claude.
+Checked against real services and hardware (2026-10-17):
+- Listening end to end with real system audio (`scripts/e2e-listen.ps1`, two TTS sentences, translated by Claude Haiku 5.5): Gemini 3.5 Transcribe Live, OpenAI gpt-live-transcribe, OpenAI gpt-4o-mini-transcribe and local Whisper all transcribed both sentences word for word.
+- Gemini Live's `interimInputTranscription.text` carries the whole hypothesis so far (each message replaces the gray line), confirmed from the raw message log. It also sends `voiceActivity` messages, which are ignored.
+- OpenAI realtime accepts the transcription session at `?intent=transcription`.
+- Translation of one sentence, 3-5 runs each (full sentence): Gemini 3.5 Flash-Lite 0.84-1.15 s, Claude Haiku 5.5 0.94-1.21 s, gpt-6-luna 0.91-1.95 s, gpt-6.1-sol 1.33-2.19 s, Gemini 3.8 Flash 4.2-7.1 s (too slow for live captions). gpt-6.1-sol rejects `reasoning_effort: none` and Gemini 3.8 Flash rejects `minimal`; the catalog uses `low` for both. Claude Sonnet 5.5 was not reachable from the test account (a workspace rate limit).
+- Every cloud path reports a rejected key as a readable error, without retrying.
+- Settings links open the three providers' key pages (and only those: `capabilities/settings-links.json`).
 
-Still to check with real keys: Gemini Live and OpenAI realtime transcripts (whether Gemini's interim text is the whole hypothesis or new words only; `EZTRANS_DEBUG=1` logs raw messages), gpt-6-luna and Gemini translation quality and speed, gpt-4o-mini-transcribe. Local vLLM / Ollama are untested.
-
-Not yet: Apple on-device options and macOS system audio (ScreenCaptureKit), the updater, release workflow.
+Not yet: translation quality beyond single sentences (a blind comparison is planned), local vLLM / Ollama, Apple on-device options and macOS system audio (ScreenCaptureKit), the updater, release workflow.
 
 ## Checking a build
 

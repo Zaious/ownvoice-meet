@@ -77,6 +77,8 @@ kbd { font: 11px var(--font-read); color: var(--muted); }
 .choice-rows dt { color: var(--muted); }
 .choice-rows dd { margin: 0; color: var(--text); }
 .local { padding: 0 0 4px 12px; border-left: 2px solid var(--line); margin: 0 0 10px; }
+.getkey { color: var(--accent); font-size: 12px; text-decoration: none; margin-left: 4px; }
+.getkey:hover { text-decoration: underline; }
 .usage { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }
 .usage td { padding: 4px 6px; border-bottom: 1px solid var(--line); }
 .usage td.num { text-align: right; color: var(--zh); white-space: nowrap; }
