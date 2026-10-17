@@ -30,12 +30,13 @@ pub struct Model {
     /// Stable id stored in settings.
     pub id: &'static str,
     pub kind: Kind,
-    /// Whose key it needs: anthropic, openai, gemini; or local / apple.
+    /// Whose key it needs: anthropic, openai, gemini; or local / apple / windows (none).
     pub provider: &'static str,
     /// Model name sent to the API; empty for local models (taken from settings).
     pub api_model: &'static str,
     pub label: &'static str,
-    /// How it is called. Speech: gemini-live, openai-live, chunked. Language: anthropic, openai-compat.
+    /// How it is called. Speech: gemini-live, openai-live, chunked, windows-live-captions.
+    /// Language: anthropic, openai-compat.
     pub transport: &'static str,
     /// Lowest thinking setting the model accepts, sent with every request ("" = leave default).
     pub min_effort: &'static str,
@@ -97,6 +98,22 @@ pub const MODELS: &[Model] = &[
         strength: "雲端最便宜",
         caution: "長句要等停頓（或 12 秒上限）才出字",
         needs: "OpenAI API key",
+        available: true,
+    },
+    Model {
+        id: "windows-live-captions",
+        kind: Kind::Stt,
+        provider: "windows",
+        api_model: "",
+        label: "Windows 即時輔助字幕（Live Captions）",
+        transport: "windows-live-captions",
+        min_effort: "",
+        price: Price::Free,
+        price_note: "Windows 內建，在電腦上辨識",
+        speed: "即時：說話中就有灰字",
+        strength: "免費、不用 key，音訊不離開電腦",
+        caution: "第一次使用要先準備：選它之後，下面會列出步驟（同意＋下載英文語音），做完會自動打勾",
+        needs: "Windows 11 22H2 以上（其他系統不會列出）",
         available: true,
     },
     Model {

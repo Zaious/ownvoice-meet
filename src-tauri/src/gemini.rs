@@ -8,7 +8,6 @@
 // OWNVOICE_DEBUG=1 appends every raw server message to gemini-debug.log in the config folder.
 
 use std::io::Write as _;
-use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
 use base64::Engine as _;
@@ -19,8 +18,7 @@ use tokio::sync::mpsc;
 use tokio_tungstenite::tungstenite::{self, Message};
 
 use crate::audio::chunk_len;
-use crate::llm;
-use crate::session::{Segment, Session};
+use crate::captions::{self, status};
 use crate::usage;
 
 /// Gemini Live takes 16 kHz PCM.
@@ -218,12 +216,6 @@ fn debug_log(app: &AppHandle, text: &str) {
     }
 }
 
-fn status(app: &AppHandle, msg: impl Into<String>) {
-    if let Ok(mut s) = app.state::<Mutex<Session>>().lock() {
-        s.set_status(app, msg);
-    }
-}
-
 /// Which caption the live hypothesis belongs to. It persists across reconnects.
 #[derive(Default)]
 struct Live {
@@ -245,29 +237,17 @@ impl Live {
         if text.is_empty() {
             return;
         }
-        let state = app.state::<Mutex<Session>>();
-        let Ok(mut s) = state.lock() else { return };
-        let id = match self.current {
-            Some(id) => id,
-            None => *self.current.insert(s.next_segment_id()),
-        };
-        s.upsert_segment(app, Segment { id, en: text.to_string(), zh: String::new(), is_final: false });
+        let id = *self.current.get_or_insert_with(|| captions::open(app));
+        captions::interim(app, id, text);
     }
 
     fn finish(&mut self, app: &AppHandle, text: &str) {
-        let state = app.state::<Mutex<Session>>();
-        let Ok(mut s) = state.lock() else { return };
-        if text.is_empty() {
-            // Nothing final came of the hypothesis: drop the gray line.
-            if let Some(id) = self.current.take() {
-                s.remove_segment(app, id);
-            }
-            return;
+        match self.current.take() {
+            // Empty: nothing final came of the hypothesis, and the gray line is dropped.
+            Some(id) => captions::finish(app, id, text),
+            None if !text.is_empty() => captions::finish(app, captions::open(app), text),
+            None => {}
         }
-        let id = self.current.take().unwrap_or_else(|| s.next_segment_id());
-        s.upsert_segment(app, Segment { id, en: text.to_string(), zh: String::new(), is_final: true });
-        drop(s);
-        llm::spawn_translate(app.clone(), id, text.to_string());
     }
 }
 

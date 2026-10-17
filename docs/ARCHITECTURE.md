@@ -34,6 +34,7 @@ Every option, with list prices and a description in one format (speed, strength,
 |---|---|---|
 | Listening | Gemini 3.5 Transcribe Live, OpenAI gpt-live-transcribe | streaming WebSocket (`gemini.rs`, `openai_rt.rs`) |
 | | OpenAI gpt-4o-mini-transcribe, local Whisper | one WAV per sentence to `/audio/transcriptions` (`stt_chunk.rs`, cut by `vad.rs`) |
+| | Windows Live Captions (Windows 11 22H2+, free, on the device; not listed elsewhere) | its caption text read with UI Automation every 25 ms (`live_captions.rs`), cut into sentences (`sentences.rs`) |
 | | Apple SpeechAnalyzer | planned (macOS) |
 | Translation and replies | Claude Haiku 5.5, Sonnet 5.5 | Anthropic Messages API, streaming |
 | | gpt-6-luna, gpt-6.1-sol, Gemini 3.5 Flash-Lite, Gemini 3.8 Flash, local vLLM / Ollama | Chat Completions, streaming (OpenAI, Gemini's OpenAI-compatible endpoint, local servers) |
@@ -43,7 +44,15 @@ A local setup is a URL and a model name in settings; `docs/LOCAL.md` explains th
 
 Keys are the user's own (bring your own key), stored in the OS keychain and never sent back to a web view. Debug builds also read a git-ignored `.env.local` (template: `env.example`).
 
-Usage (`usage.rs`) counts audio seconds sent to speech services and the token counts each language-model response reports, per model and per local day, and prices them from the catalog. These are estimates; each provider's billing page is the authority.
+## Captions and early translation
+
+Every listening option goes through `captions.rs`: a line opens, its gray text updates, and when the sentence ends it turns white and is translated (streaming). A sentence that keeps growing for 4 s without ending is translated as it stands, at most every 2 s, so long unbroken speech shows Chinese before the speaker pauses; the final translation replaces it once it has caught up. A translation that finishes cancels older ones still running for the same line, and an older one never overwrites a newer one. The sentence-by-sentence options (gpt-4o-mini-transcribe, local Whisper) have no gray text, so they only get the final translation.
+
+Windows Live Captions shows one rolling block of text rather than separate results, and keeps revising it: the word being recognized ends with a provisional period, and periods in the middle come and go for a few seconds. `sentences.rs` finds its place by words (ignoring case and punctuation) and finishes a sentence only when its end has stayed put for 1.5 s with more words after it, or the text has been quiet for 1.5 s (3 s without a sentence end). A recording of real Live Captions output (`src-tauri/testdata/live-captions-en-trace.json`) is replayed in the tests: four whole sentences, no repeats.
+
+First use needs, once, the user's consent in Live Captions' own prompt and speech files for the meeting language; the app cannot click either. Choosing it in Settings shows a checklist that ticks itself off from what Windows reports, with buttons that open the right place, and the app switches Live Captions' language itself once the speech files are there. Listening does not start until the checklist is done. That logic is ported from LiveCaptions-Translator (Apache-2.0); see `THIRD_PARTY_NOTICES.md`.
+
+Usage (`usage.rs`) counts audio seconds sent to speech services and the token counts each language-model response reports (early translations counted apart as `early`), per model and per local day, and prices them from the catalog. These are estimates; each provider's billing page is the authority.
 
 ## Behaviors carried over from the prototype
 
@@ -68,6 +77,8 @@ Checked against real services and hardware (2026-10-17):
 - Gemini Live's `interimInputTranscription.text` carries the whole hypothesis so far (each message replaces the gray line), confirmed from the raw message log. It also sends `voiceActivity` messages, which are ignored.
 - OpenAI realtime accepts the transcription session at `?intent=transcription`.
 - Translation of one sentence, 3-5 runs each (full sentence): Gemini 3.5 Flash-Lite 0.84-1.15 s, Claude Haiku 5.5 0.94-1.21 s, gpt-6-luna 0.91-1.95 s, gpt-6.1-sol 1.33-2.19 s, Gemini 3.8 Flash 4.2-7.1 s (too slow for live captions). gpt-6.1-sol rejects `reasoning_effort: none` and Gemini 3.8 Flash rejects `minimal`; the catalog uses `low` for both. Claude Sonnet 5.5 was not reachable from the test account (a workspace rate limit).
+- Early translation of a long sentence (`e2e-listen.ps1 -LongSentence`, a 17 s sentence without a pause, `OWNVOICE_DEBUG=1` log): Chinese appeared under the still-gray line about 5 s (Gemini Live) and 6 s (OpenAI realtime) before the sentence ended, the final translation replaced it about 1 s after the end, and an early request still running when the sentence ended was cancelled.
+- Windows Live Captions, on a real Windows 11 (build 26200, Chinese display language) set up from scratch by following the Settings checklist: consent, English (UK) speech files, language switched by the app. Three English TTS passages (one 17 s sentence, two short ones) became three whole caption lines with their Chinese, with Chinese already under the long sentence while it was still being spoken; Live Captions was hidden while listening and closed afterwards. Two Live Captions changes were found on the way and handled: the text is in `CaptionsScrollViewer` and only appears once something has been heard, and its periods are provisional (see above). Live Captions missed the first seconds of speech right after it started.
 - Every cloud path reports a rejected key as a readable error, without retrying.
 - Settings links open the three providers' key pages (and only those: `capabilities/settings-links.json`).
 

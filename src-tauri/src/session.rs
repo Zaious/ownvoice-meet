@@ -56,6 +56,13 @@ impl Session {
         let _ = app.emit("caption", seg);
     }
 
+    /// Insert or update a caption's English, keeping the Chinese it has (an early translation stays
+    /// under a line that is still growing).
+    pub fn set_en(&mut self, app: &AppHandle, id: u64, en: &str, is_final: bool) {
+        let zh = self.segments.iter().rev().find(|s| s.id == id).map(|s| s.zh.clone()).unwrap_or_default();
+        self.upsert_segment(app, Segment { id, en: en.to_string(), zh, is_final });
+    }
+
     /// Drop a caption that came to nothing (a hypothesis with no final text).
     pub fn remove_segment(&mut self, app: &AppHandle, id: u64) {
         self.segments.retain(|s| s.id != id);

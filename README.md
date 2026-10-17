@@ -32,6 +32,9 @@ Bring your own keys; Settings links to each provider's key page, and keys are ke
 | OpenAI gpt-live-transcribe (live, about $1.02/hour) | OpenAI gpt-6-luna, gpt-6.1-sol |
 | OpenAI gpt-4o-mini-transcribe (per sentence, about $0.18/hour) | Gemini 3.5 Flash-Lite, 3.8 Flash |
 | A Whisper server on your own machine (free) | vLLM or Ollama on your own machine (free) |
+| Windows 11 Live Captions (live, free, on the device, no key) | |
+
+Long sentences are translated while they are still being spoken (after about 4 seconds, then every 2 seconds), so you are not left waiting for the speaker to pause; the final translation replaces it when the sentence ends.
 
 Translation costs a few cents an hour on the fastest models (for example Claude Haiku 5.5, about $0.03 for a busy hour). Settings shows every option with its price and measured speed, and tracks estimated usage. Prices are list prices; your provider's bill is the authority.
 
@@ -39,7 +42,7 @@ Running everything locally is a matter of URLs in Settings: see [docs/LOCAL.md](
 
 ## Privacy
 
-Meeting audio goes to the speech service you choose, and text to the language model you choose, under your own account. Some meetings are confidential, and some places require everyone's consent before a conversation is transcribed: check before you turn it on. Use paid-tier keys where the provider uses free-tier data for training (Gemini does). Local servers keep everything on your machine.
+Meeting audio goes to the speech service you choose, and text to the language model you choose, under your own account. Some meetings are confidential, and some places require everyone's consent before a conversation is transcribed: check before you turn it on. Use paid-tier keys where the provider uses free-tier data for training (Gemini does). Local servers keep everything on your machine, and so does Windows Live Captions for listening.
 
 ## Download
 
@@ -75,4 +78,4 @@ Checks: `npm test`, `npm run typecheck`, and `cargo test --lib` in `src-tauri`; 
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE). A work based on OwnVoice Meet must carry the NOTICE; the name "OwnVoice Meet" is not licensed for other works.
+Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE); logic ported from other projects is credited in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A work based on OwnVoice Meet must carry the NOTICE; the name "OwnVoice Meet" is not licensed for other works.

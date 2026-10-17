@@ -89,6 +89,15 @@ kbd { font: 11px var(--font-read); color: var(--muted); }
 .choice-rows dt { color: var(--muted); }
 .choice-rows dd { margin: 0; color: var(--text); }
 .local { padding: 0 0 4px 12px; border-left: 2px solid var(--line); margin: 0 0 10px; }
+.lc-setup h3 { margin: 4px 0 6px; font-size: 14px; }
+.lc-setup ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.lc-setup li { display: grid; grid-template-columns: 1.6em 1fr; gap: 0 6px; font-size: 13px; }
+.lc-setup .mark { color: var(--muted); }
+.lc-setup li.done .mark { color: var(--zh); }
+.lc-setup li.done .how { display: none; }
+.lc-setup .how { color: var(--muted); margin: 2px 0 0; }
+.lc-setup .how button { margin-top: 4px; }
+.lc-setup .verdict { margin: 8px 0 0; font-size: 13px; }
 .getkey, .outlink { color: var(--accent); font-size: 12px; text-decoration: none; margin-left: 4px; }
 .getkey:hover, .outlink:hover { text-decoration: underline; }
 .usage { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }

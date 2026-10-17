@@ -36,6 +36,18 @@ tauri-plugin-global-shortcut = "2"
 tauri-plugin-process = "2"
 tauri-plugin-updater = "2"
 
+# Windows Live Captions: UI Automation reads its caption text (live_captions.rs).
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62.2", features = [
+    "Win32_Foundation",
+    "Win32_System_Com",
+    "Win32_System_Registry",
+    "Win32_System_Threading",
+    "Win32_System_Variant",
+    "Win32_UI_Accessibility",
+    "Win32_UI_WindowsAndMessaging",
+] }
+
 [profile.release]
 opt-level = "s"
 lto = true

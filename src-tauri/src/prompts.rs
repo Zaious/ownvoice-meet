@@ -51,9 +51,15 @@ pub fn system_blocks(instructions: &str, glossary: &[(String, String)], script: 
     blocks
 }
 
-pub fn listen_user(context: &[String], utterance: &str) -> String {
+/// `unfinished`: the speaker is still in the middle of this sentence (an early translation).
+pub fn listen_user(context: &[String], utterance: &str, unfinished: bool) -> String {
     let ctx = if context.is_empty() { "(none)".to_string() } else { context.join("\n") };
-    format!("Recent conversation, for context only (do not translate):\n{ctx}\n\nTranslate this utterance:\n{utterance}")
+    let ask = if unfinished {
+        "The speaker is still talking: this utterance stops mid-sentence. Translate only what is there, as a fragment, and output only the Chinese"
+    } else {
+        "Translate this utterance"
+    };
+    format!("Recent conversation, for context only (do not translate):\n{ctx}\n\n{ask}:\n{utterance}")
 }
 
 pub fn reply_user(context: &[String], chinese: &str) -> String {
@@ -64,6 +70,12 @@ pub fn reply_user(context: &[String], chinese: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn an_unfinished_utterance_is_marked_as_such() {
+        assert!(listen_user(&[], "so the plan is", true).contains("stops mid-sentence"));
+        assert!(!listen_user(&[], "So the plan is set.", false).contains("mid-sentence"));
+    }
 
     #[test]
     fn glossary_skips_comments_and_blanks() {
