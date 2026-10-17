@@ -185,8 +185,6 @@ mod imp {
     /// LiveCaptionsHandler reads the text in 10-20 ms; SyncLoop polls every 25 ms.
     const POLL: Duration = Duration::from_millis(25);
     const WINDOW_TIMEOUT: Duration = Duration::from_secs(15);
-    /// On first use Live Captions asks to download its speech files before it shows any text.
-    const TEXT_TIMEOUT: Duration = Duration::from_secs(15);
     /// Restarts without reading anything before giving up.
     const MAX_RESTARTS: u32 = 3;
 
@@ -263,19 +261,20 @@ mod imp {
         while !stop.load(Ordering::SeqCst) {
             captions::status(app, if first { "啟動 Windows 即時輔助字幕…" } else { "即時輔助字幕關閉了，重新啟動中…" });
             let Some(win) = Window::open(stop)? else { break };
-            let text = match find_text(&uia, win.hwnd, stop, TEXT_TIMEOUT) {
+            // The caption text element only appears once Live Captions has heard something, so wait
+            // for it as long as listening goes on (setup is checked before listening starts).
+            captions::status(app, listening_status(caption_language().as_deref(), language));
+            let text = match find_text(&uia, win.hwnd, stop, None) {
                 Ok(Some(t)) => t,
                 Ok(None) => {
                     win.close(false);
                     break;
                 }
                 Err(e) => {
-                    // Probably first use: show Live Captions so its own setup can be finished.
-                    win.close(true);
+                    win.close(false);
                     return Err(e);
                 }
             };
-            captions::status(app, listening_status(caption_language().as_deref(), language));
             if first && !win.started {
                 // It was already running: what it showed before is not part of this meeting.
                 lines.tracker.skip(&unsafe { text.CurrentName() }.map(|b| b.to_string()).unwrap_or_default());
@@ -290,7 +289,7 @@ mod imp {
                         lines.read(app, &name.to_string());
                     }
                     // ElementNotAvailable: Live Captions closed or rebuilt its view.
-                    Err(_) => match unsafe { IsWindow(Some(win.hwnd)) }.as_bool().then(|| find_text(&uia, win.hwnd, stop, Duration::from_secs(2))) {
+                    Err(_) => match unsafe { IsWindow(Some(win.hwnd)) }.as_bool().then(|| find_text(&uia, win.hwnd, stop, Some(Duration::from_secs(2)))) {
                         Some(Ok(Some(t))) => text = t,
                         _ => break,
                     },
@@ -309,8 +308,9 @@ mod imp {
         Ok(())
     }
 
-    /// The caption text element, waiting up to `timeout`; None when listening stopped meanwhile.
-    fn find_text(uia: &IUIAutomation, hwnd: HWND, stop: &AtomicBool, timeout: Duration) -> Result<Option<IUIAutomationElement>, String> {
+    /// The caption text element, waiting up to `timeout` (None: until listening stops); None when
+    /// listening stopped meanwhile.
+    fn find_text(uia: &IUIAutomation, hwnd: HWND, stop: &AtomicBool, timeout: Option<Duration>) -> Result<Option<IUIAutomationElement>, String> {
         let root = unsafe { uia.ElementFromHandle(hwnd) }.map_err(|e| format!("UI Automation: {e}"))?;
         // CaptionsTextBlock in the version LiveCaptions-Translator targets; newer Live Captions puts
         // the same text in the Name of CaptionsScrollViewer (seen on Windows 11 26200, 2026-10).
@@ -318,8 +318,8 @@ mod imp {
         for id in ["CaptionsTextBlock", "CaptionsScrollViewer"] {
             ids.push(unsafe { uia.CreatePropertyCondition(UIA_AutomationIdPropertyId, &VARIANT::from(id)) }.map_err(|e| format!("UI Automation: {e}"))?);
         }
-        let deadline = Instant::now() + timeout;
-        while Instant::now() < deadline {
+        let deadline = timeout.map(|t| Instant::now() + t);
+        while deadline.is_none_or(|d| Instant::now() < d) {
             if stop.load(Ordering::SeqCst) {
                 return Ok(None);
             }
