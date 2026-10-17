@@ -7,7 +7,8 @@
 // Ported from LiveCaptions-Translator by SakiRinn (Apache-2.0, see THIRD_PARTY_NOTICES.md):
 // LiveCaptionsHandler.cs and the polling of Translator.SyncLoop. Start LiveCaptions.exe, find its
 // window (class LiveCaptionsDesktopWindow), read the Name of the element with AutomationId
-// CaptionsTextBlock every 25 ms, move the window on screen if it is off screen or tiny, hide it
+// CaptionsTextBlock every 25 ms (CaptionsScrollViewer in newer versions), move the window on
+// screen if it is off screen or tiny, hide it
 // (minimize + WS_EX_TOOLWINDOW), and start it again when the element is no longer available.
 // Changed: a Live Captions window the user already had open is reused and given back when
 // listening stops, instead of being killed.
@@ -311,18 +312,25 @@ mod imp {
     /// The caption text element, waiting up to `timeout`; None when listening stopped meanwhile.
     fn find_text(uia: &IUIAutomation, hwnd: HWND, stop: &AtomicBool, timeout: Duration) -> Result<Option<IUIAutomationElement>, String> {
         let root = unsafe { uia.ElementFromHandle(hwnd) }.map_err(|e| format!("UI Automation: {e}"))?;
-        let by_id = unsafe { uia.CreatePropertyCondition(UIA_AutomationIdPropertyId, &VARIANT::from("CaptionsTextBlock")) }.map_err(|e| format!("UI Automation: {e}"))?;
+        // CaptionsTextBlock in the version LiveCaptions-Translator targets; newer Live Captions puts
+        // the same text in the Name of CaptionsScrollViewer (seen on Windows 11 26200, 2026-10).
+        let mut ids = Vec::new();
+        for id in ["CaptionsTextBlock", "CaptionsScrollViewer"] {
+            ids.push(unsafe { uia.CreatePropertyCondition(UIA_AutomationIdPropertyId, &VARIANT::from(id)) }.map_err(|e| format!("UI Automation: {e}"))?);
+        }
         let deadline = Instant::now() + timeout;
         while Instant::now() < deadline {
             if stop.load(Ordering::SeqCst) {
                 return Ok(None);
             }
-            if let Ok(el) = unsafe { root.FindFirst(TreeScope_Descendants, &by_id) } {
-                return Ok(Some(el));
+            for by_id in &ids {
+                if let Ok(el) = unsafe { root.FindFirst(TreeScope_Descendants, by_id) } {
+                    return Ok(Some(el));
+                }
             }
             std::thread::sleep(Duration::from_millis(200));
         }
-        Err("還沒有字幕文字。第一次使用時，請在跳出的即時輔助字幕視窗選會議的語言（英文會議選 English）、按「繼續」下載語音檔，完成後再按聆聽".into())
+        Err("讀不到即時輔助字幕的文字。請到「設定」確認「Windows 即時輔助字幕」下面的步驟都打勾了".into())
     }
 
     struct Window {
