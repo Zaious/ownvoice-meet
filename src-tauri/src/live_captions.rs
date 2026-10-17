@@ -51,7 +51,10 @@ fn evaluate(installed: bool, consented: bool, packs: &[String], language: Option
     // The exact locale if installed, else another variant of the same language (en-GB for en-US).
     let speech = packs.iter().find(|p| p.eq_ignore_ascii_case(&meeting)).or_else(|| packs.iter().find(|p| same(p, &meeting))).cloned();
     let language = language.map(str::to_string);
-    let ready = installed && consented && speech.is_some() && language.as_deref().is_some_and(|l| same(l, &meeting));
+    // Its language must be one whose speech files are installed: set to en-US with only en-GB
+    // installed, Live Captions asks to download en-US again.
+    let usable = language.as_deref().is_some_and(|l| same(l, &meeting) && packs.iter().any(|p| p.eq_ignore_ascii_case(l)));
+    let ready = installed && consented && speech.is_some() && usable;
     Setup { installed, consented, speech, language, meeting, ready }
 }
 
@@ -64,7 +67,7 @@ pub fn setup(meeting: &str) -> Setup {
 pub fn prepare(meeting: &str) -> Setup {
     let s = setup(meeting);
     if let (true, true, Some(locale)) = (s.installed, s.consented, &s.speech) {
-        if !s.language.as_deref().is_some_and(|l| captions::iso639(l) == captions::iso639(&s.meeting)) && imp::set_caption_language(locale) {
+        if !s.ready && imp::set_caption_language(locale) {
             return setup(meeting);
         }
     }
@@ -455,6 +458,12 @@ mod tests {
         assert_eq!(evaluate(true, true, &gb, Some("en-GB"), "en-US").speech.as_deref(), Some("en-GB"));
         assert!(evaluate(true, true, &gb, Some("en-GB"), "").ready);
         assert_eq!(evaluate(true, true, &gb, None, " ").meeting, "en-US");
+        // Set to an English whose speech files are missing (en-US, only en-GB installed): not ready,
+        // so the app switches it to en-GB.
+        let gb_zh = vec!["zh-TW".to_string(), "en-GB".to_string()];
+        let s = evaluate(true, true, &gb_zh, Some("en-US"), "");
+        assert_eq!((s.speech.as_deref(), s.ready), (Some("en-GB"), false));
+        assert!(evaluate(true, true, &gb_zh, Some("en-GB"), "").ready);
     }
 
     #[test]
