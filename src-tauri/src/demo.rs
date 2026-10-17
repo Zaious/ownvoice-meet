@@ -11,14 +11,14 @@ use tauri::{AppHandle, Emitter, Manager};
 use crate::session::{Reply, Segment, Session};
 
 const SCRIPT: &str = include_str!("../../examples/scripts/demo.md");
-const REPLY_ZH: &str = "我同意，不過上線時間可能要延一週，因為測試還沒跑完。";
-const REPLY_EN: &str = "I agree, but the launch may need to slip by one week. Testing is not finished yet.";
+const REPLY_ZH: &str = "字幕工具幫你聽懂，這個工具幫你開口。我打中文，它給我可以照著唸的英文。";
+const REPLY_EN: &str = "Caption tools help you understand. This one helps you speak. I type in Chinese, and it gives me English I can read aloud.";
 
 const LINES: &[(&str, &str)] = &[
-    ("Thanks everyone for joining. Let's start with the project update.", "謝謝大家參加。我們先從專案進度開始。"),
-    ("Could you share your screen and walk us through the timeline?", "可以請你分享畫面，帶我們看一下時程嗎？"),
-    ("We have about ten minutes for questions after the demo.", "示範之後大約有十分鐘可以提問。"),
-    ("How is this different from the tools people already use?", "這跟大家已經在用的工具有什麼不同？"),
+    ("Welcome back. Our next demo is OwnVoice Meet, from Zaious in Taiwan.", "歡迎回來。下一個示範是來自台灣的 Zaious 帶來的 OwnVoice Meet。"),
+    ("Could you share your screen and show us the reply window?", "可以請你分享畫面，讓我們看看回覆視窗嗎？"),
+    ("We have about five minutes for questions after the demo.", "示範之後大約有五分鐘可以提問。"),
+    ("How is this different from the caption tools people already use?", "這跟大家已經在用的字幕工具有什麼不同？"),
 ];
 
 pub fn start(app: AppHandle) {
