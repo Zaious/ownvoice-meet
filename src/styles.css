@@ -66,9 +66,9 @@ kbd { font: 11px var(--font-read); color: var(--muted); }
 .scroll { flex: 1; overflow-y: auto; padding: 10px 14px; }
 
 .level { color: var(--accent); font-size: 11px; letter-spacing: -1px; min-width: 44px; }
-/* the saved session's segment: red dot while recording; dividers between segments */
-.seg { color: var(--zh); max-width: 16em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.seg.rec { color: #ff6b6b; }
+/* the saved session's segment label (not .seg: that is a caption row); dividers between segments */
+.seg-label { color: var(--zh); max-width: 16em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seg-label.rec { color: #ff6b6b; }
 .seg-edit { width: 14em; }
 .divider { text-align: center; color: var(--muted); font-size: 0.8em; margin: 12px 0 8px; }
 .settings .source { display: grid; gap: 4px; margin: 0 0 10px; }
