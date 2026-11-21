@@ -6,7 +6,7 @@ import { listen } from '@tauri-apps/api/event';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut';
 import { FollowBottom } from '../shared/follow.ts';
-import type { Automation, Segment, Session, Views } from '../shared/types.ts';
+import type { Automation, Segment, SegmentInfo, Session, Views } from '../shared/types.ts';
 import { setView, viewControls } from '../shared/view.ts';
 import { openWindow, toggleWindow, type OptionalWindow } from '../shared/windows.ts';
 
@@ -115,6 +115,65 @@ void listen<number>('level', (e) => {
 });
 void listen<string>('status', (e) => (status.textContent = e.payload));
 void listen<boolean>('listening', (e) => setListening(e.payload));
+
+// ---------- segments of a saved session (archive.rs) ----------
+// "新段落" (or Ctrl+Shift+F9, registered on the Rust side) starts the next segment: a new recording
+// file and transcript section, named from the agenda in Settings. Click the name to rename it.
+const segBtn = document.querySelector<HTMLButtonElement>('#segment')!;
+const segName = document.querySelector<HTMLButtonElement>('#seg-name')!;
+const segEdit = document.querySelector<HTMLInputElement>('#seg-edit')!;
+let currentSeg: SegmentInfo | null = null;
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+
+function showSegment(seg: SegmentInfo | null): void {
+  currentSeg = seg;
+  segBtn.hidden = segName.hidden = !seg;
+  segEdit.hidden = true;
+  if (!seg) return;
+  segName.textContent = `${seg.recording ? '● ' : ''}${pad2(seg.index)} · ${seg.name}`;
+  segName.classList.toggle('rec', seg.recording);
+  segName.title = `${seg.recording ? '錄音中。' : ''}點一下改名。存在 ${seg.dir}`;
+}
+
+void listen<SegmentInfo | null>('segment', (e) => {
+  const seg = e.payload;
+  if (seg && currentSeg && seg.index > currentSeg.index) {
+    list.querySelector('.empty')?.remove();
+    const d = document.createElement('div');
+    d.className = 'divider';
+    d.textContent = `── ${pad2(seg.index)} · ${seg.name} ──`;
+    list.append(d);
+  }
+  showSegment(seg);
+});
+
+segBtn.addEventListener('click', () => {
+  invoke<SegmentInfo>('next_segment', { name: null }).catch((err) => (status.textContent = String(err)));
+});
+
+segName.addEventListener('click', () => {
+  if (!currentSeg) return;
+  segEdit.value = currentSeg.name;
+  segName.hidden = true;
+  segEdit.hidden = false;
+  segEdit.focus();
+  segEdit.select();
+});
+
+segEdit.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') showSegment(currentSeg);
+  if (e.key !== 'Enter') return;
+  const name = segEdit.value.trim();
+  if (!name) return showSegment(currentSeg);
+  invoke<SegmentInfo>('rename_segment', { name }).catch((err) => {
+    status.textContent = String(err);
+    showSegment(currentSeg);
+  });
+});
+segEdit.addEventListener('blur', () => showSegment(currentSeg));
+
+void invoke<SegmentInfo | null>('current_segment').then(showSegment);
 
 const snap = await invoke<Session>('snapshot');
 snap.segments.forEach(render);

@@ -8,6 +8,41 @@
   </head>
   <body>
     <form id="form" class="scroll settings">
+      <h2>收音與存檔</h2>
+      <div class="source">
+        <label class="check"><input type="radio" name="audio_source" value="loopback" /> 電腦播放的聲音（線上會議）</label>
+        <label class="check"><input type="radio" name="audio_source" value="mic" /> 麥克風（現場演講、研討會會場）</label>
+      </div>
+      <div id="mic-box" class="local" hidden>
+        <label>麥克風
+          <select name="mic_device"><option value="">預設麥克風</option></select>
+        </label>
+        <label>增益（離講者遠、聲音小就調高）
+          <select name="mic_gain">
+            <option value="1">1 倍（原音）</option><option value="2">2 倍</option><option value="4">4 倍</option><option value="8">8 倍</option>
+          </select>
+        </label>
+        <div class="actions">
+          <button type="button" id="mic-check">麥克風檢查（6 秒）</button>
+          <span id="mic-meter" class="level" aria-hidden="true"></span>
+          <span id="mic-result" class="status"></span>
+        </div>
+        <p class="hint">檢查時請講者或會場正在說話。檢查用的是上面選的麥克風與增益，還沒按「儲存」也可以。</p>
+      </div>
+      <label>存檔（存在這台電腦）
+        <select name="save_mode">
+          <option value="off">不存</option>
+          <option value="text">只存逐字稿</option>
+          <option value="audio">錄音和逐字稿</option>
+        </select>
+      </label>
+      <label>存檔資料夾（留空＝「文件」裡的 OwnVoice Meet）<input name="archive_dir" /></label>
+      <div class="actions"><button type="button" id="open-archive">開啟存檔資料夾</button><span id="archive-result" class="status"></span></div>
+      <label>議程（每行一個段落名稱；按主視窗的「新段落」或 Ctrl+Shift+F9 換到下一個）
+        <textarea name="agenda" rows="4" placeholder="Keynote&#10;Session 3A: Digital Libraries&#10;Panel"></textarea>
+      </label>
+      <p class="hint">每次按「聆聽」都會開一個以日期時間命名的資料夾：每個段落一個錄音檔（WAV，一小時約 115 MB）和一份逐字稿，另有一份整場的 transcript.md。錄音只存在這台電腦，但辨識仍會把聲音送到你選的服務。現場錄音前，請先確認主辦單位的規定。</p>
+
       <details class="fold" name="pick">
         <summary><h2>聽：語音辨識</h2><span id="stt-picked" class="picked"></span></summary>
         <p class="hint">每小時費用以連續一小時的音訊計。</p>

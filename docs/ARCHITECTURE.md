@@ -82,7 +82,16 @@ Checked against real services and hardware (2026-10-17):
 - Every cloud path reports a rejected key as a readable error, without retrying.
 - Settings links open the three providers' key pages (and only those: `capabilities/settings-links.json`).
 
-Not yet: translation quality beyond single sentences (a blind comparison is planned), local vLLM / Ollama, Apple on-device options and macOS system audio (ScreenCaptureKit); the in-app update has not yet been tried end to end (it needs a published release).
+Checked on the published releases (2026-10-17):
+- In-app update, end to end on the installed copy: Settings > Check for updates found 0.1.2 from 0.1.1 and 0.1.3 from 0.1.2, Update downloaded, verified and installed it, and the app restarted on the new version (the version line in Settings and the new window layout confirmed it). The `.sig` of each release carries the key id of the public key built into the app.
+- Ollama through the local chat path (`local-llm`, OpenAI-compatible `/v1`): a 7B Japanese-oriented model translated two spoken sentences and the usage table counted them. Its Chinese was rough, so quality depends on the model chosen.
+
+Checked on 2026-11-21 (`scripts/e2e-archive.ps1`, the computer's own audio, saving set to recording and transcript, two TTS sentences with 新段落 pressed between them):
+- Gemini Live and Claude Haiku 5.5 captioned and translated both sentences; the session folder held `01-Keynote.wav` (18.4 s) and `02-Panel discussion.wav` (15.8 s), named from the agenda, each header matching its file size, plus each segment's transcript and `transcript.md` with both sections and timestamps. The record-only option wrote the same two files with no captions.
+- Loopback sends nothing while nothing plays; before silence filling the first file held 5.8 s of an 18 s segment.
+- Microphones are listed by their full Windows names ("麥克風 (JieLi BR21)"). A microphone was not heard end to end: Windows denies the Claude desktop app (where these checks run) the microphone, so every device read as silence there; microphone access for desktop apps is allowed on that machine.
+
+Not yet: a microphone heard end to end (see above), macOS builds, translation quality beyond single sentences (a blind comparison is planned), local vLLM (same OpenAI-compatible path as Ollama, never run), Apple on-device options and macOS system audio (ScreenCaptureKit).
 
 ## Checking a build
 

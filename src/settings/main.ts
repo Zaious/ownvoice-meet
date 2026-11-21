@@ -1,13 +1,15 @@
-// The settings window: the speech and translation switchers (prices and descriptions from the Rust
-// catalog), local server fields, API keys (write-only; only whether a key is set comes back), the
-// glossary, estimated usage, and the version with "Check for updates".
+// The settings window: the sound source (computer audio or a microphone, with a check) and what is
+// saved, the speech and translation switchers (prices and descriptions from the Rust catalog), local
+// server fields, API keys (write-only; only whether a key is set comes back), the glossary,
+// estimated usage, and the version with "Check for updates".
 
 import { getVersion } from '@tauri-apps/api/app';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { openUrl } from '@tauri-apps/plugin-opener';
-import type { CatalogModel, LiveCaptionsSetup, Settings, UsageReport, UsageRow, Views } from '../shared/types.ts';
+import type { CatalogModel, LiveCaptionsSetup, MicCheck, Settings, UsageReport, UsageRow, Views } from '../shared/types.ts';
 import { setView } from '../shared/view.ts';
+import { judgeLevel } from './level.ts';
 import { hourlyLine, money, priceLine } from './price.ts';
 import { findNewer, installKind, installNewer, RELEASES_URL, type InstallKind, type Newer } from './updates.ts';
 
@@ -292,8 +294,85 @@ async function load(): Promise<void> {
   field('local_llm_model').value = s.local_llm_model;
   showLocalFields();
   hideFromCapture.checked = s.view.hide_from_capture;
+  await loadMicrophones(s.mic_device);
+  setSource(s.audio_source === 'mic' ? 'mic' : 'loopback');
+  field<HTMLSelectElement>('mic_gain').value = String(nearestGain(s.mic_gain));
+  field<HTMLSelectElement>('save_mode').value = s.save_mode || 'off';
+  field('archive_dir').value = s.archive_dir;
+  field<HTMLTextAreaElement>('agenda').value = s.agenda;
   await Promise.all([showKeyState(), loadUsage(), showVersion()]);
 }
+
+// ---------- sound source and saving ----------
+const micBox = document.querySelector<HTMLElement>('#mic-box')!;
+
+function source(): string {
+  return form.querySelector<HTMLInputElement>('input[name="audio_source"]:checked')?.value ?? 'loopback';
+}
+
+function setSource(value: string): void {
+  const radio = form.querySelector<HTMLInputElement>(`input[name="audio_source"][value="${value}"]`);
+  if (radio) radio.checked = true;
+  micBox.hidden = value !== 'mic';
+}
+
+function nearestGain(g: number): number {
+  return [1, 2, 4, 8].reduce((best, x) => (Math.abs(x - g) < Math.abs(best - g) ? x : best), 1);
+}
+
+/** The microphones this computer has; a saved one that is missing stays listed, marked. */
+async function loadMicrophones(saved: string): Promise<void> {
+  const select = field<HTMLSelectElement>('mic_device');
+  const names = await invoke<string[]>('list_microphones').catch(() => [] as string[]);
+  select.replaceChildren(new Option('預設麥克風', ''));
+  for (const n of names) select.append(new Option(n, n));
+  if (saved && !names.includes(saved)) select.append(new Option(`${saved}（現在找不到）`, saved));
+  select.value = saved;
+}
+
+for (const radio of form.querySelectorAll<HTMLInputElement>('input[name="audio_source"]')) {
+  radio.addEventListener('change', () => {
+    setSource(source());
+    // A talk in the room is usually worth keeping; the user can still pick 不存.
+    const save = field<HTMLSelectElement>('save_mode');
+    if (source() === 'mic' && save.value === 'off') save.value = 'audio';
+  });
+}
+
+const micMeter = document.querySelector<HTMLElement>('#mic-meter')!;
+const micResult = document.querySelector<HTMLElement>('#mic-result')!;
+void listen<number>('mic-level', (e) => {
+  const bars = Math.min(10, Math.round(Math.sqrt(e.payload) * 24));
+  micMeter.textContent = '▮'.repeat(bars) + '▯'.repeat(10 - bars);
+});
+
+document.querySelector('#mic-check')!.addEventListener('click', async (e) => {
+  const btn = e.currentTarget as HTMLButtonElement;
+  btn.disabled = true;
+  micResult.textContent = '檢查中，請讓現場有人說話…';
+  try {
+    const r = await invoke<MicCheck>('mic_check', {
+      device: field<HTMLSelectElement>('mic_device').value,
+      gain: Number(field<HTMLSelectElement>('mic_gain').value) || 1,
+    });
+    micResult.textContent = `${r.device}：最大 ${Math.round(r.peak * 100)}%。${judgeLevel(r.peak)}`;
+  } catch (err) {
+    micResult.textContent = `檢查失敗：${String(err)}`;
+  } finally {
+    btn.disabled = false;
+    micMeter.textContent = '';
+  }
+});
+
+document.querySelector('#open-archive')!.addEventListener('click', async () => {
+  const out = document.querySelector<HTMLElement>('#archive-result')!;
+  try {
+    await invoke('open_archive_dir');
+    out.textContent = '';
+  } catch (err) {
+    out.textContent = `打不開：${String(err)}`;
+  }
+});
 
 // Applies at once, like the controls in the reading windows; the save button does not touch it.
 const hideFromCapture = document.querySelector<HTMLInputElement>('#hide_from_capture')!;
@@ -321,6 +400,12 @@ form.addEventListener('submit', async (e) => {
     local_stt_model: field('local_stt_model').value.trim(),
     local_llm_url: field('local_llm_url').value.trim(),
     local_llm_model: field('local_llm_model').value.trim(),
+    audio_source: source(),
+    mic_device: field<HTMLSelectElement>('mic_device').value,
+    mic_gain: Number(field<HTMLSelectElement>('mic_gain').value) || 1,
+    save_mode: field<HTMLSelectElement>('save_mode').value,
+    archive_dir: field('archive_dir').value.trim(),
+    agenda: field<HTMLTextAreaElement>('agenda').value,
   };
   try {
     await invoke('save_settings', { value });

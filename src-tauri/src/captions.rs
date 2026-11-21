@@ -18,6 +18,7 @@ use std::time::{Duration, Instant};
 
 use tauri::{AppHandle, Manager};
 
+use crate::archive;
 use crate::llm;
 use crate::session::{Segment, Session};
 use crate::settings;
@@ -128,6 +129,7 @@ pub fn open(app: &AppHandle) -> u64 {
     if let Ok(mut lines) = app.state::<Lines>().0.lock() {
         lines.insert(id, Line::new(Instant::now()));
     }
+    archive::open_line(app, id);
     id
 }
 
@@ -157,6 +159,7 @@ pub fn finish(app: &AppHandle, id: u64, text: &str) {
     if let Ok(mut s) = app.state::<Mutex<Session>>().lock() {
         s.set_en(app, id, text, true);
     }
+    archive::set_en(app, id, text);
     debug_log(app, &format!("line {id} ended: {text}"));
     let now = Instant::now();
     let req = {
@@ -171,6 +174,7 @@ pub fn drop_line(app: &AppHandle, id: u64) {
     if let Ok(mut s) = app.state::<Mutex<Session>>().lock() {
         s.remove_segment(app, id);
     }
+    archive::drop_line(app, id);
     forget(app, id);
 }
 
@@ -229,6 +233,9 @@ fn show(app: &AppHandle, id: u64, seq: u64, stop: &AtomicBool, zh: &str, early: 
     }
     if let Ok(mut s) = app.state::<Mutex<Session>>().lock() {
         s.set_zh(app, id, zh);
+    }
+    if complete && !early {
+        archive::set_zh(app, id, zh);
     }
     true
 }

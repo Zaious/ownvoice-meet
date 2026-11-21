@@ -6,7 +6,7 @@
 
 給開會時一下子想不出英文怎麼說，但還是想用自己的話、自己開口的人。想說什麼就用中文打，OwnVoice Meet 把它變成好唸的口語英文短句，你照著唸。話是你自己的，聲音也是你自己的。
 
-> 狀態：0.1.3，Windows。已經接上真實服務使用。架構說明見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+> 狀態：0.2.0，Windows。已經接上真實服務使用。架構說明見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
 ![聽到提問並即時翻譯，講稿裡打開準備好的回答，中文回覆變成要唸的英文](docs/media/demo.gif)
 
@@ -23,6 +23,8 @@
 | **回覆** | 打中文、按 Enter，大字英文出現，照著唸。它知道會議剛剛在講什麼、你的講稿裡寫了什麼，所以名字和術語會用對。在 Zoom、Teams 裡按 `Ctrl+Shift+Space` 就會叫出來。建議放在攝影機旁邊。 |
 | **字幕** | 別人說的英文即時出現，每句下面接著中文意思。 |
 | **講稿與備忘** | 你的簡報稿、準備好的回答和備忘，每行附中文意思，分頁顯示，連結和指令可以一鍵複製。直接在視窗裡寫（內建範本與格式說明），寫英文或中文都行：**補對照** 會補上另一半，英文句補中文意思，中文句補要唸的英文。會自動保存，下次打開還在。真實範例見 [JCDL 2026 講稿](examples/scripts/journal-atlas-jcdl2026.md)。 |
+
+**在研討會會場也能用**：收音改成麥克風，同時把錄音和逐字稿存在電腦上（每個場次一個檔，按「新段落」或 `Ctrl+Shift+F9` 切換，名稱可以先貼議程）。網路斷了錄音照樣繼續；網路太差可以只錄音、不辨識。見[使用手冊](docs/MANUAL.md#在會場聽演講麥克風錄音分段)。
 
 每個視窗有自己的字級（A− / A+）和背景透明度，會記住。字幕可以只顯示中文，也可以讓滑鼠點擊穿過去操作下面的會議（用 `Ctrl+Shift+F8` 或系統匣圖示關掉）。分享螢幕時，回覆與講稿視窗不會出現在分享畫面、錄影和截圖裡（需 Windows 10 2004 以上；設定裡可以關）。字幕視窗不隱藏。
 
@@ -64,7 +66,7 @@
 
 ## 隱私
 
-會議聲音會送到你選的語音辨識服務，文字送到你選的翻譯模型，用的是你自己的帳號。有些會議有保密要求，有些地方轉錄談話需要所有人同意，開始前請先確認。會拿免費層資料訓練的服務（Gemini 是），請用付費層的 key。選本機伺服器，一切都留在你的電腦；聽的部分選 Windows 即時輔助字幕也一樣。
+會議聲音會送到你選的語音辨識服務，文字送到你選的翻譯模型，用的是你自己的帳號。有些會議有保密要求，有些地方轉錄談話需要所有人同意，開始前請先確認。會拿免費層資料訓練的服務（Gemini 是），請用付費層的 key。選本機伺服器，一切都留在你的電腦；聽的部分選 Windows 即時輔助字幕也一樣。開啟存檔時，錄音和逐字稿只存在你的電腦（設定裡的存檔資料夾），預設不存。
 
 ## 下載
 
@@ -104,7 +106,7 @@ Apache License 2.0，見 [LICENSE](LICENSE) 與 [NOTICE](NOTICE)；從其他專�
 
 For people who can follow a meeting in English but can't always find the words in the moment, and still want to answer in their own words and their own voice. Type what you mean in your own language; OwnVoice Meet turns it into short, natural English that you read aloud. The words are yours, and so is the voice. The interface is in Traditional Chinese for now.
 
-Status: 0.1.3, Windows. Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The demo above was recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script; the questions are text-to-speech.
+Status: 0.2.0, Windows. Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The demo above was recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script; the questions are text-to-speech.
 
 ### What it does
 
@@ -115,6 +117,8 @@ Three windows; use the ones you need and put each where it helps.
 | **Reply** | Type in Chinese, press Enter, read the English aloud in large type. It knows what was just said in the meeting and what is in your script, so it uses the right names and terms. `Ctrl+Shift+Space` brings it up while Zoom or Teams has focus. Put it next to your webcam. |
 | **Captions** | What others say, in English as they speak, with the meaning in Chinese under each sentence. |
 | **Script & notes** | Your talk, prepared answers and notes, each line with its meaning, in tabs, with copy buttons for links and commands. Write it in the window (a template and a format guide are built in), in English or in Chinese: **補對照** fills in the other half, the Chinese meaning of an English line or the English to read for a Chinese one. It is saved and comes back next time. See [the JCDL 2026 script](examples/scripts/journal-atlas-jcdl2026.md) for a real one. |
+
+**At a conference venue, too**: switch the sound source to a microphone and keep the recording and the transcript on your computer, one file per session (press 新段落 or `Ctrl+Shift+F9` to move on; names can come from a pasted programme). The recording keeps going when the Wi-Fi drops, and on a bad network you can record without recognition.
 
 Each window has its own text size (A− / A+) and background opacity, remembered between runs. Captions can show the translation only, and can let clicks pass through to the meeting underneath (turn it off with `Ctrl+Shift+F8` or the tray icon). When you share your screen, the Reply and Script windows stay off the share, recordings and screenshots (Windows 10 2004 or later; can be turned off in Settings). The Captions window is not hidden.
 
@@ -148,7 +152,7 @@ Translation costs a few cents an hour on the fastest models (for example Claude 
 
 ### Privacy
 
-Meeting audio goes to the speech service you choose, and text to the language model you choose, under your own account. Some meetings are confidential, and some places require everyone's consent before a conversation is transcribed: check before you turn it on. Use paid-tier keys where the provider uses free-tier data for training (Gemini does). Local servers keep everything on your machine, and so does Windows Live Captions for listening.
+Meeting audio goes to the speech service you choose, and text to the language model you choose, under your own account. Some meetings are confidential, and some places require everyone's consent before a conversation is transcribed: check before you turn it on. Use paid-tier keys where the provider uses free-tier data for training (Gemini does). Local servers keep everything on your machine, and so does Windows Live Captions for listening. With saving on, recordings and transcripts stay on your computer, in the folder Settings shows; saving is off by default.
 
 ### Download
 

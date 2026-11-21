@@ -26,7 +26,29 @@ export interface Settings {
   local_stt_model: string;
   local_llm_url: string;
   local_llm_model: string;
+  /** "loopback" (what the computer plays) or "mic". */
+  audio_source: string;
+  mic_device: string;
+  mic_gain: number;
+  /** "off", "text" or "audio" (recording and transcript). */
+  save_mode: string;
+  archive_dir: string;
+  agenda: string;
   view: Views;
+}
+
+/** archive.rs SegmentInfo: the saved session's current segment. */
+export interface SegmentInfo {
+  index: number;
+  name: string;
+  recording: boolean;
+  dir: string;
+}
+
+export interface MicCheck {
+  device: string;
+  peak: number;
+  average: number;
 }
 
 /** Mirrors settings.rs View / Views / ViewPatch. */

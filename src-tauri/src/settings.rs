@@ -34,6 +34,20 @@ pub struct Settings {
     /// OpenAI-compatible chat server, e.g. vLLM or Ollama.
     pub local_llm_url: String,
     pub local_llm_model: String,
+    /// Where the sound comes from: "loopback" (what the computer plays: an online meeting) or "mic"
+    /// (a microphone: a talk in the room).
+    pub audio_source: String,
+    /// The microphone's name as Windows lists it; empty = the default microphone.
+    pub mic_device: String,
+    /// Software gain for the microphone (1 = as recorded), for a speaker far from a laptop.
+    pub mic_gain: f32,
+    /// What is kept on this computer while listening: "off", "text" (the transcript) or "audio"
+    /// (recording and transcript). Off unless the user chooses: other people's voices are kept.
+    pub save_mode: String,
+    /// Folder for saved sessions; empty = "OwnVoice Meet" in the user's Documents folder.
+    pub archive_dir: String,
+    /// One segment name per line (a conference programme); "新段落" moves to the next one.
+    pub agenda: String,
     /// How the windows look. Changed live from the windows (set_view), not by the settings form.
     pub view: Views,
 }
@@ -141,6 +155,12 @@ impl Default for Settings {
             local_stt_model: "Systran/faster-whisper-large-v3".into(),
             local_llm_url: "http://localhost:11434/v1".into(),
             local_llm_model: String::new(),
+            audio_source: "loopback".into(),
+            mic_device: String::new(),
+            mic_gain: 1.0,
+            save_mode: "off".into(),
+            archive_dir: String::new(),
+            agenda: String::new(),
             view: Views::default(),
         }
     }

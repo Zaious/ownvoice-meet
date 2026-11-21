@@ -5,6 +5,7 @@
 // (captions.rs, llm.rs), which also writes replies. Options and prices live in catalog.rs.
 // Text size, opacity, click-through and capture exclusion: settings.rs (stored) and view.rs.
 
+mod archive;
 mod audio;
 mod captions;
 mod catalog;
@@ -16,6 +17,7 @@ mod llm;
 mod local;
 mod openai_rt;
 mod prompts;
+mod recorder;
 mod sentences;
 mod session;
 mod settings;
@@ -26,6 +28,7 @@ mod view;
 mod zh;
 
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_window_state::StateFlags;
@@ -37,6 +40,8 @@ use settings::{Settings, ViewPatch, Views};
 type Shared<'a> = State<'a, Mutex<Session>>;
 
 const SCRIPT_MAX_BYTES: usize = 512 * 1024;
+/// The catalog's "record only" option: capture and save, no speech-to-text.
+const RECORD_ONLY: &str = "record-only";
 
 /// What is listening, if anything. `generation` tells a finished pipeline whether it is still the
 /// current one before it tidies up.
@@ -64,17 +69,26 @@ impl Running {
 
 /// Stop listening and wait for it to wind down. Not called with the listener locked: Live Captions'
 /// thread takes that lock as it ends.
-fn stop_listening(app: &AppHandle) {
+fn stop_listening(app: &AppHandle) -> Option<PathBuf> {
     let running = app.state::<Mutex<Listener>>().lock().ok().and_then(|mut l| l.running.take());
     if let Some(r) = running {
         r.stop();
     }
+    // After the capture has stopped, so the recording gets every chunk.
+    archive::end(app)
 }
 
 /// A pipeline ended on its own (a rejected key, Live Captions not set up): tidy up if it is still
 /// the current one.
 fn pipeline_ended(app: &AppHandle, generation: u64) {
     usage::flush(app);
+    // Recording in a room: losing the recognizer (a rejected key, say) must not lose the sound.
+    let current = app.state::<Mutex<Listener>>().lock().ok().is_some_and(|l| l.generation == generation);
+    if current && archive::recording(app) {
+        let status = app.state::<Mutex<Session>>().lock().map(|s| s.status.clone()).unwrap_or_default();
+        set_status(app, format!("{status}（辨識已停止；錄音繼續，按 ■ 停止才會結束）"));
+        return;
+    }
     let running = app.state::<Mutex<Listener>>().lock().ok().and_then(|mut l| if l.generation == generation { l.running.take() } else { None });
     match running {
         Some(Running::Audio(cap)) => cap.stop(),
@@ -181,9 +195,12 @@ fn compose_reply(app: AppHandle, state: Shared<'_>, zh: String) -> Result<u64, S
 #[tauri::command]
 fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool) -> Result<bool, String> {
     if !on {
-        stop_listening(&app);
+        let saved = stop_listening(&app);
         set_listening_flag(&app, false);
-        set_status(&app, "已停止");
+        match saved {
+            Some(dir) => set_status(&app, format!("已停止。存檔在 {}", dir.display())),
+            None => set_status(&app, "已停止"),
+        }
         return Ok(false);
     }
     let mut l = listener.lock().map_err(|_| "listener state is poisoned")?;
@@ -195,24 +212,36 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
         set_status(&app, "請到「設定」選一個可用的語音辨識");
         return Ok(false);
     };
+    let source = audio::Source::from_settings(&s);
+    let translator = catalog::MODELS.iter().find(|x| x.id == s.llm_id).map_or("", |x| x.label);
     if m.transport == live_captions::TRANSPORT {
+        if source != audio::Source::Loopback {
+            set_status(&app, "Windows 即時輔助字幕只能聽電腦播放的聲音；用麥克風請改選雲端辨識");
+            return Ok(false);
+        }
         // First use needs the user's consent and the meeting language's speech files; Settings walks
         // through both and switches the language itself.
         if !live_captions::prepare(&s.stt_language).ready {
             set_status(&app, "即時輔助字幕還沒準備好：請開「設定」，照「Windows 即時輔助字幕」下面的步驟做完");
             return Ok(false);
         }
+        // Live Captions gives text, not sound: only the transcript can be saved.
+        let saving = archive::begin(&app, &s, archive::describe(&s, "Windows", m.label, translator), 16_000, false, false)?;
         l.generation += 1;
         let generation = l.generation;
         let end_app = app.clone();
         l.running = Some(Running::LiveCaptions(live_captions::start(app.clone(), s.stt_language.clone(), move || pipeline_ended(&end_app, generation))));
         drop(l);
         set_listening_flag(&app, true);
+        if let Some((dir, _)) = saving {
+            set_status(&app, format!("聆聽中（即時輔助字幕）。逐字稿存在 {}", dir.display()));
+        }
         return Ok(true);
     }
+    let record_only = m.transport == RECORD_ONLY;
     // Each option needs its own key (local servers may not need one).
     let key = settings::get_key(m.provider);
-    if key.is_none() && m.provider != "local" {
+    if key.is_none() && m.provider != "local" && !record_only {
         set_status(&app, format!("請先到「設定」填 {} 的 API key", settings::display_name(m.provider)));
         return Ok(false);
     }
@@ -221,17 +250,46 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
         "gemini-live" => gemini::RATE,
         _ => stt_chunk::RATE,
     };
+    let device_hint = match &source {
+        audio::Source::Mic { device, .. } if !device.is_empty() => device.clone(),
+        audio::Source::Mic { .. } => "預設麥克風".to_string(),
+        audio::Source::Loopback => "預設喇叭".to_string(),
+    };
+    let about = archive::describe(&s, &device_hint, m.label, if record_only { "（不翻譯）" } else { translator });
+    let (dir, tap) = match archive::begin(&app, &s, about, rate, true, record_only)? {
+        Some((dir, tap)) => (Some(dir), tap),
+        None => (None, None),
+    };
     let (tx, rx) = mpsc::channel::<Vec<i16>>(64);
     let level_app = app.clone();
-    let cap = audio::start(rate, tx, move |rms| {
+    let cap = match audio::start(rate, source, tx, tap, move |rms| {
         let _ = level_app.emit("level", rms);
-    })?;
-    set_status(&app, format!("連線中…（{} · {}）", m.label, cap.device));
+    }) {
+        Ok(cap) => cap,
+        Err(e) => {
+            archive::end(&app);
+            return Err(e);
+        }
+    };
+    let saved = match (&dir, archive::recording(&app)) {
+        (Some(d), true) => format!(" · 錄音中，存在 {}", d.display()),
+        (Some(d), false) => format!(" · 逐字稿存在 {}", d.display()),
+        _ => String::new(),
+    };
+    if record_only {
+        set_status(&app, format!("只錄音，不辨識（{}）{saved}", cap.device));
+    } else {
+        set_status(&app, format!("連線中…（{} · {}）{saved}", m.label, cap.device));
+    }
     l.generation += 1;
     let generation = l.generation;
     l.running = Some(Running::Audio(cap));
     drop(l);
     set_listening_flag(&app, true);
+    if record_only {
+        drop(rx);
+        return Ok(true);
+    }
 
     let task_app = app.clone();
     let language = s.stt_language.clone();
@@ -254,6 +312,59 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
         pipeline_ended(&task_app, generation);
     });
     Ok(true)
+}
+
+/// The microphones this computer offers.
+#[tauri::command]
+fn list_microphones() -> Vec<String> {
+    audio::input_devices()
+}
+
+#[derive(serde::Serialize)]
+struct MicCheck {
+    device: String,
+    peak: f32,
+    average: f32,
+}
+
+/// Listen to a microphone for a few seconds (the check in Settings); "mic-level" events carry the
+/// level as it goes.
+#[tauri::command]
+async fn mic_check(app: AppHandle, device: String, gain: f32) -> Result<MicCheck, String> {
+    let source = audio::Source::Mic { device, gain: gain.clamp(1.0, 16.0) };
+    tauri::async_runtime::spawn_blocking(move || {
+        audio::measure(source, 6.0, move |rms| {
+            let _ = app.emit("mic-level", rms);
+        })
+    })
+    .await
+    .map_err(|e| e.to_string())?
+    .map(|(device, peak, average)| MicCheck { device, peak, average })
+}
+
+/// Start the next segment of the saved session.
+#[tauri::command]
+fn next_segment(app: AppHandle, name: Option<String>) -> Result<archive::SegmentInfo, String> {
+    archive::next_segment(&app, name)
+}
+
+#[tauri::command]
+fn rename_segment(app: AppHandle, name: String) -> Result<archive::SegmentInfo, String> {
+    archive::rename_segment(&app, &name)
+}
+
+#[tauri::command]
+fn current_segment(app: AppHandle) -> Option<archive::SegmentInfo> {
+    archive::current(&app)
+}
+
+/// Open the saved sessions folder (the current session's, while one is being saved).
+#[tauri::command]
+fn open_archive_dir(app: AppHandle) -> Result<(), String> {
+    let dir = PathBuf::from(archive::folder_for_display(&app)?);
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let opener = if cfg!(target_os = "macos") { "open" } else { "explorer" };
+    std::process::Command::new(opener).arg(&dir).spawn().map(|_| ()).map_err(|e| e.to_string())
 }
 
 /// The options shown in the settings switcher, with prices and descriptions.
@@ -381,6 +492,7 @@ pub fn run() {
         .manage(Mutex::new(usage::Usage::default()))
         .manage(view::ClickThrough::default())
         .manage(captions::Lines::default())
+        .manage(archive::Archive::default())
         .manage(llm::Http(reqwest::Client::new()))
         // Closing the captions window quits; the optional windows go with it.
         .on_window_event(|window, event| {
@@ -413,6 +525,12 @@ pub fn run() {
             live_captions_open,
             start_demo,
             clear_captions,
+            list_microphones,
+            mic_check,
+            next_segment,
+            rename_segment,
+            current_segment,
+            open_archive_dir,
             install_kind,
             get_view,
             set_view,
@@ -436,6 +554,21 @@ pub fn run() {
                 app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
             }
             view::setup(app.handle())?;
+            // Marks the next segment from anywhere (the meeting app or slides in front).
+            {
+                use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
+                let registered = app.global_shortcut().on_shortcut(archive::SEGMENT_SHORTCUT, |app, _, e| {
+                    if e.state == ShortcutState::Pressed {
+                        match archive::next_segment(app, None) {
+                            Ok(seg) => set_status(app, format!("新段落：{:02} · {}", seg.index, seg.name)),
+                            Err(msg) => set_status(app, msg),
+                        }
+                    }
+                });
+                if let Err(e) = registered {
+                    set_status(app.handle(), format!("新段落快捷鍵註冊失敗（可能被其他程式占用）：{e}"));
+                }
+            }
             // OWNVOICE_DEMO=1 starts the demo on launch (screenshots and smoke checks).
             if std::env::var_os("OWNVOICE_DEMO").is_some_and(|v| v == "1") {
                 demo::start(app.handle().clone());
