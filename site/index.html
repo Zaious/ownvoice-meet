@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OwnVoice Meet：英文會議的即時字幕、中文翻譯與回覆提詞｜免費開源</title>
+<meta name="description" content="開 Zoom、Teams、Google Meet 或研討會時，對方說的英文即時變成字幕和中文；你用中文打想說的話，它變成好唸的英文短句，由你自己說出口。也能用麥克風在會場錄音、存逐字稿。免費、開源，Windows。">
+<link rel="canonical" href="https://ownvoice.chroniclecore.com/">
+<link rel="alternate" hreflang="zh-Hant" href="https://ownvoice.chroniclecore.com/">
+<link rel="alternate" hreflang="en" href="https://ownvoice.chroniclecore.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://ownvoice.chroniclecore.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OwnVoice Meet">
+<meta property="og:title" content="OwnVoice Meet：聽得懂會議，用自己的聲音回答">
+<meta property="og:description" content="英文會議的即時字幕和中文；你打中文，它給你好唸的英文，你自己說。免費、開源。">
+<meta property="og:url" content="https://ownvoice.chroniclecore.com/">
+<meta property="og:image" content="https://ownvoice.chroniclecore.com/media/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="OwnVoice Meet 的三個視窗：英文字幕和中文、要唸的英文回覆、中英對照講稿">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#121418">
+<link rel="icon" type="image/png" href="media/icon.png">
+<link rel="apple-touch-icon" href="media/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "OwnVoice Meet",
+  "alternateName": "OwnVoice Meet 會議字幕與回覆提詞",
+  "description": "英文會議的即時字幕與中文翻譯，以及把你打的中文變成好唸英文短句的回覆提詞；也能在會場用麥克風錄音、存逐字稿。它不替你回答，也沒有合成語音。",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Windows 10, Windows 11",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "url": "https://ownvoice.chroniclecore.com/",
+  "downloadUrl": "https://github.com/Zaious/ownvoice-meet/releases/latest",
+  "image": "https://ownvoice.chroniclecore.com/media/og.png",
+  "screenshot": ["https://ownvoice.chroniclecore.com/media/demo.gif", "https://ownvoice.chroniclecore.com/media/overview.png"],
+  "featureList": ["英文即時字幕與中文翻譯", "中文打字變成好唸的英文回覆，由你自己唸", "中英對照講稿與 Q&A 備忘", "研討會會場麥克風收音", "錄音與逐字稿存在你的電腦", "依場次分段存檔", "網路斷線時錄音照常", "雲端或本機語音辨識，自備 API key"],
+  "isAccessibleForFree": true,
+  "codeRepository": "https://github.com/Zaious/ownvoice-meet",
+  "inLanguage": ["zh-Hant", "en"],
+  "author": { "@type": "Person", "name": "Zaious" },
+  "publisher": { "@type": "Organization", "name": "編年史記工作室 ChronicleCore Studio", "url": "https://studio.chroniclecore.com" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "要錢嗎？", "acceptedAnswer": { "@type": "Answer", "text": "程式免費、開源（Apache License 2.0）。語音辨識和翻譯用你自己的 API key，費用直接付給 Google、OpenAI 或 Anthropic：最便宜的組合每小時約 0.03 美元，雲端即時字幕加翻譯每小時約 0.57 美元。不想付費可以用 Windows 內建的即時輔助字幕或自己架的 Whisper 辨識。" } },
+    { "@type": "Question", "name": "它會替我回答嗎？", "acceptedAnswer": { "@type": "Answer", "text": "不會。沒有 AI 代寫的回答，也沒有合成語音。你用中文打你想說的意思，它只負責把這個意思變成好唸的英文，由你自己說出口。" } },
+    { "@type": "Question", "name": "需要什麼？", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10 或 11，以及你選的服務的 API key（例如 Gemini 和 Anthropic）。設定裡每個服務旁都有「取得 key」的連結。key 存在 Windows 認證管理員，不會寫進檔案。" } },
+    { "@type": "Question", "name": "錄音和逐字稿存在哪？會上傳嗎？", "acceptedAnswer": { "@type": "Answer", "text": "存檔預設是關的。開啟後，錄音和逐字稿只存在你的電腦（預設在「文件」裡的 OwnVoice Meet 資料夾），不會上傳到作者這邊；但辨識時，聲音會送到你選的語音服務。現場錄音前，請先確認主辦單位的規定。" } },
+    { "@type": "Question", "name": "公司電腦不能安裝程式怎麼辦？", "acceptedAnswer": { "@type": "Answer", "text": "用免安裝版：下載 zip，解壓縮後執行 OwnVoice Meet.exe，不需要系統管理員權限。若公司政策禁止執行下載的程式，或關掉了桌面應用程式的麥克風權限，就無法使用。" } },
+    { "@type": "Question", "name": "Mac 能用嗎？", "acceptedAnswer": { "@type": "Answer", "text": "目前只有 Windows 版。Mac 版在規劃中。" } },
+    { "@type": "Question", "name": "Windows 為什麼說「已保護您的電腦」？", "acceptedAnswer": { "@type": "Answer", "text": "因為程式還沒有程式碼簽章，不代表有問題。按「其他資訊」，再按「仍要執行」。原始碼公開在 GitHub，安裝檔由 GitHub 從原始碼自動建置。" } },
+    { "@type": "Question", "name": "怎麼更新？", "acceptedAnswer": { "@type": "Answer", "text": "安裝版：設定 → 檢查更新 → 更新並重新啟動，會先驗證簽章再安裝。免安裝版請下載新的 zip。程式只有在你按「檢查更新」時才會連到 GitHub。" } }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./"><img src="media/icon.png" alt="" width="28" height="28"><span>OwnVoice Meet</span></a>
+  <nav>
+    <a href="en/" hreflang="en" lang="en">English</a>
+    <a href="https://github.com/Zaious/ownvoice-meet/blob/main/docs/MANUAL.md">使用手冊</a>
+    <a href="https://github.com/Zaious/ownvoice-meet">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <h1><span class="phrase">聽得懂會議，</span><span class="phrase">用自己的聲音回答。</span></h1>
+      <p class="en-line" lang="en">Understand the meeting. Answer in your own voice.</p>
+      <p class="lead">給英文看得懂、開會時卻一下子想不出怎麼說的人。對方說的英文即時變成字幕和中文；你用中文打想說的話，它變成好唸的英文短句，由你自己說出口。免費、開源。</p>
+      <div class="ctas">
+        <a class="btn primary" href="#download">下載 Windows 版</a>
+        <a class="btn" href="#how">看它怎麼運作</a>
+      </div>
+    </div>
+    <figure class="hero-shot">
+      <img src="media/demo.gif" width="800" height="493" alt="聽到英文提問後即時出現字幕和中文；講稿裡打開準備好的回答；用中文打的回覆變成要唸的英文。">
+      <figcaption>真實流程錄製：Gemini Live 聽、Claude Haiku 5.5 翻；右邊是作者在 JCDL 2026 用的講稿。提問是語音合成的。</figcaption>
+    </figure>
+  </section>
+
+  <section class="duo" id="how">
+    <div class="duo-copy">
+      <h2>三個視窗，用得到的才開。</h2>
+      <dl>
+        <dt>回覆</dt><dd>打中文、按 Enter，大字英文出現，照著唸。它知道會議剛剛在講什麼、你的講稿寫了什麼，名字和術語會用對。在 Zoom、Teams 裡按 Ctrl+Shift+Space 就叫得出來。</dd>
+        <dt>字幕</dt><dd>別人說的英文即時出現，每句下面接著中文意思。長句講到一半就先翻，不用等講者停下來。</dd>
+        <dt>講稿</dt><dd>簡報稿、準備好的回答和備忘，中英對照、分頁顯示。只寫英文或只寫中文都行，按「補對照」補上另一半。</dd>
+      </dl>
+    </div>
+    <img src="media/overview.png" width="1970" height="1354" loading="lazy" alt="三個視窗並排：字幕和中文、要唸的英文回覆、中英對照講稿。">
+  </section>
+
+  <section class="features" id="venue">
+    <h2>在研討會會場也能用。</h2>
+    <p>線上會議收電腦的聲音；坐在會場，就改收麥克風。聽、翻、錄、存，一台筆電搞定。</p>
+    <ul>
+      <li><b>麥克風收音</b>選要用哪支麥克風，離講者遠就調高增益；6 秒的「麥克風檢查」告訴你音量夠不夠。</li>
+      <li><b><span class="rec-dot">●</span> 錄音和逐字稿存在你的電腦</b>每句英文、中文和時間都記下來，整場一份，每個場次也各一份。預設不存，要你自己打開。</li>
+      <li><b>一個場次一個檔</b>換場次按「新段落」或 Ctrl+Shift+F9；先貼上議程，段落就照議程命名。</li>
+      <li><b>網路斷了也不怕</b>錄音和辨識是分開的：會場 Wi-Fi 斷線或 key 出錯，錄音照常進行。網路太差可以只錄音、不辨識。</li>
+      <li><b>不會睡著</b>聆聽期間，筆電和螢幕不會自動休眠。</li>
+      <li><b>回答提問也用得上</b>輪到你發問或回答時，打中文、唸英文，跟線上會議一樣。</li>
+    </ul>
+  </section>
+
+  <section class="split" id="own-voice">
+    <div class="side">
+      <h2><span class="phrase">話是你的，</span><span class="phrase">聲音也是你的。</span></h2>
+    </div>
+    <div class="body">
+      <p><b>它不替你回答。</b>沒有 AI 代寫的回答，也沒有合成語音。說什麼由你決定，也由你自己說出口；OwnVoice Meet 只負責把你的意思變成好唸的英文：每句大約 15 個字以內、用字好發音，語氣和立場照你的。</p>
+      <p>聽的那一半很多工具都做得到；OwnVoice Meet 的重點在你要開口的那一刻，還有事先準備好的講稿和回答。</p>
+    </div>
+  </section>
+
+  <section class="split" id="cost">
+    <div class="side">
+      <h2>一小時幾美分起。</h2>
+      <p>用你自己的 API key，費用直接付給服務商；程式本身免費。</p>
+    </div>
+    <div class="body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>聽（語音辨識）</th><th>翻（翻譯與回覆）</th><th class="cost">約每小時</th></tr></thead>
+          <tbody>
+            <tr><td>Windows 即時輔助字幕（免費，在電腦上辨識）</td><td>Claude Haiku 5.5 或 gpt-6-luna</td><td class="cost">US$0.03</td></tr>
+            <tr><td>自己架的 Whisper（免費）</td><td>同上</td><td class="cost">US$0.03</td></tr>
+            <tr><td>OpenAI gpt-4o-mini-transcribe</td><td>同上</td><td class="cost">US$0.21</td></tr>
+            <tr><td>Gemini 3.5 Transcribe Live（最順的即時字幕）</td><td>同上</td><td class="cost">US$0.57</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>實例：作者在 JCDL 2026 那一晚一個半多小時的場次，翻譯費用是 <b>0.11 美元</b>（Claude Haiku 5.5）。以上是官方牌價估算，實際以各家帳單為準；設定裡會記錄你自己的用量。</p>
+    </div>
+  </section>
+
+  <section class="download" id="download">
+    <div class="side">
+      <h2>下載</h2>
+      <p class="aside">Windows 10、11。Mac 版規劃中。</p>
+    </div>
+    <div class="body">
+      <p class="note">安裝版只裝給目前使用者，不需要系統管理員權限，之後可以在設定裡一鍵更新。公司電腦不能裝程式的話，用免安裝的 zip，解壓縮後執行 OwnVoice Meet.exe。</p>
+      <div class="files">
+        <a class="btn primary" data-file="_x64-setup.exe" href="https://github.com/Zaious/ownvoice-meet/releases/latest">安裝版<span class="size"></span></a>
+        <a class="btn" data-file="_x64_portable.zip" href="https://github.com/Zaious/ownvoice-meet/releases/latest">免安裝 zip<span class="size"></span></a>
+      </div>
+      <p class="note">程式還沒有程式碼簽章，Windows 可能會顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。需要 WebView2 Runtime，Windows 11 已內建。第一次打開可以先按 Demo，不用 key 就能看三個視窗在做什麼；接著照<a href="https://github.com/Zaious/ownvoice-meet/blob/main/docs/MANUAL.md">使用手冊</a>設定。</p>
+      <p class="note ver" hidden>最新版 <b></b>。所有版本與更新紀錄在 <a href="https://github.com/Zaious/ownvoice-meet/releases">GitHub</a>。</p>
+    </div>
+  </section>
+
+  <section class="split faq" id="faq">
+    <div class="side">
+      <h2>常見問題</h2>
+      <p class="aside">找不到答案？到 <a href="https://github.com/Zaious/ownvoice-meet/issues">GitHub</a> 問。</p>
+    </div>
+    <div class="body">
+      <details><summary>要錢嗎？</summary><p>程式免費、開源（Apache License 2.0）。語音辨識和翻譯用你自己的 API key，費用直接付給 Google、OpenAI 或 Anthropic：最便宜的組合每小時約 0.03 美元，雲端即時字幕加翻譯每小時約 0.57 美元。不想付費可以用 Windows 內建的即時輔助字幕或自己架的 Whisper 辨識。</p></details>
+      <details><summary>它會替我回答嗎？</summary><p>不會。沒有 AI 代寫的回答，也沒有合成語音。你用中文打你想說的意思，它只負責把這個意思變成好唸的英文，由你自己說出口。</p></details>
+      <details><summary>需要什麼？</summary><p>Windows 10 或 11，以及你選的服務的 API key（例如 Gemini 和 Anthropic）。設定裡每個服務旁都有「取得 key」的連結。key 存在 Windows 認證管理員，不會寫進檔案。</p></details>
+      <details><summary>錄音和逐字稿存在哪？會上傳嗎？</summary><p>存檔預設是關的。開啟後，錄音和逐字稿只存在你的電腦（預設在「文件」裡的 OwnVoice Meet 資料夾），不會上傳到作者這邊；但辨識時，聲音會送到你選的語音服務。現場錄音前，請先確認主辦單位的規定。</p></details>
+      <details><summary>公司電腦不能安裝程式怎麼辦？</summary><p>用免安裝版：下載 zip，解壓縮後執行 OwnVoice Meet.exe，不需要系統管理員權限。若公司政策禁止執行下載的程式，或關掉了桌面應用程式的麥克風權限，就無法使用。</p></details>
+      <details><summary>Mac 能用嗎？</summary><p>目前只有 Windows 版。Mac 版在規劃中。</p></details>
+      <details><summary>Windows 為什麼說「已保護您的電腦」？</summary><p>因為程式還沒有程式碼簽章，不代表有問題。按「其他資訊」，再按「仍要執行」。原始碼公開在 GitHub，安裝檔由 GitHub 從原始碼自動建置。</p></details>
+      <details><summary>怎麼更新？</summary><p>安裝版：設定 → 檢查更新 → 更新並重新啟動，會先驗證簽章再安裝。免安裝版請下載新的 zip。程式只有在你按「檢查更新」時才會連到 GitHub。</p></details>
+    </div>
+  </section>
+
+  <section class="split" id="story">
+    <div class="side">
+      <h2><span class="phrase">為一場研討會</span><span class="phrase">做的工具。</span></h2>
+    </div>
+    <div class="body">
+      <p>作者是來自台灣的獨立研究者，英文看得懂，但開會時常常一下子想不出該怎麼說。2026 年 10 月，作者要在 JCDL 2026（ACM/IEEE 數位圖書館聯合會議）的線上 Demo 場發表，當天下午花大約兩小時做出第一版，開著它撐完一個半多小時的場次：別人說話時看字幕和中文，旁邊是中英對照的講稿和準備好的回答，沒準備到的就打中文、唸英文。</p>
+      <p>之後很多人來要這個工具，OwnVoice Meet 就是為了分享而重做的版本：不需要顯卡，服務也由你挑。</p>
+    </div>
+  </section>
+
+  <section class="split" id="privacy">
+    <div class="side">
+      <h2><span class="phrase">用你自己的帳號，</span><span class="phrase">存在你自己的電腦。</span></h2>
+    </div>
+    <div class="body">
+      <p>會議的聲音只送到你選的語音辨識服務，文字只送到你選的翻譯模型，用的是你自己的 key；作者這邊沒有伺服器，收不到任何東西。程式不做分析，只有在你按「檢查更新」時才會連到 GitHub。選 Windows 即時輔助字幕或自己架的 Whisper，聲音就不會離開你的電腦。</p>
+      <p>Gemini 的免費層會用你的資料改進產品，請用付費層的 key。有些會議有保密要求，有些地方轉錄談話需要所有人同意，開始前請先確認。</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="credits">
+    <p>編年史記工作室 <a href="https://studio.chroniclecore.com">ChronicleCore Studio</a> 出品，作者 Zaious。Apache License 2.0 授權，<a href="https://github.com/Zaious/ownvoice-meet">原始碼在 GitHub</a>。</p>
+    <p>OwnVoice Meet 免費。如果它幫你撐過一場會議，歡迎到 <a href="https://portaly.cc/chroniclecore">Portaly</a> 支持作者；贊助不會解鎖任何功能。</p>
+  </div>
+  <p class="fine">Gemini、OpenAI、Claude、Windows、Zoom、Microsoft Teams、Google Meet 是各自所有者的商標；OwnVoice Meet 是獨立專案，與這些公司沒有關係，也未獲得其認可或贊助。</p>
+</footer>
+<script src="site.js" defer></script>
+</body>
+</html>

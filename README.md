@@ -2,7 +2,7 @@
 
 **聽得懂會議，用自己的聲音回答。**
 
-*Understand the meeting. Answer in your own voice.* · [English](#english)
+*Understand the meeting. Answer in your own voice.* · [English](#english) · 網站 [ownvoice.chroniclecore.com](https://ownvoice.chroniclecore.com/)
 
 給開會時一下子想不出英文怎麼說，但還是想用自己的話、自己開口的人。想說什麼就用中文打，OwnVoice Meet 把它變成好唸的口語英文短句，你照著唸。話是你自己的，聲音也是你自己的。
 

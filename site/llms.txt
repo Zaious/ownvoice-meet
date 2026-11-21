@@ -1,0 +1,19 @@
+# OwnVoice Meet
+
+> A free, open-source Windows app for meetings, talks and Q&A in English, for people who read English better than they speak it. It shows live captions with the meaning in Chinese, and turns what the user types in Chinese into short, natural English that the user reads aloud themselves. It never answers for the user and has no synthetic voice. Since version 0.2.0 it also listens through a microphone at a conference venue and keeps recordings and transcripts on the user's computer.
+
+- Home (Traditional Chinese): https://ownvoice.chroniclecore.com/
+- Home (English): https://ownvoice.chroniclecore.com/en/
+- Download (latest release, Windows installer and portable zip): https://github.com/Zaious/ownvoice-meet/releases/latest
+- Source code and README: https://github.com/Zaious/ownvoice-meet
+- User manual (Traditional Chinese): https://github.com/Zaious/ownvoice-meet/blob/main/docs/MANUAL.md
+
+## Facts
+
+- Platform: Windows 10 and 11. No macOS version yet.
+- Price: the app is free (Apache License 2.0). Speech recognition and translation use the user's own API keys, paid to the providers: about US$0.03 an hour with Windows Live Captions or a self-hosted Whisper server plus Claude Haiku 5.5 or gpt-6-luna; about US$0.57 an hour with Gemini 3.5 Transcribe Live plus the same translation (list-price estimates).
+- Speech recognition options: Gemini 3.5 Transcribe Live, OpenAI gpt-4o-mini-transcribe, OpenAI gpt-live-transcribe, Windows Live Captions, a self-hosted OpenAI-compatible Whisper server, or record without recognition.
+- Translation options: Claude Haiku 5.5, Claude Sonnet 5.5, OpenAI gpt-6-luna, gpt-6.1-sol, Gemini 3.5 Flash-Lite, Gemini 3.8 Flash, or a self-hosted OpenAI-compatible model (vLLM, Ollama).
+- Saving is off by default. When on, each session gets a folder with one WAV recording and one Markdown transcript per segment and a whole-session transcript.md. Recording continues when speech recognition fails.
+- Privacy: audio goes only to the speech service the user picks; the author runs no server; the app contacts GitHub only when the user presses Check for updates.
+- Author: Zaious, ChronicleCore Studio (https://studio.chroniclecore.com). Origin: built for the author's online demo at JCDL 2026 in October 2026.

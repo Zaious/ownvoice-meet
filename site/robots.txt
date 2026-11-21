@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ownvoice.chroniclecore.com/sitemap.xml

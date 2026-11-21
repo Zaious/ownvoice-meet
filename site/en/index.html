@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OwnVoice Meet: live captions, translation and a reply teleprompter for English meetings</title>
+<meta name="description" content="For meetings, talks and Q&amp;A in English you read better than you speak: live captions with the meaning in Chinese, and what you type in Chinese turned into short English you read aloud yourself. Records talks and transcripts at a venue, too. Free, open source, Windows.">
+<link rel="canonical" href="https://ownvoice.chroniclecore.com/en/">
+<link rel="alternate" hreflang="zh-Hant" href="https://ownvoice.chroniclecore.com/">
+<link rel="alternate" hreflang="en" href="https://ownvoice.chroniclecore.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://ownvoice.chroniclecore.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="OwnVoice Meet">
+<meta property="og:title" content="OwnVoice Meet: understand the meeting, answer in your own voice">
+<meta property="og:description" content="Live captions with translation; type what you mean and read short English aloud yourself. Free and open source.">
+<meta property="og:url" content="https://ownvoice.chroniclecore.com/en/">
+<meta property="og:image" content="https://ownvoice.chroniclecore.com/media/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The three OwnVoice Meet windows: captions with Chinese, English to read aloud, and a bilingual script">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="zh_TW">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#121418">
+<link rel="icon" type="image/png" href="../media/icon.png">
+<link rel="apple-touch-icon" href="../media/apple-touch-icon.png">
+<link rel="stylesheet" href="../style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "OwnVoice Meet",
+  "description": "Live captions with translation for English meetings, and a reply teleprompter that turns what you type in Chinese into short English you read aloud; records talks and transcripts at a venue. It never answers for you and has no synthetic voice.",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Windows 10, Windows 11",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "url": "https://ownvoice.chroniclecore.com/en/",
+  "downloadUrl": "https://github.com/Zaious/ownvoice-meet/releases/latest",
+  "image": "https://ownvoice.chroniclecore.com/media/og.png",
+  "screenshot": ["https://ownvoice.chroniclecore.com/media/demo.gif", "https://ownvoice.chroniclecore.com/media/overview.png"],
+  "featureList": ["Live English captions with Chinese translation", "Typed Chinese turned into short English you read aloud", "Bilingual script and prepared answers", "Microphone listening at a venue", "Recordings and transcripts kept on your computer", "One file per conference session", "Recording continues when the network drops", "Cloud or local speech recognition with your own API keys"],
+  "isAccessibleForFree": true,
+  "codeRepository": "https://github.com/Zaious/ownvoice-meet",
+  "inLanguage": ["zh-Hant", "en"],
+  "author": { "@type": "Person", "name": "Zaious" },
+  "publisher": { "@type": "Organization", "name": "ChronicleCore Studio", "url": "https://studio.chroniclecore.com" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Does it cost anything?", "acceptedAnswer": { "@type": "Answer", "text": "The app is free and open source (Apache License 2.0). Speech recognition and translation run on your own API keys, paid directly to Google, OpenAI or Anthropic: the cheapest combination is about US$0.03 an hour, cloud live captions with translation about US$0.57 an hour. Windows Live Captions or a Whisper server of your own recognize speech for free." } },
+    { "@type": "Question", "name": "Does it answer for me?", "acceptedAnswer": { "@type": "Answer", "text": "No. There are no AI-written replies and no synthetic voice. You type what you mean in Chinese; it only turns that meaning into English that is easy to say, and you say it yourself." } },
+    { "@type": "Question", "name": "What do I need?", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10 or 11, and API keys for the services you pick (Gemini and Anthropic, for example). Settings links to each provider's key page. Keys are kept in Windows Credential Manager, never in a file." } },
+    { "@type": "Question", "name": "Where do recordings and transcripts go? Are they uploaded?", "acceptedAnswer": { "@type": "Answer", "text": "Saving is off by default. Turned on, recordings and transcripts stay on your computer (by default in an OwnVoice Meet folder in Documents) and never reach the author; the speech service you pick does hear the audio. Check the organizer's rules before recording a talk." } },
+    { "@type": "Question", "name": "My work computer will not let me install programs.", "acceptedAnswer": { "@type": "Answer", "text": "Use the portable zip: unzip it and run OwnVoice Meet.exe, no administrator rights needed. It cannot help if company policy blocks downloaded programs or desktop apps' access to the microphone." } },
+    { "@type": "Question", "name": "Is there a Mac version?", "acceptedAnswer": { "@type": "Answer", "text": "Not yet. Windows only for now; a Mac version is planned." } },
+    { "@type": "Question", "name": "Why does Windows say it protected my PC?", "acceptedAnswer": { "@type": "Answer", "text": "The app is not code-signed yet; that does not mean anything is wrong. Choose More info, then Run anyway. The source is public on GitHub, and GitHub builds the installers from it." } },
+    { "@type": "Question", "name": "How does it update?", "acceptedAnswer": { "@type": "Answer", "text": "Installed copy: Settings, Check for updates, Update; the update's signature is checked before it installs. For the portable zip, download the new one. The app contacts GitHub only when you press Check for updates." } }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./"><img src="../media/icon.png" alt="" width="28" height="28"><span>OwnVoice Meet</span></a>
+  <nav>
+    <a href="../" hreflang="zh-Hant" lang="zh-Hant">中文</a>
+    <a href="https://github.com/Zaious/ownvoice-meet#english">Docs</a>
+    <a href="https://github.com/Zaious/ownvoice-meet">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <h1>Understand the meeting. Answer in your own voice.</h1>
+      <p class="lead">For meetings, talks and Q&amp;A in English you read better than you speak. What others say appears as live captions with the meaning in Chinese; what you type in Chinese becomes short, natural English that you read aloud yourself. Free and open source.</p>
+      <div class="ctas">
+        <a class="btn primary" href="#download">Download for Windows</a>
+        <a class="btn" href="#how">See how it works</a>
+      </div>
+    </div>
+    <figure class="hero-shot">
+      <img src="../media/demo.gif" width="800" height="493" alt="A spoken question becomes captions with Chinese; a prepared answer is open in the script; a reply typed in Chinese becomes English to read aloud.">
+      <figcaption>Recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script. The questions are text-to-speech.</figcaption>
+    </figure>
+  </section>
+
+  <section class="duo" id="how">
+    <div class="duo-copy">
+      <h2>Three windows; open the ones you need.</h2>
+      <dl>
+        <dt>Reply</dt><dd>Type in Chinese, press Enter, and read the English aloud in large type. It knows what was just said and what is in your script, so names and terms come out right. Ctrl+Shift+Space brings it up while Zoom or Teams has focus.</dd>
+        <dt>Captions</dt><dd>What others say, in English as they speak, with the meaning in Chinese under each sentence. Long sentences are translated before they end.</dd>
+        <dt>Script</dt><dd>Your talk, prepared answers and notes, bilingual, in tabs. Write either language; one button fills in the other.</dd>
+      </dl>
+    </div>
+    <img src="../media/overview.png" width="1970" height="1354" loading="lazy" alt="The three windows side by side: captions with Chinese, English to read aloud, and a bilingual script.">
+  </section>
+
+  <section class="features" id="venue">
+    <h2>At the conference venue, too.</h2>
+    <p>Online, it listens to your computer's audio; in the room, it listens through a microphone. Listening, translating, recording and saving on one laptop.</p>
+    <ul>
+      <li><b>Microphone input</b>Pick the microphone and raise the gain for a distant speaker; a 6-second check tells you whether the level is enough.</li>
+      <li><b><span class="rec-dot">●</span> Recordings and transcripts on your computer</b>Every sentence with its translation and time, for the whole session and for each part. Off until you turn it on.</li>
+      <li><b>One file per session</b>Press 新段落 or Ctrl+Shift+F9 when the next session starts; paste the programme first and the parts take its names.</li>
+      <li><b>Bad Wi-Fi is fine</b>Recording runs apart from speech recognition, so a dropped network or a rejected key does not stop it. On a very bad network, record without recognition.</li>
+      <li><b>Stays awake</b>The laptop and screen do not go to sleep while it listens.</li>
+      <li><b>Ready for your question</b>When it is your turn to ask or answer, type in Chinese and read the English, as in an online meeting.</li>
+    </ul>
+  </section>
+
+  <section class="split" id="own-voice">
+    <div class="side">
+      <h2>Your words, your voice.</h2>
+    </div>
+    <div class="body">
+      <p><b>It does not answer for you.</b> There are no AI-written replies and no synthetic voice. You decide what to say and you say it; OwnVoice Meet turns your meaning into English that is easy to say: sentences of about 15 words at most, plain words, your tone and your stance.</p>
+      <p>Many tools do the listening half. OwnVoice Meet is about the moment you have to speak, and about the script and answers you prepared.</p>
+    </div>
+  </section>
+
+  <section class="split" id="cost">
+    <div class="side">
+      <h2>From a few cents an hour.</h2>
+      <p>Bring your own API keys and pay the providers directly; the app is free.</p>
+    </div>
+    <div class="body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Listening</th><th>Translation and replies</th><th class="cost">Per hour</th></tr></thead>
+          <tbody>
+            <tr><td>Windows Live Captions (free, on the device)</td><td>Claude Haiku 5.5 or gpt-6-luna</td><td class="cost">US$0.03</td></tr>
+            <tr><td>A Whisper server of your own (free)</td><td>Same</td><td class="cost">US$0.03</td></tr>
+            <tr><td>OpenAI gpt-4o-mini-transcribe</td><td>Same</td><td class="cost">US$0.21</td></tr>
+            <tr><td>Gemini 3.5 Transcribe Live (the smoothest live captions)</td><td>Same</td><td class="cost">US$0.57</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>For example: translation for the author's session at JCDL 2026, an evening of an hour and a half and a bit, cost <b>US$0.11</b> on Claude Haiku 5.5. These are list-price estimates; your provider's bill is the authority, and Settings keeps track of your own usage.</p>
+    </div>
+  </section>
+
+  <section class="download" id="download">
+    <div class="side">
+      <h2>Download</h2>
+      <p class="aside">Windows 10 and 11. A Mac version is planned.</p>
+    </div>
+    <div class="body">
+      <p class="note">The installer installs for your user only, without administrator rights, and updates itself from Settings. If your work computer will not install programs, use the portable zip: unzip it and run OwnVoice Meet.exe.</p>
+      <div class="files">
+        <a class="btn primary" data-file="_x64-setup.exe" href="https://github.com/Zaious/ownvoice-meet/releases/latest">Installer<span class="size"></span></a>
+        <a class="btn" data-file="_x64_portable.zip" href="https://github.com/Zaious/ownvoice-meet/releases/latest">Portable zip<span class="size"></span></a>
+      </div>
+      <p class="note">The builds are not code-signed yet, so Windows may say "Windows protected your PC": choose More info, then Run anyway. It needs the WebView2 Runtime, which Windows 11 includes. Press Demo first to see all three windows without keys. The interface is in Traditional Chinese for now.</p>
+      <p class="note ver" hidden>Latest version: <b></b>. Every version and its notes are on <a href="https://github.com/Zaious/ownvoice-meet/releases">GitHub</a>.</p>
+    </div>
+  </section>
+
+  <section class="split faq" id="faq">
+    <div class="side">
+      <h2>Questions</h2>
+      <p class="aside">Not here? Ask on <a href="https://github.com/Zaious/ownvoice-meet/issues">GitHub</a>.</p>
+    </div>
+    <div class="body">
+      <details><summary>Does it cost anything?</summary><p>The app is free and open source (Apache License 2.0). Speech recognition and translation run on your own API keys, paid directly to Google, OpenAI or Anthropic: the cheapest combination is about US$0.03 an hour, cloud live captions with translation about US$0.57 an hour. Windows Live Captions or a Whisper server of your own recognize speech for free.</p></details>
+      <details><summary>Does it answer for me?</summary><p>No. There are no AI-written replies and no synthetic voice. You type what you mean in Chinese; it only turns that meaning into English that is easy to say, and you say it yourself.</p></details>
+      <details><summary>What do I need?</summary><p>Windows 10 or 11, and API keys for the services you pick (Gemini and Anthropic, for example). Settings links to each provider's key page. Keys are kept in Windows Credential Manager, never in a file.</p></details>
+      <details><summary>Where do recordings and transcripts go? Are they uploaded?</summary><p>Saving is off by default. Turned on, recordings and transcripts stay on your computer (by default in an OwnVoice Meet folder in Documents) and never reach the author; the speech service you pick does hear the audio. Check the organizer's rules before recording a talk.</p></details>
+      <details><summary>My work computer will not let me install programs.</summary><p>Use the portable zip: unzip it and run OwnVoice Meet.exe, no administrator rights needed. It cannot help if company policy blocks downloaded programs or desktop apps' access to the microphone.</p></details>
+      <details><summary>Is there a Mac version?</summary><p>Not yet. Windows only for now; a Mac version is planned.</p></details>
+      <details><summary>Why does Windows say it protected my PC?</summary><p>The app is not code-signed yet; that does not mean anything is wrong. Choose More info, then Run anyway. The source is public on GitHub, and GitHub builds the installers from it.</p></details>
+      <details><summary>How does it update?</summary><p>Installed copy: Settings, Check for updates, Update; the update's signature is checked before it installs. For the portable zip, download the new one. The app contacts GitHub only when you press Check for updates.</p></details>
+    </div>
+  </section>
+
+  <section class="split" id="story">
+    <div class="side">
+      <h2>Made for one conference.</h2>
+    </div>
+    <div class="body">
+      <p>The author, an independent researcher from Taiwan, reads English well but often cannot find the words in time in a meeting. In October 2026 the author had an online demo at JCDL 2026, the ACM/IEEE Joint Conference on Digital Libraries, built a first version that afternoon in about two hours, and kept it open through the whole session: captions with Chinese while others spoke, a bilingual script and prepared answers beside them, and typed Chinese turned into English for anything not prepared.</p>
+      <p>Many people asked for it afterwards. OwnVoice Meet is that tool rebuilt to be shared: no graphics card needed, and your choice of providers.</p>
+    </div>
+  </section>
+
+  <section class="split" id="privacy">
+    <div class="side">
+      <h2>Your accounts, your computer.</h2>
+    </div>
+    <div class="body">
+      <p>Meeting audio goes only to the speech service you choose and text only to the language model you choose, on your own keys; the author has no server and receives nothing. The app has no analytics and contacts GitHub only when you press Check for updates. With Windows Live Captions or your own Whisper server, the audio never leaves your computer.</p>
+      <p>Gemini's free tier uses your data to improve Google's products; use a paid-tier key. Some meetings are confidential, and some places require everyone's consent before a conversation is transcribed: check before you turn it on.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="credits">
+    <p>Made by Zaious at <a href="https://studio.chroniclecore.com">ChronicleCore Studio</a>. Apache License 2.0; <a href="https://github.com/Zaious/ownvoice-meet">source on GitHub</a>.</p>
+    <p>OwnVoice Meet is free. If it got you through a meeting, you can support the author on <a href="https://portaly.cc/chroniclecore">Portaly</a>; support unlocks nothing, everyone gets the same app.</p>
+  </div>
+  <p class="fine">Gemini, OpenAI, Claude, Windows, Zoom, Microsoft Teams and Google Meet are trademarks of their owners. OwnVoice Meet is an independent project, not affiliated with, endorsed or sponsored by any of them.</p>
+</footer>
+<script src="../site.js" defer></script>
+</body>
+</html>

@@ -110,3 +110,9 @@ Not yet: a microphone heard end to end (see above), macOS builds, translation qu
 - The update key is made once by the maintainer with `tools/updater-key.ps1` (private key and password into the repository secrets, public key into `tauri.updater.conf.json`). Lose the key and installed copies can no longer update themselves.
 - The updater reads `releases/latest/download/latest.json` and the portable check reads the GitHub API without signing in, so neither sees anything while the repository is private.
 - A local dry run: `node scripts/third-party-licenses.mjs`, then `npx tauri build --bundles nsis --config src-tauri/tauri.release.conf.json`.
+
+## Website
+
+- `site/` is the static product site at https://ownvoice.chroniclecore.com/ (Traditional Chinese at `/`, English at `/en/`; share picture, sitemap, structured data for the app and the questions, `llms.txt`, 404 page; no web fonts, no analytics, no external requests except the download buttons asking GitHub for the latest release's files).
+- It is served the way the studio's other sites are: a Cloudflare Worker that only serves static files, with the domain and certificate made by Cloudflare. The deploy configuration lives outside this repository; it copies `site/` plus `docs/media/demo.gif` and `docs/images/overview.png` into the files that go live, runs the studio's layout check, and deploys only what is committed.
+- `scripts/site-og.ps1` renders the share picture (`site/media/og.png`, from `scripts/site-og.html`) and the icons; `tests/site.test.ts` checks the addresses, the share card and that each page's questions match its FAQ data.

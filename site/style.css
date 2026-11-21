@@ -1,0 +1,133 @@
+/* OwnVoice Meet site. Built on the Basesmall site's layout; the colours are the app's: the warm yellow
+   of the Chinese caption line as the accent, dark first. No web fonts, no analytics, no external requests. */
+:root {
+  color-scheme: dark light;
+  --bg: #121418; --panel: #1C1F24; --line: #2C3036; --text: #E8E8E8; --muted: #9AA3AD;
+  --accent: #F0C674; --accent-ink: #121418; --link: #F0C674; --zh: #F0C674; --rec: #FF6B6B;
+  --font: 'Segoe UI Variable', 'Segoe UI', 'Microsoft JhengHei UI', 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: light) {
+  :root { --bg: #F4F3EF; --panel: #FFFFFF; --line: #DEDBD2; --text: #17191D; --muted: #5A616B; --link: #8A5D0E; --zh: #9A6A12; }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.65 var(--font); }
+a { color: var(--link); text-underline-offset: 3px; }
+a:focus-visible, .btn:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+img { max-width: 100%; height: auto; }
+
+.top, main, footer { max-width: 1120px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
+
+.top { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 650; font-size: 18px; }
+.brand img { border-radius: 6px; }
+.top nav { display: flex; gap: 20px; }
+.top nav a { color: var(--muted); text-decoration: none; }
+.top nav a:hover { color: var(--text); }
+
+h1, h2, h3 { line-height: 1.2; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(34px, 5vw, 54px); font-weight: 700; }
+h2 { font-size: clamp(26px, 3.2vw, 36px); font-weight: 680; }
+h3 { font-size: 19px; font-weight: 650; }
+p { margin: 0; }
+.lead { font-size: 19px; color: var(--muted); max-width: 34em; }
+.en-line { color: var(--muted); font-size: 18px; margin-top: -10px; }
+
+.btn { display: inline-flex; align-items: center; height: 46px; padding: 0 22px; border-radius: 999px; border: 1px solid var(--line);
+  color: var(--text); text-decoration: none; font-weight: 600; white-space: nowrap; transition: transform .15s ease, background-color .15s ease; }
+.btn:hover { background: var(--panel); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { background: #F5D38F; }
+.btn .size { margin-left: 8px; font-weight: 400; font-size: 14px; opacity: .7; }
+.btn .size:empty { display: none; }
+
+/* Hero: copy on the left, the real app (a recording of a real session) on the right. */
+.hero { display: grid; grid-template-columns: 1fr 1.1fr; gap: 56px; align-items: center; padding: 48px 0 80px; }
+.hero-copy { display: grid; gap: 22px; }
+.ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-shot { margin: 0; }
+.hero-shot img { display: block; width: 100%; border-radius: var(--radius); border: 1px solid var(--line); box-shadow: 0 18px 50px rgb(0 0 0 / .35); }
+figcaption { margin-top: 12px; font-size: 14px; color: var(--muted); }
+
+/* Picture beside its words. */
+.duo { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: center; padding: 72px 0; border-top: 1px solid var(--line); }
+.duo-copy { display: grid; gap: 18px; }
+.duo-copy > p { color: var(--muted); }
+.duo img { border-radius: var(--radius); border: 1px solid var(--line); }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 14px 20px; margin: 8px 0 0; }
+dt { font-weight: 650; }
+dd { margin: 0; color: var(--muted); }
+
+/* A two-column list on a panel, no cards. */
+.features { padding: 72px 0; border-top: 1px solid var(--line); }
+.features h2 { margin-bottom: 10px; }
+.features > p { color: var(--muted); margin-bottom: 28px; max-width: 46em; }
+.features ul { list-style: none; margin: 0; padding: 32px 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 26px 48px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.features li { color: var(--muted); }
+.features li b { color: var(--text); display: block; margin-bottom: 2px; }
+.rec-dot { color: var(--rec); }
+
+/* Heading on the left, content on the right, so the column is used. */
+.split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 64px; align-items: start; padding: 64px 0; border-top: 1px solid var(--line); }
+.split .side { display: grid; gap: 14px; align-content: start; }
+.split .side p { color: var(--muted); }
+.split .body { display: grid; gap: 16px; align-content: start; min-width: 0; }
+.split .body > p { color: var(--muted); }
+.split .body > p b { color: var(--text); }
+.aside { font-size: 15px; color: var(--muted); }
+/* Chinese has no spaces: a heading that must break, breaks between these. */
+.phrase { display: inline-block; }
+
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+th.cost, td.cost { white-space: nowrap; }
+td.cost { font-weight: 650; color: var(--text); }
+.table-wrap { overflow-x: auto; }
+
+/* Download: one platform today; the files come from the latest release (site.js). */
+.download { padding: 72px 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 64px; align-items: start; }
+.download .side { display: grid; gap: 14px; }
+.download .body { display: grid; gap: 16px; }
+.files { display: flex; flex-wrap: wrap; gap: 10px; }
+.note { font-size: 15px; color: var(--muted); }
+.note[hidden] { display: none; }
+
+/* Questions: one line each until opened. */
+.faq details { border-bottom: 1px solid var(--line); padding: 14px 0; }
+.faq details:first-child { padding-top: 0; }
+.faq summary { display: flex; justify-content: space-between; gap: 16px; cursor: pointer; font-weight: 650; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; color: var(--muted); font-weight: 400; }
+.faq details[open] summary::after { content: '\2212'; }
+.faq details p { margin-top: 8px; color: var(--muted); }
+
+footer { padding-top: 28px; padding-bottom: 48px; border-top: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 8px 64px; font-size: 15px; color: var(--muted); }
+footer .credits { display: grid; gap: 8px; align-content: start; }
+footer .fine { font-size: 13px; }
+
+main.lost { padding: 96px 24px; display: grid; gap: 16px; font-size: 18px; }
+
+@media (max-width: 860px) {
+  .hero, .duo { grid-template-columns: 1fr; gap: 32px; }
+  .hero { padding: 20px 0 56px; }
+  .duo { padding: 56px 0; }
+  .features ul { grid-template-columns: 1fr; padding: 24px; }
+  .split, .download, footer { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .top, main, footer { padding-left: 16px; padding-right: 16px; }
+  body { font-size: 16px; }
+  .lead { font-size: 17px; }
+  .top nav { gap: 14px; font-size: 15px; }
+  dl { grid-template-columns: 1fr; gap: 4px; }
+  dd { margin-bottom: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+}
