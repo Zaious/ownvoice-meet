@@ -72,14 +72,26 @@
 
 ## 下載
 
-Windows 10、11，到 [最新版下載頁](https://github.com/Zaious/ownvoice-meet/releases/latest)：
+Windows 10、11 與 macOS 11 以上，到 [最新版下載頁](https://github.com/Zaious/ownvoice-meet/releases/latest)：
 
 - **安裝版**（`OwnVoice.Meet_<版本>_x64-setup.exe`）：只裝給目前使用者，不需要系統管理員權限。設定 → 檢查更新會找到新版，按「更新並重新啟動」會先驗證簽章再安裝。
 - **免安裝版**（`OwnVoice.Meet_<版本>_x64_portable.zip`）：解壓縮到任何地方，執行 `OwnVoice Meet.exe`。不會自己更新；檢查更新會帶你到下載頁。
+- **Mac 版**（`OwnVoice.Meet_<版本>_universal.dmg`，0.3.0 起，測試中）：Intel 和 Apple 晶片都能用。打開 dmg，把 OwnVoice Meet 拖到「應用程式」。有 Apple 簽章並經過 Apple 公證，直接打開就能用。Mac 版只能收麥克風，收不到電腦播放的聲音。見[使用手冊](docs/MANUAL.md#mac030-起測試中)。
 
-Mac（0.3.0 起，測試中）：下載 `OwnVoice.Meet_<版本>_universal.dmg`，Intel 和 Apple 晶片都能用，macOS 11 以上。有 Apple 簽章並經過 Apple 公證，直接打開就能用。Mac 版只能收麥克風，收不到電腦播放的聲音。見[使用手冊](docs/MANUAL.md#mac030-起測試中)。
+Windows 版還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。Windows 版需要 Microsoft Edge WebView2 Runtime（Windows 11 內建）。啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕會出現小點；可以在設定關掉，關掉後只有按「檢查更新」時才會連到 GitHub。
 
-程式還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。兩種都需要 Microsoft Edge WebView2 Runtime（Windows 11 內建）。啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕會出現小點；可以在設定關掉，關掉後只有按「檢查更新」時才會連到 GitHub。
+## 版本沿革
+
+- **[0.3.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.0)**（2026-11-22）：Mac 版（測試中）：Intel 和 Apple 晶片都能用，有 Apple 簽章與公證，用麥克風收音。新增即時摘要視窗，每幾分鐘整理一次目前為止的重點。
+- **[0.2.3](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.3)**（2026-11-22）：啟動時檢查有沒有新版，有就提醒（可以關掉）。
+- **[0.2.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.2)**（2026-11-22）：安靜 3 分鐘自動暫停辨識、20 分鐘自動結束，忘了關也不會一直扣錢。
+- **[0.2.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.1)**（2026-11-21）：修正字幕每一行只顯示一小截。
+- **[0.2.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.0)**（2026-11-21）：研討會會場也能用：麥克風收音、錄音與逐字稿存在電腦、分段、只錄音不辨識。
+- **[0.1.3](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.3)**（2026-10-17）：翻譯一律台灣繁體；英文字幕不再黏字；設定的「聽」「翻」可以收合。
+- **[0.1.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.2)**（2026-10-17）：回覆視窗跟著 app 一起打開；新增「清除」；key 貼錯欄會提醒。
+- **[0.1.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.1)**（2026-10-17）：第一個公開版本。
+
+每一版的完整說明在 [GitHub Releases](https://github.com/Zaious/ownvoice-meet/releases)。
 
 ## 從原始碼建置
 
@@ -162,14 +174,26 @@ Meeting audio goes to the speech service you choose, and text to the language mo
 
 ### Download
 
-Windows 10 and 11, from [the latest release](https://github.com/Zaious/ownvoice-meet/releases/latest):
+Windows 10 and 11, and macOS 11 or later, from [the latest release](https://github.com/Zaious/ownvoice-meet/releases/latest):
 
 - **Installer** (`OwnVoice.Meet_<version>_x64-setup.exe`): installs for your user only, no administrator rights. Settings > Check for updates finds a newer version, and Update installs it after checking its signature.
 - **Portable** (`OwnVoice.Meet_<version>_x64_portable.zip`): unzip anywhere and run `OwnVoice Meet.exe`. It never updates itself; Check for updates links to the download page.
+- **Mac** (`OwnVoice.Meet_<version>_universal.dmg`, from 0.3.0, being tested): for Intel and Apple silicon. Open the dmg and drag the app to Applications. It is signed and notarized by Apple, so it opens like any other app. The Mac version listens through a microphone only, not to what the computer plays.
 
-Mac (from 0.3.0, being tested): `OwnVoice.Meet_<version>_universal.dmg`, for Intel and Apple silicon, macOS 11 or later. It is signed and notarized by Apple, so it opens like any other app. The Mac version listens through a microphone only, not to what the computer plays.
+The Windows builds are not code-signed yet, so Windows may say "Windows protected your PC": choose **More info**, then **Run anyway**. On Windows it needs the Microsoft Edge WebView2 Runtime, which Windows 11 includes. Twenty seconds after start OwnVoice Meet asks GitHub once whether a newer version is out and puts a dot on the settings button if so; turn it off in Settings and GitHub is contacted only when you press Check for updates.
 
-The builds are not code-signed yet, so Windows may say "Windows protected your PC": choose **More info**, then **Run anyway**. Both need the Microsoft Edge WebView2 Runtime, which Windows 11 includes. Twenty seconds after start OwnVoice Meet asks GitHub once whether a newer version is out and puts a dot on the settings button if so; turn it off in Settings and GitHub is contacted only when you press Check for updates.
+### Changes
+
+- **[0.3.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.0)** (2026-11-22): A Mac version (being tested): Intel and Apple silicon, signed and notarized by Apple, listening through the microphone. A live summary window brings the main points up to date every few minutes.
+- **[0.2.3](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.3)** (2026-11-22): Checks for a newer version at start and tells you (can be turned off).
+- **[0.2.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.2)** (2026-11-22): Pauses recognition after 3 quiet minutes and stops after 20, so a forgotten session does not keep costing money.
+- **[0.2.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.1)** (2026-11-21): Caption lines are no longer cut short.
+- **[0.2.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.0)** (2026-11-21): For conference rooms: microphone input, recordings and transcripts on your computer, segments, record without recognition.
+- **[0.1.3](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.3)** (2026-10-17): Translations always in Taiwan Traditional Chinese; English captions no longer glue words; collapsible Listen and Translate settings.
+- **[0.1.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.2)** (2026-10-17): The reply window opens with the app; a Clear button; a key pasted into the wrong field is caught.
+- **[0.1.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.1)** (2026-10-17): First public release.
+
+Full notes for each version are on [GitHub Releases](https://github.com/Zaious/ownvoice-meet/releases).
 
 ### Building from source
 

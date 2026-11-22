@@ -98,6 +98,10 @@ td.cost { font-weight: 650; color: var(--text); }
 .note[hidden] { display: none; }
 
 /* Questions: one line each until opened. */
+/* Changes: version and date on the left, what changed on the right. */
+.changes dt { white-space: nowrap; }
+.changes dt time { display: block; color: var(--muted); font-weight: 400; font-size: 0.85em; }
+.changes dd { margin-bottom: 4px; }
 .faq details { border-bottom: 1px solid var(--line); padding: 14px 0; }
 .faq details:first-child { padding-top: 0; }
 .faq summary { display: flex; justify-content: space-between; gap: 16px; cursor: pointer; font-weight: 650; list-style: none; }
