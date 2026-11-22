@@ -33,7 +33,7 @@
   "alternateName": "OwnVoice Meet 會議字幕與回覆提詞",
   "description": "英文會議的即時字幕與中文翻譯，以及把你打的中文變成好唸英文短句的回覆提詞；也能在會場用麥克風錄音、存逐字稿。它不替你回答，也沒有合成語音。",
   "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Windows 10, Windows 11",
+  "operatingSystem": "Windows 10, Windows 11, macOS 11 or later",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "license": "https://www.apache.org/licenses/LICENSE-2.0",
   "url": "https://ownvoice.chroniclecore.com/",
@@ -55,10 +55,10 @@
   "mainEntity": [
     { "@type": "Question", "name": "要錢嗎？", "acceptedAnswer": { "@type": "Answer", "text": "程式免費、開源（Apache License 2.0）。語音辨識和翻譯用你自己的 API key，費用直接付給 Google、OpenAI 或 Anthropic：最便宜的組合每小時約 0.03 美元，雲端即時字幕加翻譯每小時約 0.57 美元。不想付費可以用 Windows 內建的即時輔助字幕或自己架的 Whisper 辨識。" } },
     { "@type": "Question", "name": "它會替我回答嗎？", "acceptedAnswer": { "@type": "Answer", "text": "不會。沒有 AI 代寫的回答，也沒有合成語音。你用中文打你想說的意思，它只負責把這個意思變成好唸的英文，由你自己說出口。" } },
-    { "@type": "Question", "name": "需要什麼？", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10 或 11，以及你選的服務的 API key（例如 Gemini 和 Anthropic）。設定裡每個服務旁都有「取得 key」的連結。key 存在 Windows 認證管理員，不會寫進檔案。" } },
+    { "@type": "Question", "name": "需要什麼？", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10、11 或 macOS 11 以上，以及你選的服務的 API key（例如 Gemini 和 Anthropic）。設定裡每個服務旁都有「取得 key」的連結。key 存在 Windows 認證管理員（Mac 是鑰匙圈），不會寫進檔案。" } },
     { "@type": "Question", "name": "錄音和逐字稿存在哪？會上傳嗎？", "acceptedAnswer": { "@type": "Answer", "text": "存檔預設是關的。開啟後，錄音和逐字稿只存在你的電腦（預設在「文件」裡的 OwnVoice Meet 資料夾），不會上傳到作者這邊；但辨識時，聲音會送到你選的語音服務。現場錄音前，請先確認主辦單位的規定。" } },
     { "@type": "Question", "name": "公司電腦不能安裝程式怎麼辦？", "acceptedAnswer": { "@type": "Answer", "text": "用免安裝版：下載 zip，解壓縮後執行 OwnVoice Meet.exe，不需要系統管理員權限。若公司政策禁止執行下載的程式，或關掉了桌面應用程式的麥克風權限，就無法使用。" } },
-    { "@type": "Question", "name": "Mac 能用嗎？", "acceptedAnswer": { "@type": "Answer", "text": "目前只有 Windows 版。Mac 版在規劃中。" } },
+    { "@type": "Question", "name": "Mac 能用嗎？", "acceptedAnswer": { "@type": "Answer", "text": "可以。0.3.0 起有 Mac 版（測試中），Intel 和 Apple 晶片都能用，macOS 11 以上，有 Apple 簽章與公證，下載 dmg 拖進「應用程式」就好。Mac 版只能收麥克風，適合在會場聽演講；收不到電腦播放的聲音，線上會議要讓喇叭的聲音給麥克風聽到。" } },
     { "@type": "Question", "name": "Windows 為什麼說「已保護您的電腦」？", "acceptedAnswer": { "@type": "Answer", "text": "因為程式還沒有程式碼簽章，不代表有問題。按「其他資訊」，再按「仍要執行」。原始碼公開在 GitHub，安裝檔由 GitHub 從原始碼自動建置。" } },
     { "@type": "Question", "name": "怎麼更新？", "acceptedAnswer": { "@type": "Answer", "text": "啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕 ⚙ 會出現小點（可以在設定關掉）。安裝版：設定 → 更新並重新啟動，會先驗證簽章再安裝，不按就不會動。免安裝版請下載新的 zip。" } }
   ]
@@ -112,7 +112,9 @@
       <li><b><span class="rec-dot">●</span> 錄音和逐字稿存在你的電腦</b>每句英文、中文和時間都記下來，整場一份，每個場次也各一份。預設不存，要你自己打開。</li>
       <li><b>一個場次一個檔</b>換場次按「新段落」或 Ctrl+Shift+F9；先貼上議程，段落就照議程命名。</li>
       <li><b>網路斷了也不怕</b>錄音和辨識是分開的：會場 Wi-Fi 斷線或 key 出錯，錄音照常進行。網路太差可以只錄音、不辨識。</li>
+      <li><b>跟不上時看摘要</b>「摘要」視窗列出到目前為止的重點，每幾分鐘更新一次。只整理講者說過的話，不編造、不替你出主意。</li>
       <li><b>不會睡著</b>聆聽期間，筆電和螢幕不會自動休眠。</li>
+      <li><b>Mac 也行</b>MacBook 一樣能收麥克風、錄音、出字幕和摘要（測試中）。</li>
       <li><b>回答提問也用得上</b>輪到你發問或回答時，打中文、唸英文，跟線上會議一樣。</li>
     </ul>
   </section>
@@ -151,13 +153,14 @@
   <section class="download" id="download">
     <div class="side">
       <h2>下載</h2>
-      <p class="aside">Windows 10、11。Mac 版規劃中。</p>
+      <p class="aside">Windows 10、11；Mac：macOS 11 以上（測試中）。</p>
     </div>
     <div class="body">
       <p class="note">安裝版只裝給目前使用者，不需要系統管理員權限，之後可以在設定裡一鍵更新。公司電腦不能裝程式的話，用免安裝的 zip，解壓縮後執行 OwnVoice Meet.exe。</p>
       <div class="files">
         <a class="btn primary" data-file="_x64-setup.exe" href="https://github.com/Zaious/ownvoice-meet/releases/latest">安裝版<span class="size"></span></a>
         <a class="btn" data-file="_x64_portable.zip" href="https://github.com/Zaious/ownvoice-meet/releases/latest">免安裝 zip<span class="size"></span></a>
+        <a class="btn" data-file="_universal.dmg" href="https://github.com/Zaious/ownvoice-meet/releases/latest">Mac 版 dmg<span class="size"></span></a>
       </div>
       <p class="note">程式還沒有程式碼簽章，Windows 可能會顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。需要 WebView2 Runtime，Windows 11 已內建。第一次打開可以先按 Demo，不用 key 就能看三個視窗在做什麼；接著照<a href="https://github.com/Zaious/ownvoice-meet/blob/main/docs/MANUAL.md">使用手冊</a>設定。</p>
       <p class="note ver" hidden>最新版 <b></b>。所有版本與更新紀錄在 <a href="https://github.com/Zaious/ownvoice-meet/releases">GitHub</a>。</p>
@@ -172,10 +175,10 @@
     <div class="body">
       <details><summary>要錢嗎？</summary><p>程式免費、開源（Apache License 2.0）。語音辨識和翻譯用你自己的 API key，費用直接付給 Google、OpenAI 或 Anthropic：最便宜的組合每小時約 0.03 美元，雲端即時字幕加翻譯每小時約 0.57 美元。不想付費可以用 Windows 內建的即時輔助字幕或自己架的 Whisper 辨識。</p></details>
       <details><summary>它會替我回答嗎？</summary><p>不會。沒有 AI 代寫的回答，也沒有合成語音。你用中文打你想說的意思，它只負責把這個意思變成好唸的英文，由你自己說出口。</p></details>
-      <details><summary>需要什麼？</summary><p>Windows 10 或 11，以及你選的服務的 API key（例如 Gemini 和 Anthropic）。設定裡每個服務旁都有「取得 key」的連結。key 存在 Windows 認證管理員，不會寫進檔案。</p></details>
+      <details><summary>需要什麼？</summary><p>Windows 10、11 或 macOS 11 以上，以及你選的服務的 API key（例如 Gemini 和 Anthropic）。設定裡每個服務旁都有「取得 key」的連結。key 存在 Windows 認證管理員（Mac 是鑰匙圈），不會寫進檔案。</p></details>
       <details><summary>錄音和逐字稿存在哪？會上傳嗎？</summary><p>存檔預設是關的。開啟後，錄音和逐字稿只存在你的電腦（預設在「文件」裡的 OwnVoice Meet 資料夾），不會上傳到作者這邊；但辨識時，聲音會送到你選的語音服務。現場錄音前，請先確認主辦單位的規定。</p></details>
       <details><summary>公司電腦不能安裝程式怎麼辦？</summary><p>用免安裝版：下載 zip，解壓縮後執行 OwnVoice Meet.exe，不需要系統管理員權限。若公司政策禁止執行下載的程式，或關掉了桌面應用程式的麥克風權限，就無法使用。</p></details>
-      <details><summary>Mac 能用嗎？</summary><p>目前只有 Windows 版。Mac 版在規劃中。</p></details>
+      <details><summary>Mac 能用嗎？</summary><p>可以。0.3.0 起有 Mac 版（測試中），Intel 和 Apple 晶片都能用，macOS 11 以上，有 Apple 簽章與公證，下載 dmg 拖進「應用程式」就好。Mac 版只能收麥克風，適合在會場聽演講；收不到電腦播放的聲音，線上會議要讓喇叭的聲音給麥克風聽到。</p></details>
       <details><summary>Windows 為什麼說「已保護您的電腦」？</summary><p>因為程式還沒有程式碼簽章，不代表有問題。按「其他資訊」，再按「仍要執行」。原始碼公開在 GitHub，安裝檔由 GitHub 從原始碼自動建置。</p></details>
       <details><summary>怎麼更新？</summary><p>啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕 ⚙ 會出現小點（可以在設定關掉）。安裝版：設定 → 更新並重新啟動，會先驗證簽章再安裝，不按就不會動。免安裝版請下載新的 zip。</p></details>
     </div>

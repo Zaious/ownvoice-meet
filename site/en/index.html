@@ -32,7 +32,7 @@
   "name": "OwnVoice Meet",
   "description": "Live captions with translation for English meetings, and a reply teleprompter that turns what you type in Chinese into short English you read aloud; records talks and transcripts at a venue. It never answers for you and has no synthetic voice.",
   "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Windows 10, Windows 11",
+  "operatingSystem": "Windows 10, Windows 11, macOS 11 or later",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "license": "https://www.apache.org/licenses/LICENSE-2.0",
   "url": "https://ownvoice.chroniclecore.com/en/",
@@ -54,10 +54,10 @@
   "mainEntity": [
     { "@type": "Question", "name": "Does it cost anything?", "acceptedAnswer": { "@type": "Answer", "text": "The app is free and open source (Apache License 2.0). Speech recognition and translation run on your own API keys, paid directly to Google, OpenAI or Anthropic: the cheapest combination is about US$0.03 an hour, cloud live captions with translation about US$0.57 an hour. Windows Live Captions or a Whisper server of your own recognize speech for free." } },
     { "@type": "Question", "name": "Does it answer for me?", "acceptedAnswer": { "@type": "Answer", "text": "No. There are no AI-written replies and no synthetic voice. You type what you mean in Chinese; it only turns that meaning into English that is easy to say, and you say it yourself." } },
-    { "@type": "Question", "name": "What do I need?", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10 or 11, and API keys for the services you pick (Gemini and Anthropic, for example). Settings links to each provider's key page. Keys are kept in Windows Credential Manager, never in a file." } },
+    { "@type": "Question", "name": "What do I need?", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10 or 11, or macOS 11 or later, and API keys for the services you pick (Gemini and Anthropic, for example). Settings links to each provider's key page. Keys are kept in Windows Credential Manager (the Keychain on a Mac), never in a file." } },
     { "@type": "Question", "name": "Where do recordings and transcripts go? Are they uploaded?", "acceptedAnswer": { "@type": "Answer", "text": "Saving is off by default. Turned on, recordings and transcripts stay on your computer (by default in an OwnVoice Meet folder in Documents) and never reach the author; the speech service you pick does hear the audio. Check the organizer's rules before recording a talk." } },
     { "@type": "Question", "name": "My work computer will not let me install programs.", "acceptedAnswer": { "@type": "Answer", "text": "Use the portable zip: unzip it and run OwnVoice Meet.exe, no administrator rights needed. It cannot help if company policy blocks downloaded programs or desktop apps' access to the microphone." } },
-    { "@type": "Question", "name": "Is there a Mac version?", "acceptedAnswer": { "@type": "Answer", "text": "Not yet. Windows only for now; a Mac version is planned." } },
+    { "@type": "Question", "name": "Is there a Mac version?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, from 0.3.0 (being tested): for Intel and Apple silicon, macOS 11 or later, signed and notarized by Apple. Open the dmg and drag the app to Applications. It listens through a microphone only, which suits a talk in a room; it cannot hear what the computer plays, so for an online meeting the speakers have to reach the microphone." } },
     { "@type": "Question", "name": "Why does Windows say it protected my PC?", "acceptedAnswer": { "@type": "Answer", "text": "The app is not code-signed yet; that does not mean anything is wrong. Choose More info, then Run anyway. The source is public on GitHub, and GitHub builds the installers from it." } },
     { "@type": "Question", "name": "How does it update?", "acceptedAnswer": { "@type": "Answer", "text": "Twenty seconds after start the app asks GitHub once whether a newer version is out, and puts a dot on the settings button if so (this can be turned off in Settings). Installed copy: Settings, Update; the update's signature is checked before it installs, and nothing happens until you press it. For the portable zip, download the new one." } }
   ]
@@ -110,7 +110,9 @@
       <li><b><span class="rec-dot">●</span> Recordings and transcripts on your computer</b>Every sentence with its translation and time, for the whole session and for each part. Off until you turn it on.</li>
       <li><b>One file per session</b>Press 新段落 or Ctrl+Shift+F9 when the next session starts; paste the programme first and the parts take its names.</li>
       <li><b>Bad Wi-Fi is fine</b>Recording runs apart from speech recognition, so a dropped network or a rejected key does not stop it. On a very bad network, record without recognition.</li>
+      <li><b>A summary when you fall behind</b>The 摘要 window lists the main points so far, brought up to date every few minutes. It only sums up what the speakers said: nothing invented, no advice.</li>
       <li><b>Stays awake</b>The laptop and screen do not go to sleep while it listens.</li>
+      <li><b>On a Mac too</b>A MacBook listens through its microphone, records, and shows captions and the summary (being tested).</li>
       <li><b>Ready for your question</b>When it is your turn to ask or answer, type in Chinese and read the English, as in an online meeting.</li>
     </ul>
   </section>
@@ -149,13 +151,14 @@
   <section class="download" id="download">
     <div class="side">
       <h2>Download</h2>
-      <p class="aside">Windows 10 and 11. A Mac version is planned.</p>
+      <p class="aside">Windows 10 and 11; Mac: macOS 11 or later (being tested).</p>
     </div>
     <div class="body">
       <p class="note">The installer installs for your user only, without administrator rights, and updates itself from Settings. If your work computer will not install programs, use the portable zip: unzip it and run OwnVoice Meet.exe.</p>
       <div class="files">
         <a class="btn primary" data-file="_x64-setup.exe" href="https://github.com/Zaious/ownvoice-meet/releases/latest">Installer<span class="size"></span></a>
         <a class="btn" data-file="_x64_portable.zip" href="https://github.com/Zaious/ownvoice-meet/releases/latest">Portable zip<span class="size"></span></a>
+        <a class="btn" data-file="_universal.dmg" href="https://github.com/Zaious/ownvoice-meet/releases/latest">Mac dmg<span class="size"></span></a>
       </div>
       <p class="note">The builds are not code-signed yet, so Windows may say "Windows protected your PC": choose More info, then Run anyway. It needs the WebView2 Runtime, which Windows 11 includes. Press Demo first to see all three windows without keys. The interface is in Traditional Chinese for now.</p>
       <p class="note ver" hidden>Latest version: <b></b>. Every version and its notes are on <a href="https://github.com/Zaious/ownvoice-meet/releases">GitHub</a>.</p>
@@ -170,10 +173,10 @@
     <div class="body">
       <details><summary>Does it cost anything?</summary><p>The app is free and open source (Apache License 2.0). Speech recognition and translation run on your own API keys, paid directly to Google, OpenAI or Anthropic: the cheapest combination is about US$0.03 an hour, cloud live captions with translation about US$0.57 an hour. Windows Live Captions or a Whisper server of your own recognize speech for free.</p></details>
       <details><summary>Does it answer for me?</summary><p>No. There are no AI-written replies and no synthetic voice. You type what you mean in Chinese; it only turns that meaning into English that is easy to say, and you say it yourself.</p></details>
-      <details><summary>What do I need?</summary><p>Windows 10 or 11, and API keys for the services you pick (Gemini and Anthropic, for example). Settings links to each provider's key page. Keys are kept in Windows Credential Manager, never in a file.</p></details>
+      <details><summary>What do I need?</summary><p>Windows 10 or 11, or macOS 11 or later, and API keys for the services you pick (Gemini and Anthropic, for example). Settings links to each provider's key page. Keys are kept in Windows Credential Manager (the Keychain on a Mac), never in a file.</p></details>
       <details><summary>Where do recordings and transcripts go? Are they uploaded?</summary><p>Saving is off by default. Turned on, recordings and transcripts stay on your computer (by default in an OwnVoice Meet folder in Documents) and never reach the author; the speech service you pick does hear the audio. Check the organizer's rules before recording a talk.</p></details>
       <details><summary>My work computer will not let me install programs.</summary><p>Use the portable zip: unzip it and run OwnVoice Meet.exe, no administrator rights needed. It cannot help if company policy blocks downloaded programs or desktop apps' access to the microphone.</p></details>
-      <details><summary>Is there a Mac version?</summary><p>Not yet. Windows only for now; a Mac version is planned.</p></details>
+      <details><summary>Is there a Mac version?</summary><p>Yes, from 0.3.0 (being tested): for Intel and Apple silicon, macOS 11 or later, signed and notarized by Apple. Open the dmg and drag the app to Applications. It listens through a microphone only, which suits a talk in a room; it cannot hear what the computer plays, so for an online meeting the speakers have to reach the microphone.</p></details>
       <details><summary>Why does Windows say it protected my PC?</summary><p>The app is not code-signed yet; that does not mean anything is wrong. Choose More info, then Run anyway. The source is public on GitHub, and GitHub builds the installers from it.</p></details>
       <details><summary>How does it update?</summary><p>Twenty seconds after start the app asks GitHub once whether a newer version is out, and puts a dot on the settings button if so (this can be turned off in Settings). Installed copy: Settings, Update; the update's signature is checked before it installs, and nothing happens until you press it. For the portable zip, download the new one.</p></details>
     </div>

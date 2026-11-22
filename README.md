@@ -77,7 +77,7 @@ Windows 10、11，到 [最新版下載頁](https://github.com/Zaious/ownvoice-me
 - **安裝版**（`OwnVoice.Meet_<版本>_x64-setup.exe`）：只裝給目前使用者，不需要系統管理員權限。設定 → 檢查更新會找到新版，按「更新並重新啟動」會先驗證簽章再安裝。
 - **免安裝版**（`OwnVoice.Meet_<版本>_x64_portable.zip`）：解壓縮到任何地方，執行 `OwnVoice Meet.exe`。不會自己更新；檢查更新會帶你到下載頁。
 
-Mac（0.3.0 起，測試中）：下載 `OwnVoice.Meet_<版本>_universal.dmg`，Intel 和 Apple 晶片都能用，macOS 11 以上。Mac 版只能收麥克風，收不到電腦播放的聲音；還沒有 Apple 簽章，第一次打開要到「系統設定 → 隱私權與安全性」按「強制打開」。見[使用手冊](docs/MANUAL.md#mac030-起測試中)。
+Mac（0.3.0 起，測試中）：下載 `OwnVoice.Meet_<版本>_universal.dmg`，Intel 和 Apple 晶片都能用，macOS 11 以上。有 Apple 簽章並經過 Apple 公證，直接打開就能用。Mac 版只能收麥克風，收不到電腦播放的聲音。見[使用手冊](docs/MANUAL.md#mac030-起測試中)。
 
 程式還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。兩種都需要 Microsoft Edge WebView2 Runtime（Windows 11 內建）。啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕會出現小點；可以在設定關掉，關掉後只有按「檢查更新」時才會連到 GitHub。
 
@@ -167,7 +167,7 @@ Windows 10 and 11, from [the latest release](https://github.com/Zaious/ownvoice-
 - **Installer** (`OwnVoice.Meet_<version>_x64-setup.exe`): installs for your user only, no administrator rights. Settings > Check for updates finds a newer version, and Update installs it after checking its signature.
 - **Portable** (`OwnVoice.Meet_<version>_x64_portable.zip`): unzip anywhere and run `OwnVoice Meet.exe`. It never updates itself; Check for updates links to the download page.
 
-Mac (from 0.3.0, being tested): `OwnVoice.Meet_<version>_universal.dmg`, for Intel and Apple silicon, macOS 11 or later. The Mac version listens through a microphone only, not to what the computer plays. It is not signed by Apple yet, so the first time choose Open Anyway in System Settings > Privacy & Security.
+Mac (from 0.3.0, being tested): `OwnVoice.Meet_<version>_universal.dmg`, for Intel and Apple silicon, macOS 11 or later. It is signed and notarized by Apple, so it opens like any other app. The Mac version listens through a microphone only, not to what the computer plays.
 
 The builds are not code-signed yet, so Windows may say "Windows protected your PC": choose **More info**, then **Run anyway**. Both need the Microsoft Edge WebView2 Runtime, which Windows 11 includes. Twenty seconds after start OwnVoice Meet asks GitHub once whether a newer version is out and puts a dot on the settings button if so; turn it off in Settings and GitHub is contacted only when you press Check for updates.
 

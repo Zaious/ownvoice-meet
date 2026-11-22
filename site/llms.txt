@@ -10,7 +10,7 @@
 
 ## Facts
 
-- Platform: Windows 10 and 11. No macOS version yet.
+- Platform: Windows 10 and 11; macOS 11 or later from 0.3.0 (being tested; microphone only, signed and notarized).
 - Price: the app is free (Apache License 2.0). Speech recognition and translation use the user's own API keys, paid to the providers: about US$0.03 an hour with Windows Live Captions or a self-hosted Whisper server plus Claude Haiku 5.5 or gpt-6-luna; about US$0.57 an hour with Gemini 3.5 Transcribe Live plus the same translation (list-price estimates).
 - Speech recognition options: Gemini 3.5 Transcribe Live, OpenAI gpt-4o-mini-transcribe, OpenAI gpt-live-transcribe, Windows Live Captions, a self-hosted OpenAI-compatible Whisper server, or record without recognition.
 - Translation options: Claude Haiku 5.5, Claude Sonnet 5.5, OpenAI gpt-6-luna, gpt-6.1-sol, Gemini 3.5 Flash-Lite, Gemini 3.8 Flash, or a self-hosted OpenAI-compatible model (vLLM, Ollama).
