@@ -59,7 +59,7 @@
     { "@type": "Question", "name": "My work computer will not let me install programs.", "acceptedAnswer": { "@type": "Answer", "text": "Use the portable zip: unzip it and run OwnVoice Meet.exe, no administrator rights needed. It cannot help if company policy blocks downloaded programs or desktop apps' access to the microphone." } },
     { "@type": "Question", "name": "Is there a Mac version?", "acceptedAnswer": { "@type": "Answer", "text": "Not yet. Windows only for now; a Mac version is planned." } },
     { "@type": "Question", "name": "Why does Windows say it protected my PC?", "acceptedAnswer": { "@type": "Answer", "text": "The app is not code-signed yet; that does not mean anything is wrong. Choose More info, then Run anyway. The source is public on GitHub, and GitHub builds the installers from it." } },
-    { "@type": "Question", "name": "How does it update?", "acceptedAnswer": { "@type": "Answer", "text": "Installed copy: Settings, Check for updates, Update; the update's signature is checked before it installs. For the portable zip, download the new one. The app contacts GitHub only when you press Check for updates." } }
+    { "@type": "Question", "name": "How does it update?", "acceptedAnswer": { "@type": "Answer", "text": "Twenty seconds after start the app asks GitHub once whether a newer version is out, and puts a dot on the settings button if so (this can be turned off in Settings). Installed copy: Settings, Update; the update's signature is checked before it installs, and nothing happens until you press it. For the portable zip, download the new one." } }
   ]
 }
 </script>
@@ -175,7 +175,7 @@
       <details><summary>My work computer will not let me install programs.</summary><p>Use the portable zip: unzip it and run OwnVoice Meet.exe, no administrator rights needed. It cannot help if company policy blocks downloaded programs or desktop apps' access to the microphone.</p></details>
       <details><summary>Is there a Mac version?</summary><p>Not yet. Windows only for now; a Mac version is planned.</p></details>
       <details><summary>Why does Windows say it protected my PC?</summary><p>The app is not code-signed yet; that does not mean anything is wrong. Choose More info, then Run anyway. The source is public on GitHub, and GitHub builds the installers from it.</p></details>
-      <details><summary>How does it update?</summary><p>Installed copy: Settings, Check for updates, Update; the update's signature is checked before it installs. For the portable zip, download the new one. The app contacts GitHub only when you press Check for updates.</p></details>
+      <details><summary>How does it update?</summary><p>Twenty seconds after start the app asks GitHub once whether a newer version is out, and puts a dot on the settings button if so (this can be turned off in Settings). Installed copy: Settings, Update; the update's signature is checked before it installs, and nothing happens until you press it. For the portable zip, download the new one.</p></details>
     </div>
   </section>
 
@@ -194,7 +194,7 @@
       <h2>Your accounts, your computer.</h2>
     </div>
     <div class="body">
-      <p>Meeting audio goes only to the speech service you choose and text only to the language model you choose, on your own keys; the author has no server and receives nothing. The app has no analytics and contacts GitHub only when you press Check for updates. With Windows Live Captions or your own Whisper server, the audio never leaves your computer.</p>
+      <p>Meeting audio goes only to the speech service you choose and text only to the language model you choose, on your own keys; the author has no server and receives nothing. The app has no analytics; besides the services you choose, it only asks GitHub once after start whether a newer version is out (this can be turned off in Settings). With Windows Live Captions or your own Whisper server, the audio never leaves your computer.</p>
       <p>Gemini's free tier uses your data to improve Google's products; use a paid-tier key. Some meetings are confidential, and some places require everyone's consent before a conversation is transcribed: check before you turn it on.</p>
     </div>
   </section>

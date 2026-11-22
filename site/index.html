@@ -60,7 +60,7 @@
     { "@type": "Question", "name": "公司電腦不能安裝程式怎麼辦？", "acceptedAnswer": { "@type": "Answer", "text": "用免安裝版：下載 zip，解壓縮後執行 OwnVoice Meet.exe，不需要系統管理員權限。若公司政策禁止執行下載的程式，或關掉了桌面應用程式的麥克風權限，就無法使用。" } },
     { "@type": "Question", "name": "Mac 能用嗎？", "acceptedAnswer": { "@type": "Answer", "text": "目前只有 Windows 版。Mac 版在規劃中。" } },
     { "@type": "Question", "name": "Windows 為什麼說「已保護您的電腦」？", "acceptedAnswer": { "@type": "Answer", "text": "因為程式還沒有程式碼簽章，不代表有問題。按「其他資訊」，再按「仍要執行」。原始碼公開在 GitHub，安裝檔由 GitHub 從原始碼自動建置。" } },
-    { "@type": "Question", "name": "怎麼更新？", "acceptedAnswer": { "@type": "Answer", "text": "安裝版：設定 → 檢查更新 → 更新並重新啟動，會先驗證簽章再安裝。免安裝版請下載新的 zip。程式只有在你按「檢查更新」時才會連到 GitHub。" } }
+    { "@type": "Question", "name": "怎麼更新？", "acceptedAnswer": { "@type": "Answer", "text": "啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕 ⚙ 會出現小點（可以在設定關掉）。安裝版：設定 → 更新並重新啟動，會先驗證簽章再安裝，不按就不會動。免安裝版請下載新的 zip。" } }
   ]
 }
 </script>
@@ -177,7 +177,7 @@
       <details><summary>公司電腦不能安裝程式怎麼辦？</summary><p>用免安裝版：下載 zip，解壓縮後執行 OwnVoice Meet.exe，不需要系統管理員權限。若公司政策禁止執行下載的程式，或關掉了桌面應用程式的麥克風權限，就無法使用。</p></details>
       <details><summary>Mac 能用嗎？</summary><p>目前只有 Windows 版。Mac 版在規劃中。</p></details>
       <details><summary>Windows 為什麼說「已保護您的電腦」？</summary><p>因為程式還沒有程式碼簽章，不代表有問題。按「其他資訊」，再按「仍要執行」。原始碼公開在 GitHub，安裝檔由 GitHub 從原始碼自動建置。</p></details>
-      <details><summary>怎麼更新？</summary><p>安裝版：設定 → 檢查更新 → 更新並重新啟動，會先驗證簽章再安裝。免安裝版請下載新的 zip。程式只有在你按「檢查更新」時才會連到 GitHub。</p></details>
+      <details><summary>怎麼更新？</summary><p>啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕 ⚙ 會出現小點（可以在設定關掉）。安裝版：設定 → 更新並重新啟動，會先驗證簽章再安裝，不按就不會動。免安裝版請下載新的 zip。</p></details>
     </div>
   </section>
 
@@ -196,7 +196,7 @@
       <h2><span class="phrase">用你自己的帳號，</span><span class="phrase">存在你自己的電腦。</span></h2>
     </div>
     <div class="body">
-      <p>會議的聲音只送到你選的語音辨識服務，文字只送到你選的翻譯模型，用的是你自己的 key；作者這邊沒有伺服器，收不到任何東西。程式不做分析，只有在你按「檢查更新」時才會連到 GitHub。選 Windows 即時輔助字幕或自己架的 Whisper，聲音就不會離開你的電腦。</p>
+      <p>會議的聲音只送到你選的語音辨識服務，文字只送到你選的翻譯模型，用的是你自己的 key；作者這邊沒有伺服器，收不到任何東西。程式不做分析；除了你選的服務，只會在啟動後問 GitHub 一次有沒有新版（可以在設定關掉）。選 Windows 即時輔助字幕或自己架的 Whisper，聲音就不會離開你的電腦。</p>
       <p>Gemini 的免費層會用你的資料改進產品，請用付費層的 key。有些會議有保密要求，有些地方轉錄談話需要所有人同意，開始前請先確認。</p>
     </div>
   </section>

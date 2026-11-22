@@ -6,7 +6,7 @@
 
 給開會時一下子想不出英文怎麼說，但還是想用自己的話、自己開口的人。想說什麼就用中文打，OwnVoice Meet 把它變成好唸的口語英文短句，你照著唸。話是你自己的，聲音也是你自己的。
 
-> 狀態：0.2.2，Windows。已經接上真實服務使用。架構說明見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+> 狀態：0.2.3，Windows。已經接上真實服務使用。架構說明見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
 ![聽到提問並即時翻譯，講稿裡打開準備好的回答，中文回覆變成要唸的英文](docs/media/demo.gif)
 
@@ -75,7 +75,7 @@ Windows 10、11，到 [最新版下載頁](https://github.com/Zaious/ownvoice-me
 - **安裝版**（`OwnVoice.Meet_<版本>_x64-setup.exe`）：只裝給目前使用者，不需要系統管理員權限。設定 → 檢查更新會找到新版，按「更新並重新啟動」會先驗證簽章再安裝。
 - **免安裝版**（`OwnVoice.Meet_<版本>_x64_portable.zip`）：解壓縮到任何地方，執行 `OwnVoice Meet.exe`。不會自己更新；檢查更新會帶你到下載頁。
 
-程式還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。兩種都需要 Microsoft Edge WebView2 Runtime（Windows 11 內建）。只有按「檢查更新」時才會連到 GitHub。
+程式還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。兩種都需要 Microsoft Edge WebView2 Runtime（Windows 11 內建）。啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕會出現小點；可以在設定關掉，關掉後只有按「檢查更新」時才會連到 GitHub。
 
 ## 從原始碼建置
 
@@ -106,7 +106,7 @@ Apache License 2.0，見 [LICENSE](LICENSE) 與 [NOTICE](NOTICE)；從其他專�
 
 For people who can follow a meeting in English but can't always find the words in the moment, and still want to answer in their own words and their own voice. Type what you mean in your own language; OwnVoice Meet turns it into short, natural English that you read aloud. The words are yours, and so is the voice. The interface is in Traditional Chinese for now.
 
-Status: 0.2.2, Windows. Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The demo above was recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script; the questions are text-to-speech.
+Status: 0.2.3, Windows. Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The demo above was recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script; the questions are text-to-speech.
 
 ### What it does
 
@@ -161,7 +161,7 @@ Windows 10 and 11, from [the latest release](https://github.com/Zaious/ownvoice-
 - **Installer** (`OwnVoice.Meet_<version>_x64-setup.exe`): installs for your user only, no administrator rights. Settings > Check for updates finds a newer version, and Update installs it after checking its signature.
 - **Portable** (`OwnVoice.Meet_<version>_x64_portable.zip`): unzip anywhere and run `OwnVoice Meet.exe`. It never updates itself; Check for updates links to the download page.
 
-The builds are not code-signed yet, so Windows may say "Windows protected your PC": choose **More info**, then **Run anyway**. Both need the Microsoft Edge WebView2 Runtime, which Windows 11 includes. OwnVoice Meet contacts GitHub only when you press Check for updates.
+The builds are not code-signed yet, so Windows may say "Windows protected your PC": choose **More info**, then **Run anyway**. Both need the Microsoft Edge WebView2 Runtime, which Windows 11 includes. Twenty seconds after start OwnVoice Meet asks GitHub once whether a newer version is out and puts a dot on the settings button if so; turn it off in Settings and GitHub is contacted only when you press Check for updates.
 
 ### Building from source
 

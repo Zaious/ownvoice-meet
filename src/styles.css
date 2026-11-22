@@ -70,6 +70,9 @@ kbd { font: 11px var(--font-read); color: var(--muted); }
 .seg-label { color: var(--zh); max-width: 16em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .seg-label.rec { color: #ff6b6b; }
 .seg-edit { width: 14em; }
+/* a newer version is out: a dot on the settings button */
+#settings.has-update { position: relative; }
+#settings.has-update::after { content: ''; position: absolute; top: 3px; right: 3px; width: 8px; height: 8px; border-radius: 50%; background: var(--zh); }
 .divider { text-align: center; color: var(--muted); font-size: 0.8em; margin: 12px 0 8px; }
 .settings .source { display: grid; gap: 4px; margin: 0 0 10px; }
 .settings .idle { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }

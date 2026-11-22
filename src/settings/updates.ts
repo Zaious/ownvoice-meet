@@ -1,6 +1,7 @@
-// New versions, asked for only when the user presses "Check for updates" in Settings. An installed
-// copy (the Windows installer) updates itself through Tauri's updater, and only when the user
-// presses Update; a portable copy or a dev build gets a link to the release page.
+// New versions: asked for when Settings opens (with the automatic check on, the default) or when the
+// user presses "Check for updates"; the captions window also asks once after start to show a reminder
+// (captions/main.ts). An installed copy (the Windows installer) updates itself through Tauri's updater,
+// and only when the user presses Update; a portable copy or a dev build gets a link to the release page.
 
 import { invoke } from '@tauri-apps/api/core';
 import { check, type Update } from '@tauri-apps/plugin-updater';

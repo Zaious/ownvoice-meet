@@ -1,12 +1,14 @@
 // The captions window (core): what others say, in English with the Chinese meaning under it.
 // It also opens the optional windows and owns the global shortcut for the reply window.
 
+import { getVersion } from '@tauri-apps/api/app';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut';
 import { FollowBottom } from '../shared/follow.ts';
-import type { Automation, Segment, SegmentInfo, Session, Views } from '../shared/types.ts';
+import { newerRelease } from '../settings/version.ts';
+import type { Automation, Segment, SegmentInfo, Session, Settings, Views } from '../shared/types.ts';
 import { setView, viewControls } from '../shared/view.ts';
 import { openWindow, toggleWindow, type OptionalWindow } from '../shared/windows.ts';
 
@@ -174,6 +176,22 @@ segEdit.addEventListener('keydown', (e) => {
 segEdit.addEventListener('blur', () => showSegment(currentSeg));
 
 void invoke<SegmentInfo | null>('current_segment').then(showSegment);
+
+// ---------- a newer version (Settings: update_check, on by default) ----------
+// Twenty seconds after start, one question to GitHub: is there a newer release? If so, a dot on ⚙
+// and a line in the status bar; Settings has the button that installs it.
+const UPDATE_CHECK_DELAY_MS = 20_000;
+void invoke<Settings>('get_settings').then((s) => {
+  if (!s.update_check) return;
+  setTimeout(async () => {
+    const found = await newerRelease(await getVersion().catch(() => ''));
+    if (!found) return;
+    const gear = document.querySelector<HTMLButtonElement>('#settings')!;
+    gear.classList.add('has-update');
+    gear.title = `設定：有新版本 ${found.tag}`;
+    status.textContent = `有新版本 ${found.tag}：按 ⚙ → 檢查更新`;
+  }, UPDATE_CHECK_DELAY_MS);
+});
 
 const snap = await invoke<Session>('snapshot');
 snap.segments.forEach(render);

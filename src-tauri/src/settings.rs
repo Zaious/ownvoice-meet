@@ -53,6 +53,9 @@ pub struct Settings {
     pub idle_pause_min: f32,
     /// Minutes with no new caption before listening ends by itself. 0 = never.
     pub idle_end_min: f32,
+    /// Ask GitHub once, 20 seconds after start, whether a newer version is out, and show a reminder.
+    /// Off: GitHub is contacted only when the user presses Check for updates.
+    pub update_check: bool,
     /// How the windows look. Changed live from the windows (set_view), not by the settings form.
     pub view: Views,
 }
@@ -168,6 +171,7 @@ impl Default for Settings {
             agenda: String::new(),
             idle_pause_min: 3.0,
             idle_end_min: 20.0,
+            update_check: true,
             view: Views::default(),
         }
     }

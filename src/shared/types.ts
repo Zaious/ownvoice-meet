@@ -38,6 +38,8 @@ export interface Settings {
   idle_pause_min: number;
   /** Minutes of quiet before listening ends by itself (0 = never). */
   idle_end_min: number;
+  /** Ask GitHub for a newer version 20 s after start and show a reminder. */
+  update_check: boolean;
   view: Views;
 }
 

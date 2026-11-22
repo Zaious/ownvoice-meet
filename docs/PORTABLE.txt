@@ -17,7 +17,8 @@ ending in "ownvoice-meet"; Settings > Clear all keys removes them). Delete the t
 remove the rest.
 
 Meeting audio goes to the speech service you choose and text to the language model you choose,
-under your own keys. OwnVoice Meet only contacts GitHub when you press "Check for updates".
+under your own keys. Twenty seconds after start OwnVoice Meet asks GitHub once whether a newer version
+is out (Settings can turn this off).
 This portable copy never updates itself: for a new version, download the new zip.
 
 Apache License 2.0: LICENSE.txt, NOTICE.txt and THIRD_PARTY_LICENSES.txt.
@@ -41,7 +42,7 @@ OwnVoice Meet 打不開時，通常就是少了它。
 設定 → 清除所有 key 會移除）。刪掉那兩個資料夾和這個資料夾，就清乾淨了。
 
 會議音訊送到你選的語音辨識服務，文字送到你選的語言模型，用的是你自己的 key。
-只有按「檢查更新」時才會連到 GitHub。免安裝版不會自己更新：有新版時，下載新的 zip 即可。
+啟動 20 秒後會問 GitHub 一次有沒有新版（設定裡可以關掉）。免安裝版不會自己更新：有新版時，下載新的 zip 即可。
 
 Apache License 2.0 授權：LICENSE.txt、NOTICE.txt 與 THIRD_PARTY_LICENSES.txt。
 原始碼與新版本：https://github.com/Zaious/ownvoice-meet

@@ -126,7 +126,9 @@
         <button type="button" id="install-update" hidden>更新並重新啟動</button>
         <a id="release-link" class="outlink" href="https://github.com/Zaious/ownvoice-meet/releases" hidden>下載頁 ↗</a>
       </div>
-      <p id="update-note" class="hint">只有按「檢查更新」時才會連到 GitHub。</p>
+      <p id="update-note" class="hint"></p>
+      <label class="check"><input id="update_check" type="checkbox" /> 啟動時自動檢查有沒有新版（啟動 20 秒後問 GitHub 一次版本號，有新版時 ⚙ 會出現小點；立即生效）</label>
+      <p class="hint">關掉的話，只有按「檢查更新」時才會連到 GitHub。不論開關，都只在你按「更新並重新啟動」時才會下載、安裝。</p>
 
       <h2>關於</h2>
       <p class="about-name"><strong>OwnVoice Meet</strong>　聽得懂會議，用自己的聲音回答。</p>

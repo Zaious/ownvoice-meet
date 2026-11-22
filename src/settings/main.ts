@@ -222,8 +222,9 @@ for (const b of document.querySelectorAll<HTMLButtonElement>('#usage-tabs [data-
 document.querySelector('#usage-refresh')!.addEventListener('click', () => void loadUsage());
 
 // ---------- version and updates ----------
-// Nothing is asked until the user presses "Check for updates". Only an installed copy updates
-// itself; a portable copy or a dev build gets the release page.
+// With the automatic check on (the default), opening Settings checks at once; otherwise nothing is
+// asked until the user presses "Check for updates". Only an installed copy updates itself, and only
+// when the user presses Update; a portable copy or a dev build gets the release page.
 const checkBtn = document.querySelector<HTMLButtonElement>('#check-update')!;
 const installBtn = document.querySelector<HTMLButtonElement>('#install-update')!;
 const releaseLink = document.querySelector<HTMLAnchorElement>('#release-link')!;
@@ -239,7 +240,9 @@ async function showVersion(): Promise<void> {
   document.querySelector('#version')!.textContent = `OwnVoice Meet ${appVersion}（${KIND_LABEL[kind]}）`;
 }
 
-checkBtn.addEventListener('click', async () => {
+checkBtn.addEventListener('click', () => void runCheck());
+
+async function runCheck(): Promise<void> {
   checkBtn.disabled = true;
   installBtn.hidden = true;
   updateNote.textContent = '檢查中…';
@@ -259,6 +262,15 @@ checkBtn.addEventListener('click', async () => {
       ? `有新版本 ${newer.tag}。免安裝版不會自己更新：到下載頁下載新的 zip。`
       : `有新版本 ${newer.tag}，見下載頁。`;
   }
+}
+
+// Applies at once: the captions window reads it at the next start.
+const updateCheck = document.querySelector<HTMLInputElement>('#update_check')!;
+let loaded: Settings | null = null;
+updateCheck.addEventListener('change', async () => {
+  if (!loaded) return;
+  loaded = { ...loaded, update_check: updateCheck.checked };
+  await invoke('save_settings', { value: loaded }).catch(() => undefined);
 });
 
 installBtn.addEventListener('click', async () => {
@@ -302,7 +314,10 @@ async function load(): Promise<void> {
   field<HTMLTextAreaElement>('agenda').value = s.agenda;
   field('idle_pause_min').value = String(s.idle_pause_min);
   field('idle_end_min').value = String(s.idle_end_min);
+  loaded = s;
+  updateCheck.checked = s.update_check;
   await Promise.all([showKeyState(), loadUsage(), showVersion()]);
+  if (s.update_check) void runCheck();
 }
 
 // ---------- sound source and saving ----------
@@ -417,6 +432,7 @@ form.addEventListener('submit', async (e) => {
     agenda: field<HTMLTextAreaElement>('agenda').value,
     idle_pause_min: minutesField('idle_pause_min', 3),
     idle_end_min: minutesField('idle_end_min', 20),
+    update_check: updateCheck.checked,
   };
   try {
     await invoke('save_settings', { value });

@@ -15,5 +15,5 @@
 - Speech recognition options: Gemini 3.5 Transcribe Live, OpenAI gpt-4o-mini-transcribe, OpenAI gpt-live-transcribe, Windows Live Captions, a self-hosted OpenAI-compatible Whisper server, or record without recognition.
 - Translation options: Claude Haiku 5.5, Claude Sonnet 5.5, OpenAI gpt-6-luna, gpt-6.1-sol, Gemini 3.5 Flash-Lite, Gemini 3.8 Flash, or a self-hosted OpenAI-compatible model (vLLM, Ollama).
 - Saving is off by default. When on, each session gets a folder with one WAV recording and one Markdown transcript per segment and a whole-session transcript.md. Recording continues when speech recognition fails.
-- Privacy: audio goes only to the speech service the user picks; the author runs no server; the app contacts GitHub only when the user presses Check for updates.
+- Privacy: audio goes only to the speech service the user picks; the author runs no server; besides those services, the app only asks GitHub once after start whether a newer version is out (can be turned off in Settings).
 - Author: Zaious, ChronicleCore Studio (https://studio.chroniclecore.com). Origin: built for the author's online demo at JCDL 2026 in October 2026.
