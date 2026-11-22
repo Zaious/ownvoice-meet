@@ -264,14 +264,10 @@ async function runCheck(): Promise<void> {
   }
 }
 
-// Applies at once: the captions window reads it at the next start.
+// Saved with the rest of the form, at once (the captions window reads it at the next start).
 const updateCheck = document.querySelector<HTMLInputElement>('#update_check')!;
-let loaded: Settings | null = null;
-updateCheck.addEventListener('change', async () => {
-  if (!loaded) return;
-  loaded = { ...loaded, update_check: updateCheck.checked };
-  await invoke('save_settings', { value: loaded }).catch(() => undefined);
-});
+/** Set once the form shows the saved settings: saving before that would save empty fields. */
+let ready = false;
 
 installBtn.addEventListener('click', async () => {
   if (!newer?.update) return;
@@ -323,8 +319,8 @@ async function load(): Promise<void> {
   field<HTMLTextAreaElement>('agenda').value = s.agenda;
   field('idle_pause_min').value = String(s.idle_pause_min);
   field('idle_end_min').value = String(s.idle_end_min);
-  loaded = s;
   updateCheck.checked = s.update_check;
+  ready = true;
   await Promise.all([showKeyState(), loadUsage(), showVersion()]);
   if (s.update_check) void runCheck();
 }
@@ -419,10 +415,9 @@ form.addEventListener('change', (e) => {
   }
 });
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  // The view is not on this form; the Rust side keeps what the windows last set.
-  const value: Omit<Settings, 'view'> = {
+/** The form's settings. The view is not on this form; the Rust side keeps what the windows last set. */
+function collect(): Omit<Settings, 'view'> {
+  return {
     stt_id: chosen('stt'),
     stt_language: field('stt_language').value.trim(),
     llm_id: chosen('llm'),
@@ -444,18 +439,51 @@ form.addEventListener('submit', async (e) => {
     update_check: updateCheck.checked,
     summary_every_min: minutesField('summary_every_min', 5),
   };
-  try {
-    await invoke('save_settings', { value });
-    for (const provider of PROVIDERS) {
-      const input = field(`key_${provider}`);
-      if (input.value.trim()) await invoke('set_key', { provider, key: input.value.trim() });
-      input.value = '';
+}
+
+// Everything saves itself as it changes: a user who closed the window without finding the save
+// button lost every setting (reported on 0.3.0). Saves run one after another, in order.
+let saving: Promise<void> = Promise.resolve();
+/** Saves the form; `keys`: also the typed keys. `clear` then empties those fields (a saved key never
+ *  comes back to this window); not while someone may still be typing one. */
+function save(keys: boolean, clear = keys): Promise<void> {
+  if (!ready) return saving;
+  saving = saving.then(async () => {
+    try {
+      await invoke('save_settings', { value: collect() });
+      if (keys) {
+        for (const provider of PROVIDERS) {
+          const input = field(`key_${provider}`);
+          const key = input.value.trim();
+          if (!key) continue;
+          await invoke('set_key', { provider, key });
+          if (clear) input.value = '';
+        }
+        await showKeyState();
+      }
+      saved.textContent = `已自動儲存（${new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false })}）。翻譯立即生效；語音辨識下次按「聆聽」時生效。`;
+    } catch (err) {
+      saved.textContent = `儲存失敗：${String(err)}`;
     }
-    await showKeyState();
-    saved.textContent = '已儲存。翻譯立即生效；語音辨識下次按「聆聽」時生效。';
-  } catch (err) {
-    saved.textContent = `儲存失敗：${String(err)}`;
-  }
+  });
+  return saving;
+}
+
+const isKey = (t: EventTarget | null): boolean => t instanceof HTMLInputElement && t.name.startsWith('key_');
+let typing: number | undefined;
+form.addEventListener('input', (e) => {
+  window.clearTimeout(typing);
+  // A key is saved after a pause in typing but stays in its field until the field is left (change).
+  typing = window.setTimeout(() => void save(isKey(e.target), false), isKey(e.target) ? 1500 : 600);
+});
+form.addEventListener('change', (e) => {
+  window.clearTimeout(typing);
+  void save(isKey(e.target));
+});
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  window.clearTimeout(typing);
+  void save(true);
 });
 
 document.querySelector('#clear-keys')!.addEventListener('click', async () => {

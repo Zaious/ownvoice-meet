@@ -27,7 +27,7 @@
           <span id="mic-meter" class="level" aria-hidden="true"></span>
           <span id="mic-result" class="status"></span>
         </div>
-        <p class="hint">檢查時請講者或會場正在說話。檢查用的是上面選的麥克風與增益，還沒按「儲存」也可以。</p>
+        <p class="hint">檢查時請講者或會場正在說話。檢查用的是上面選的麥克風與增益。</p>
       </div>
       <label>存檔（存在這台電腦）
         <select name="save_mode">
@@ -107,9 +107,7 @@
       </label>
 
       <div class="actions">
-        <button type="submit">儲存</button>
         <button type="button" id="clear-keys">清除所有 key</button>
-        <span id="saved" class="status"></span>
       </div>
 
       <h2>用量（估算）</h2>
@@ -143,6 +141,11 @@
         <a class="extlink" href="https://github.com/SakiRinn/LiveCaptions-Translator">致謝：LiveCaptions-Translator ↗</a>
       </div>
     </form>
+    <!-- Outside the scrolling form, so it is always in sight. Changes also save themselves. -->
+    <footer class="savebar">
+      <button type="submit" form="form">儲存</button>
+      <span id="saved" class="status">改了就會自動儲存。</span>
+    </footer>
     <script type="module" src="/src/settings/main.ts"></script>
   </body>
 </html>
