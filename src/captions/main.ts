@@ -101,7 +101,7 @@ void listen('captions-clear', () => {
   rows.clear();
   const empty = document.createElement('div');
   empty.className = 'empty';
-  empty.textContent = '按「聆聽」開始擷取系統音訊，或按 Demo 看示範。';
+  empty.textContent = '按「聆聽」開始，或按 Demo 看示範。';
   list.replaceChildren(empty);
 });
 // A live hypothesis that ended with no final text.

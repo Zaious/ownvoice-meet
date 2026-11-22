@@ -221,6 +221,8 @@ fn debug_log(app: &AppHandle, text: &str) {
 struct Live {
     current: Option<u64>,
     spacing: Respace,
+    /// The live hypothesis last shown on the gray line.
+    shown: String,
 }
 
 /// Puts back spaces the live hypothesis drops. On long unbroken speech Gemini's interim text glues
@@ -263,6 +265,40 @@ impl Respace {
     }
 }
 
+/// Gemini joins the sentences of one long turn with no space ("the moderator.Our first"): a space
+/// goes back after a sentence's end that follows a lowercase letter or digit and comes before a
+/// capital, which leaves initials and abbreviations ("U.S.A.") alone.
+fn sentence_gaps(text: &str) -> String {
+    let chars: Vec<char> = text.chars().collect();
+    let mut out = String::with_capacity(text.len() + 8);
+    for (i, &c) in chars.iter().enumerate() {
+        out.push(c);
+        let ends = matches!(c, '.' | '?' | '!');
+        let before = i.checked_sub(1).and_then(|j| chars.get(j)).is_some_and(|p| p.is_lowercase() || p.is_ascii_digit());
+        let next = chars.get(i + 1).is_some_and(|n| n.is_uppercase());
+        if ends && before && next {
+            out.push(' ');
+        }
+    }
+    out
+}
+
+/// The final text, or the gray line already shown when the final is only its last few words. On a
+/// Mac's microphone (2026-11-22) a line shown from the first sentence on was finalized as "20 years",
+/// the end of the second; the reader had seen both sentences, and the summary and the transcript
+/// lost them. An empty final still drops the line (nothing final came of the hypothesis).
+fn keep_shown(shown: &str, fin: &str) -> String {
+    let words = |t: &str| -> Vec<String> {
+        t.split_whitespace()
+            .map(|w| w.chars().filter(|c| c.is_alphanumeric()).collect::<String>().to_lowercase())
+            .filter(|w| !w.is_empty())
+            .collect()
+    };
+    let (s, f) = (words(shown), words(fin));
+    let tail = !f.is_empty() && s.len() >= 8 && f.len() * 2 < s.len() && s.ends_with(&f);
+    if tail { shown.to_string() } else { fin.to_string() }
+}
+
 impl Live {
     fn handle(&mut self, app: &AppHandle, v: &Value) {
         let sc = &v["serverContent"];
@@ -278,13 +314,15 @@ impl Live {
         if text.is_empty() {
             return;
         }
-        let text = self.spacing.fix(text);
+        let text = sentence_gaps(&self.spacing.fix(text));
         let id = *self.current.get_or_insert_with(|| captions::open(app));
         captions::interim(app, id, &text);
+        self.shown = text;
     }
 
     fn finish(&mut self, app: &AppHandle, text: &str) {
         self.spacing.reset();
+        let text = &keep_shown(&std::mem::take(&mut self.shown), &sentence_gaps(text));
         match self.current.take() {
             // Empty: nothing final came of the hypothesis, and the gray line is dropped.
             Some(id) => captions::finish(app, id, text),
@@ -315,6 +353,29 @@ mod tests {
         let shown: Vec<String> = arrived.iter().map(|t| r.fix(t)).collect();
         assert_eq!(shown.last().unwrap(), "and then retire the old build servers once every single team has signed off on the migration checklist that we shared last week.");
         assert_eq!(shown[2], "and then retire the old build servers once every single");
+    }
+
+    #[test]
+    fn a_final_that_is_only_the_end_of_the_shown_line_keeps_the_line() {
+        let shown = "Welcome to the panel on digital libraries. I am the moderator. Our first panelist will talk about preserving web archives for 20 years";
+        assert_eq!(keep_shown(shown, "20 years."), shown);
+        // A final that corrects or completes the hypothesis wins, as before.
+        assert_eq!(keep_shown("the old built servers", "the old build servers."), "the old build servers.");
+        assert_eq!(keep_shown("we will", "we will ship it on Monday."), "we will ship it on Monday.");
+        assert_eq!(keep_shown("so the plan is to", "to"), "to", "too short a line to judge");
+        assert_eq!(keep_shown(shown, ""), "", "an empty final still drops the line");
+    }
+
+    #[test]
+    fn joined_sentences_get_their_space_back() {
+        // As it came through a Mac's microphone (2026-11-22).
+        assert_eq!(
+            sentence_gaps("I am the moderator.Our first panelist will talk about 20 years.The library decided."),
+            "I am the moderator. Our first panelist will talk about 20 years. The library decided."
+        );
+        assert_eq!(sentence_gaps("Is it?Yes!Good."), "Is it? Yes! Good.");
+        assert_eq!(sentence_gaps("in the U.S.A. and e.g. there"), "in the U.S.A. and e.g. there");
+        assert_eq!(sentence_gaps("version 2.5 of it"), "version 2.5 of it");
     }
 
     #[test]

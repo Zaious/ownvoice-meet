@@ -11,8 +11,8 @@ use tauri::{AppHandle, Manager};
 
 use crate::settings;
 
-/// Fewer new lines than this are not worth a batch (a quiet room, a short pause).
-const MIN_LINES: usize = 3;
+/// Fewer new sentences than this are not worth a batch (a quiet room, a short pause).
+const MIN_SENTENCES: usize = 3;
 const TICK: Duration = Duration::from_secs(15);
 
 /// One finished caption line.
@@ -90,11 +90,11 @@ pub fn flush_now(app: &AppHandle) -> bool {
     flush(app, 1)
 }
 
-fn flush(app: &AppHandle, min_lines: usize) -> bool {
+fn flush(app: &AppHandle, min_sentences: usize) -> bool {
     let b = app.state::<Batches>();
     let lines = {
         let Ok(mut p) = b.pending.lock() else { return false };
-        if p.len() < min_lines {
+        if p.is_empty() || sentences(&p) < min_sentences {
             return false;
         }
         std::mem::take(&mut *p)
@@ -111,7 +111,16 @@ fn flush(app: &AppHandle, min_lines: usize) -> bool {
 
 /// Is a batch due: enough new lines, and the interval since the last one has passed?
 fn due(pending: usize, since_last: Duration, every: Option<Duration>) -> bool {
-    every.is_some_and(|e| since_last >= e) && pending >= MIN_LINES
+    every.is_some_and(|e| since_last >= e) && pending >= MIN_SENTENCES
+}
+
+/// How many sentences the lines hold. A speaker who hardly pauses can come back as one long line
+/// (Gemini through a Mac's microphone joined four sentences), so lines alone undercount.
+fn sentences(lines: &[FinishedLine]) -> usize {
+    lines
+        .iter()
+        .map(|l| l.en.split(['.', '?', '!']).filter(|s| s.split_whitespace().count() >= 2).count().max(1))
+        .sum()
 }
 
 /// Checks every few seconds whether a batch is due.
@@ -120,10 +129,10 @@ pub fn start(app: AppHandle) {
         std::thread::sleep(TICK);
         let every = crate::idle::minutes(settings::load(&app).summary_every_min);
         let b = app.state::<Batches>();
-        let pending = b.pending.lock().map(|p| p.len()).unwrap_or(0);
+        let pending = b.pending.lock().map(|p| sentences(&p)).unwrap_or(0);
         let since = b.last.lock().map(|l| l.elapsed()).unwrap_or_default();
         if due(pending, since, every) {
-            flush(&app, MIN_LINES);
+            flush(&app, MIN_SENTENCES);
         }
     });
 }
@@ -140,5 +149,15 @@ mod tests {
         assert!(due(10, 5 * M, Some(5 * M)));
         assert!(!due(2, 30 * M, Some(5 * M)), "a quiet room does not make a batch");
         assert!(!due(100, 300 * M, None), "0 minutes = no batches");
+    }
+
+    #[test]
+    fn sentences_are_counted_inside_long_lines() {
+        let line = |en: &str| FinishedLine { id: 0, at: Local::now(), en: en.into(), zh: String::new(), speaker: None };
+        // As it came from Gemini through a Mac's microphone (2026-11-22): four sentences, one line.
+        let joined = line("Welcome to the panel on digital libraries. I am the moderator.Our first panelist will talk about preserving web archives for 20 years.The library decided to move the whole collection to open formats by March next year.One open question is who pays for the storage after the grant ends.");
+        assert_eq!(sentences(&[joined]), 5);
+        assert_eq!(sentences(&[line("20 years"), line("Thanks.")]), 2, "a short line still counts once");
+        assert_eq!(sentences(&[line("Moved to the U.S. last year.")]), 2);
     }
 }
