@@ -91,6 +91,8 @@ Checked on 2026-11-21 (`scripts/e2e-archive.ps1`, the computer's own audio, savi
 - Loopback sends nothing while nothing plays; before silence filling the first file held 5.8 s of an 18 s segment.
 - Microphones are listed by their full Windows names ("麥克風 (JieLi BR21)"). A microphone was not heard end to end: Windows denies the Claude desktop app (where these checks run) the microphone, so every device read as silence there; microphone access for desktop apps is allowed on that machine.
 
+Checked on 2026-11-22 (`scripts/e2e-idle.ps1`, the computer's own audio, Gemini Live, pause after 0.1 min and end after 0.6 min of no new caption): after the first sentence the status turned to the pause message and nothing was sent; a second sentence woke it, its opening words reached the captions through the 2-second preroll, and the status went back to listening; 0.6 min after the last caption listening ended by itself (status and button back to ▶). 26.9 audio seconds were billed of the 66.7 s the window was listening.
+
 Not yet: a microphone heard end to end (see above), macOS builds, translation quality beyond single sentences (a blind comparison is planned), local vLLM (same OpenAI-compatible path as Ollama, never run), Apple on-device options and macOS system audio (ScreenCaptureKit).
 
 ## Checking a build

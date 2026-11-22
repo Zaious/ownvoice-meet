@@ -12,6 +12,7 @@ mod catalog;
 mod demo;
 mod gemini;
 mod gloss;
+mod idle;
 mod live_captions;
 mod llm;
 mod local;
@@ -286,32 +287,57 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
     l.running = Some(Running::Audio(cap));
     drop(l);
     set_listening_flag(&app, true);
-    if record_only {
-        drop(rx);
-        return Ok(true);
-    }
-
-    let task_app = app.clone();
-    let language = s.stt_language.clone();
-    tauri::async_runtime::spawn(async move {
-        let a = task_app.clone();
-        match m.transport {
-            "gemini-live" => gemini::run(a, key.unwrap_or_default(), m.api_model.into(), language, rx).await,
-            "openai-live" => openai_rt::run(a, m.id.into(), key.unwrap_or_default(), m.api_model.into(), captions::iso639(&language), rx).await,
-            _ => {
-                let (base_url, model) = if m.provider == "local" {
-                    (s.local_stt_url.clone(), s.local_stt_model.clone())
-                } else {
-                    ("https://api.openai.com/v1".to_string(), m.api_model.to_string())
-                };
-                let cfg = stt_chunk::Config { catalog_id: m.id.into(), base_url, key, model, language: captions::iso639(&language) };
-                stt_chunk::run(a, cfg, rx).await
+    // The speech service, started on a channel; idle.rs lets it go when it is quiet and starts it
+    // again when someone speaks.
+    let stt_app = app.clone();
+    let stt_settings = s.clone();
+    let spawn = (!record_only).then(move || {
+        move |rx: mpsc::Receiver<Vec<i16>>| {
+            let a = stt_app.clone();
+            let key = key.clone();
+            let s = stt_settings.clone();
+            async move {
+                let language = s.stt_language.clone();
+                match m.transport {
+                    "gemini-live" => gemini::run(a, key.unwrap_or_default(), m.api_model.into(), language, rx).await,
+                    "openai-live" => openai_rt::run(a, m.id.into(), key.unwrap_or_default(), m.api_model.into(), captions::iso639(&language), rx).await,
+                    _ => {
+                        let (base_url, model) = if m.provider == "local" {
+                            (s.local_stt_url.clone(), s.local_stt_model.clone())
+                        } else {
+                            ("https://api.openai.com/v1".to_string(), m.api_model.to_string())
+                        };
+                        let cfg = stt_chunk::Config { catalog_id: m.id.into(), base_url, key, model, language: captions::iso639(&language) };
+                        stt_chunk::run(a, cfg, rx).await
+                    }
+                }
             }
         }
-        // The pipeline ended on its own (a rejected key, say): stop the capture it was fed by.
-        pipeline_ended(&task_app, generation);
+    });
+    let (pause_after, end_after, end_min) = (idle::minutes(s.idle_pause_min), idle::minutes(s.idle_end_min), s.idle_end_min);
+    let task_app = app.clone();
+    tauri::async_runtime::spawn(async move {
+        let rec_app = task_app.clone();
+        match idle::supervise(task_app.clone(), rx, pause_after, end_after, spawn, move || archive::recording(&rec_app)).await {
+            idle::Ended::Stopped => {}
+            // The speech service ended on its own (a rejected key, say) with nothing being recorded.
+            idle::Ended::Failed => pipeline_ended(&task_app, generation),
+            idle::Ended::Idle => auto_end(&task_app, generation, end_min),
+        }
     });
     Ok(true)
+}
+
+/// Quiet for longer than Settings allows: stop as ■ 停止 would, and say why.
+fn auto_end(app: &AppHandle, generation: u64, minutes: f32) {
+    let current = app.state::<Mutex<Listener>>().lock().ok().is_some_and(|l| l.generation == generation);
+    if !current {
+        return;
+    }
+    let saved = stop_listening(app);
+    set_listening_flag(app, false);
+    let tail = saved.map(|d| format!("。存檔在 {}", d.display())).unwrap_or_default();
+    set_status(app, format!("已自動結束：安靜超過 {} 分鐘{tail}", idle::minutes_label(minutes)));
 }
 
 /// The microphones this computer offers.
@@ -493,6 +519,7 @@ pub fn run() {
         .manage(view::ClickThrough::default())
         .manage(captions::Lines::default())
         .manage(archive::Archive::default())
+        .manage(idle::Activity::default())
         .manage(llm::Http(reqwest::Client::new()))
         // Closing the captions window quits; the optional windows go with it.
         .on_window_event(|window, event| {

@@ -300,6 +300,8 @@ async function load(): Promise<void> {
   field<HTMLSelectElement>('save_mode').value = s.save_mode || 'off';
   field('archive_dir').value = s.archive_dir;
   field<HTMLTextAreaElement>('agenda').value = s.agenda;
+  field('idle_pause_min').value = String(s.idle_pause_min);
+  field('idle_end_min').value = String(s.idle_end_min);
   await Promise.all([showKeyState(), loadUsage(), showVersion()]);
 }
 
@@ -314,6 +316,13 @@ function setSource(value: string): void {
   const radio = form.querySelector<HTMLInputElement>(`input[name="audio_source"][value="${value}"]`);
   if (radio) radio.checked = true;
   micBox.hidden = value !== 'mic';
+}
+
+/** A minutes field: empty means the default, anything else at least 0. */
+function minutesField(name: string, fallback: number): number {
+  const raw = field(name).value.trim();
+  const n = Number(raw);
+  return raw === '' || !Number.isFinite(n) ? fallback : Math.max(0, n);
 }
 
 function nearestGain(g: number): number {
@@ -406,6 +415,8 @@ form.addEventListener('submit', async (e) => {
     save_mode: field<HTMLSelectElement>('save_mode').value,
     archive_dir: field('archive_dir').value.trim(),
     agenda: field<HTMLTextAreaElement>('agenda').value,
+    idle_pause_min: minutesField('idle_pause_min', 3),
+    idle_end_min: minutesField('idle_end_min', 20),
   };
   try {
     await invoke('save_settings', { value });

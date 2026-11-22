@@ -41,6 +41,15 @@
       <label>議程（每行一個段落名稱；按主視窗的「新段落」或 Ctrl+Shift+F9 換到下一個）
         <textarea name="agenda" rows="4" placeholder="Keynote&#10;Session 3A: Digital Libraries&#10;Panel"></textarea>
       </label>
+      <div class="idle">
+        <label>安靜幾分鐘後暫停辨識
+          <input name="idle_pause_min" type="number" min="0" max="120" step="1" />
+        </label>
+        <label>安靜幾分鐘後自動結束
+          <input name="idle_end_min" type="number" min="0" max="600" step="1" />
+        </label>
+      </div>
+      <p class="hint">「安靜」是指沒有出現新字幕（只錄音時看有沒有聲音）。暫停時不再把聲音送上雲端、不計費，有人說話會自動接上並補上前 2 秒；錄音不受影響。自動結束就像按了 ■ 停止。填 0 表示不暫停或不結束。</p>
       <p class="hint">每次按「聆聽」都會開一個以日期時間命名的資料夾：每個段落一個錄音檔（WAV，一小時約 115 MB）和一份逐字稿，另有一份整場的 transcript.md。錄音只存在這台電腦，但辨識仍會把聲音送到你選的服務。現場錄音前，請先確認主辦單位的規定。</p>
 
       <details class="fold" name="pick">

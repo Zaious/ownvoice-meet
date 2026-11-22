@@ -19,6 +19,7 @@ use std::time::{Duration, Instant};
 use tauri::{AppHandle, Manager};
 
 use crate::archive;
+use crate::idle;
 use crate::llm;
 use crate::session::{Segment, Session};
 use crate::settings;
@@ -130,11 +131,13 @@ pub fn open(app: &AppHandle) -> u64 {
         lines.insert(id, Line::new(Instant::now()));
     }
     archive::open_line(app, id);
+    idle::touch(app);
     id
 }
 
 /// The sentence so far (gray). Translated early when it keeps growing.
 pub fn interim(app: &AppHandle, id: u64, text: &str) {
+    idle::touch(app);
     if let Ok(mut s) = app.state::<Mutex<Session>>().lock() {
         s.set_en(app, id, text, false);
     }
@@ -160,6 +163,7 @@ pub fn finish(app: &AppHandle, id: u64, text: &str) {
         s.set_en(app, id, text, true);
     }
     archive::set_en(app, id, text);
+    idle::touch(app);
     debug_log(app, &format!("line {id} ended: {text}"));
     let now = Instant::now();
     let req = {

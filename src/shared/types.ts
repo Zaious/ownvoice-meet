@@ -34,6 +34,10 @@ export interface Settings {
   save_mode: string;
   archive_dir: string;
   agenda: string;
+  /** Minutes of quiet before the speech service is let go (0 = never). */
+  idle_pause_min: number;
+  /** Minutes of quiet before listening ends by itself (0 = never). */
+  idle_end_min: number;
   view: Views;
 }
 

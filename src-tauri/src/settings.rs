@@ -48,6 +48,11 @@ pub struct Settings {
     pub archive_dir: String,
     /// One segment name per line (a conference programme); "新段落" moves to the next one.
     pub agenda: String,
+    /// Minutes with no new caption before the speech service is let go: nothing is sent or billed
+    /// until someone speaks again (idle.rs). 0 = never.
+    pub idle_pause_min: f32,
+    /// Minutes with no new caption before listening ends by itself. 0 = never.
+    pub idle_end_min: f32,
     /// How the windows look. Changed live from the windows (set_view), not by the settings form.
     pub view: Views,
 }
@@ -161,6 +166,8 @@ impl Default for Settings {
             save_mode: "off".into(),
             archive_dir: String::new(),
             agenda: String::new(),
+            idle_pause_min: 3.0,
+            idle_end_min: 20.0,
             view: Views::default(),
         }
     }
