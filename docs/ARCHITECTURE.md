@@ -93,7 +93,11 @@ Checked on 2026-11-21 (`scripts/e2e-archive.ps1`, the computer's own audio, savi
 
 Checked on 2026-11-22 (`scripts/e2e-idle.ps1`, the computer's own audio, Gemini Live, pause after 0.1 min and end after 0.6 min of no new caption): after the first sentence the status turned to the pause message and nothing was sent; a second sentence woke it, its opening words reached the captions through the 2-second preroll, and the status went back to listening; 0.6 min after the last caption listening ended by itself (status and button back to ▶). 26.9 audio seconds were billed of the 66.7 s the window was listening.
 
-Not yet: a microphone heard end to end (see above), macOS builds, translation quality beyond single sentences (a blind comparison is planned), local vLLM (same OpenAI-compatible path as Ollama, never run), Apple on-device options and macOS system audio (ScreenCaptureKit).
+Checked on 2026-11-22 (`scripts/e2e-summary.ps1`, the computer's own audio, Gemini Live and Claude Haiku 5.5, saving set to the transcript, the summary interval shortened to 0.25 min, four TTS sentences of a mock panel): the 摘要 window showed 「16:32 更新，共 3 句」 with points that matched what was said, and after ■ the session folder held `summary.md` with three points, the last one the open question from the fourth sentence (folded in by the flush on stop). Batches wait for at least three new finished lines, so a quiet room costs nothing.
+
+macOS (`build-macos` in CI, universal `dmg` in the release workflow): the Mac build listens through a microphone only (loopback returns an error that points to Settings), keeps the system awake with `caffeinate`, keeps keys in the Keychain and asks for the microphone with `NSMicrophoneUsageDescription`. It has not been run on a Mac yet.
+
+Not yet: a microphone heard end to end (see above), a Mac build run on a Mac, translation quality beyond single sentences (a blind comparison is planned), local vLLM (same OpenAI-compatible path as Ollama, never run), Apple on-device options and macOS system audio (ScreenCaptureKit).
 
 ## Checking a build
 

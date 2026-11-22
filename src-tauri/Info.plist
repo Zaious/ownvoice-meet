@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Merged into the macOS app bundle's Info.plist by Tauri. macOS shows this text when it asks the
+     user to allow the microphone; without it the system refuses microphone access outright. -->
+<plist version="1.0">
+<dict>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>OwnVoice Meet 用麥克風聽會場或會議的聲音，轉成字幕與翻譯；開啟存檔時也錄在這台電腦上。 OwnVoice Meet listens through the microphone to caption and translate a talk or meeting, and records it on this Mac when saving is on.</string>
+</dict>
+</plist>

@@ -299,6 +299,7 @@ async function load(): Promise<void> {
   field('stt_language').value = s.stt_language;
   field<HTMLSelectElement>('llm_effort').value = s.llm_effort;
   field('context_lines').value = String(s.context_lines);
+  field('summary_every_min').value = String(s.summary_every_min);
   field<HTMLTextAreaElement>('glossary').value = s.glossary;
   field('local_stt_url').value = s.local_stt_url;
   field('local_stt_model').value = s.local_stt_model;
@@ -307,6 +308,14 @@ async function load(): Promise<void> {
   showLocalFields();
   hideFromCapture.checked = s.view.hide_from_capture;
   await loadMicrophones(s.mic_device);
+  // A Mac cannot record what it plays: the microphone only.
+  if ((await invoke<string>('platform').catch(() => '')) === 'macos') {
+    const loop = form.querySelector<HTMLInputElement>('input[name="audio_source"][value="loopback"]');
+    if (loop) {
+      loop.disabled = true;
+      loop.parentElement?.append('（Mac 不支援，請用麥克風）');
+    }
+  }
   setSource(s.audio_source === 'mic' ? 'mic' : 'loopback');
   field<HTMLSelectElement>('mic_gain').value = String(nearestGain(s.mic_gain));
   field<HTMLSelectElement>('save_mode').value = s.save_mode || 'off';
@@ -433,6 +442,7 @@ form.addEventListener('submit', async (e) => {
     idle_pause_min: minutesField('idle_pause_min', 3),
     idle_end_min: minutesField('idle_end_min', 20),
     update_check: updateCheck.checked,
+    summary_every_min: minutesField('summary_every_min', 5),
   };
   try {
     await invoke('save_settings', { value });

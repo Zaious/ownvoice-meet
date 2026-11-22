@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OwnVoice Meet · Summary</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="bar" class="bar">
+      <button id="now" title="用目前還沒摘要的句子馬上更新">現在更新</button>
+      <span id="state" class="status grow"></span>
+    </div>
+    <div id="summary" class="scroll summary" role="region" aria-label="摘要">
+      <div class="empty">聆聽時，每隔幾分鐘會在這裡整理出目前為止的重點（設定 → 翻譯與回覆可以調間隔）。</div>
+    </div>
+    <script type="module" src="/src/summary/main.ts"></script>
+  </body>
+</html>

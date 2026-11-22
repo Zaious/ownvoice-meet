@@ -16,6 +16,18 @@ pub const REPLY_SYSTEM: &str = "You help a Taiwanese participant speak in an Eng
 - If their prepared script is provided and what they type matches a point in it, reuse the script's English wording and terms.
 Output only the English script, with no quotes, labels or notes.";
 
+pub const SUMMARY_SYSTEM: &str = "You keep a running summary of a meeting or talk for a Taiwanese participant who follows it in English.
+You get the summary so far (it may be empty) and the newest stretch of the transcript, which comes from speech recognition and may contain recognition errors.
+Return the whole summary brought up to date, in Traditional Chinese as used in Taiwan (繁體中文): at most 8 short bullet points, each starting with \"- \", about what was actually said: main points, decisions, numbers and dates, open questions, and who said what when speakers are named.
+Keep names and technical terms as they are; merge new points into the existing ones rather than repeating them; drop small talk. Do not invent anything, do not give advice and do not suggest what the participant should say.
+Output only the bullet points.";
+
+/// The summary so far and the newest lines, for SUMMARY_SYSTEM.
+pub fn summary_user(before: &str, transcript: &str) -> String {
+    let before = if before.trim().is_empty() { "(none yet)" } else { before.trim() };
+    format!("Summary so far:\n{before}\n\nNewest transcript lines (time, English, then the Chinese meaning):\n{transcript}")
+}
+
 /// `中文 = English` per line; `#` starts a comment.
 pub fn parse_glossary(text: &str) -> Vec<(String, String)> {
     text.lines()

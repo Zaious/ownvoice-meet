@@ -56,7 +56,7 @@ async function track(name: OptionalWindow, btn: HTMLButtonElement): Promise<void
   void w?.once('tauri://destroyed', () => btn.setAttribute('aria-pressed', 'false'));
 }
 
-for (const name of ['reply', 'script', 'settings'] as const) {
+for (const name of ['reply', 'script', 'summary', 'settings'] as const) {
   const btn = document.querySelector<HTMLButtonElement>(`#${name}`)!;
   btn.addEventListener('click', async () => {
     await toggleWindow(name);

@@ -1,6 +1,7 @@
-# A version tag (v0.1.0) builds Windows into a DRAFT release: nothing is public until the maintainer
-# reads it and presses Publish. Two downloads: the installer (per user, no admin; can update itself)
-# and a portable zip (never updates itself).
+# A version tag (v0.1.0) builds a DRAFT release: nothing is public until the maintainer reads it and
+# presses Publish. Windows: the installer (per user, no admin; can update itself) and a portable zip
+# (never updates itself). macOS: one universal app (Intel and Apple Silicon) as a .dmg, plus the update
+# file; signed and notarized when the Apple secrets are set, ad-hoc signed otherwise.
 name: Release
 
 on:
@@ -11,8 +12,21 @@ permissions:
   contents: write
 
 jobs:
-  windows:
-    runs-on: windows-latest
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            args: --bundles nsis
+            rust_targets: ''
+            licences_target: ''
+          # app as well as dmg: the update file (.app.tar.gz) is only made from the app bundle.
+          - os: macos-latest
+            args: --target universal-apple-darwin --bundles app,dmg
+            rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
+            licences_target: aarch64-apple-darwin
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,6 +34,8 @@ jobs:
           node-version: 24
           cache: npm
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_targets }}
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
@@ -36,8 +52,31 @@ jobs:
           $versions.GetEnumerator() | ForEach-Object { "$($_.Key): $($_.Value)" }
           if ($bad) { throw "tag v$tag does not match every version above" }
       - run: npm ci
-      - name: Third-party licences
-        run: node scripts/third-party-licenses.mjs
+      - name: Third-party licences for this platform
+        shell: bash
+        run: node scripts/third-party-licenses.mjs ${{ matrix.licences_target }}
+      # With Apple Developer ID secrets the Mac app is signed and notarized; without them it keeps the
+      # ad-hoc signature (macOS then asks the user to allow it under Privacy & Security). Only secrets
+      # that exist are passed on: Tauri treats a variable that is set but empty as a certificate.
+      - name: macOS signing and notarization secrets
+        if: startsWith(matrix.os, 'macos')
+        shell: bash
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          for v in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID; do
+            if [ -n "${!v}" ]; then
+              { echo "$v<<VAL_EOF"; echo "${!v}"; echo "VAL_EOF"; } >> "$GITHUB_ENV"
+              echo "$v: set"
+            else
+              echo "$v: not set"
+            fi
+          done
       # In-app updates: with the maintainer's update key (tools/updater-key.ps1), the installer also
       # gets a signed update file and the release a latest.json, which installed copies read from the
       # latest release. Without the key (a fork) the build goes on as before, and its copies only see
@@ -70,14 +109,16 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: OwnVoice Meet ${{ github.ref_name }}
           releaseBody: |
-            Windows 10 and 11. Two downloads:
+            Windows 10 and 11:
             - `OwnVoice.Meet_*_x64-setup.exe`: installs for your user only (no administrator rights) and can update itself from Settings.
             - `OwnVoice.Meet_*_x64_portable.zip`: unzip and run; never updates itself.
-            The builds are not code-signed yet: Windows may say "Windows protected your PC"; choose More info, then Run anyway.
+            macOS 11 or later, Intel and Apple Silicon: `OwnVoice.Meet_*_universal.dmg`.
+            The Windows builds are not code-signed yet: Windows may say "Windows protected your PC"; choose More info, then Run anyway.
           releaseDraft: true
           prerelease: false
-          args: --bundles nsis --config src-tauri/tauri.release.conf.json ${{ env.UPDATER_CONFIG }}
+          args: ${{ matrix.args }} --config src-tauri/tauri.release.conf.json ${{ env.UPDATER_CONFIG }}
       - name: Windows portable zip (no install, no admin)
+        if: startsWith(matrix.os, 'windows')
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

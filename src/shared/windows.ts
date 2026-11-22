@@ -4,12 +4,13 @@
 
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 
-export type OptionalWindow = 'reply' | 'script' | 'settings';
+export type OptionalWindow = 'reply' | 'script' | 'summary' | 'settings';
 
 // Reading windows are transparent so their background can fade (shared/view.ts); settings is not.
 const SPEC: Record<OptionalWindow, { url: string; title: string; width: number; height: number; transparent?: boolean }> = {
   reply: { url: 'reply.html', title: 'OwnVoice Meet · Reply', width: 700, height: 440, transparent: true },
   script: { url: 'script.html', title: 'OwnVoice Meet · Script', width: 620, height: 760, transparent: true },
+  summary: { url: 'summary.html', title: 'OwnVoice Meet · Summary', width: 520, height: 560 },
   settings: { url: 'settings.html', title: 'OwnVoice Meet · Settings', width: 560, height: 720 },
 };
 

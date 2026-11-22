@@ -19,6 +19,7 @@ use std::time::{Duration, Instant};
 use tauri::{AppHandle, Manager};
 
 use crate::archive;
+use crate::batch;
 use crate::idle;
 use crate::llm;
 use crate::session::{Segment, Session};
@@ -163,6 +164,7 @@ pub fn finish(app: &AppHandle, id: u64, text: &str) {
         s.set_en(app, id, text, true);
     }
     archive::set_en(app, id, text);
+    batch::line_finished(app, id, text);
     idle::touch(app);
     debug_log(app, &format!("line {id} ended: {text}"));
     let now = Instant::now();
@@ -240,6 +242,7 @@ fn show(app: &AppHandle, id: u64, seq: u64, stop: &AtomicBool, zh: &str, early: 
     }
     if complete && !early {
         archive::set_zh(app, id, zh);
+        batch::line_translated(app, id, zh);
     }
     true
 }

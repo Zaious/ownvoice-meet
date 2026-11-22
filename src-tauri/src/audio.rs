@@ -169,6 +169,9 @@ fn open(
     let host = cpal::default_host();
     let (device, supported) = match source {
         Source::Loopback => {
+            if cfg!(target_os = "macos") {
+                return Err("Mac 不能直接錄電腦播放的聲音：請到設定 → 收音與存檔，改用麥克風".into());
+            }
             let device = host.default_output_device().ok_or("no default output device")?;
             let supported = device.default_output_config().map_err(|e| format!("output config: {e}"))?;
             (device, supported)
@@ -236,8 +239,12 @@ fn open(
 }
 
 /// Keeps the computer and screen awake while capturing: a laptop at a talk would otherwise go to
-/// sleep mid-session. The request belongs to the capture thread and ends with it.
-struct KeepAwake;
+/// sleep mid-session. Windows: a request that belongs to the capture thread and ends with it. macOS:
+/// the system's `caffeinate`, run for as long as the capture lasts.
+struct KeepAwake {
+    #[cfg(target_os = "macos")]
+    caffeinate: Option<std::process::Child>,
+}
 
 impl KeepAwake {
     fn new() -> Self {
@@ -246,7 +253,11 @@ impl KeepAwake {
             use windows::Win32::System::Power::{SetThreadExecutionState, ES_CONTINUOUS, ES_DISPLAY_REQUIRED, ES_SYSTEM_REQUIRED};
             SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
         }
-        KeepAwake
+        KeepAwake {
+            // -d: the display, -i: idle sleep.
+            #[cfg(target_os = "macos")]
+            caffeinate: std::process::Command::new("/usr/bin/caffeinate").arg("-di").spawn().ok(),
+        }
     }
 }
 
@@ -256,6 +267,11 @@ impl Drop for KeepAwake {
         unsafe {
             use windows::Win32::System::Power::{SetThreadExecutionState, ES_CONTINUOUS};
             SetThreadExecutionState(ES_CONTINUOUS);
+        }
+        #[cfg(target_os = "macos")]
+        if let Some(mut c) = self.caffeinate.take() {
+            let _ = c.kill();
+            let _ = c.wait();
         }
     }
 }
@@ -405,6 +421,9 @@ mod tests {
     #[test]
     fn settings_choose_the_source() {
         let mut s = crate::settings::Settings::default();
+        let default = if cfg!(target_os = "macos") { Source::Mic { device: String::new(), gain: 1.0 } } else { Source::Loopback };
+        assert_eq!(Source::from_settings(&s), default, "the Mac starts on the microphone");
+        s.audio_source = "loopback".into();
         assert_eq!(Source::from_settings(&s), Source::Loopback);
         s.audio_source = "mic".into();
         s.mic_device = "USB Mic".into();

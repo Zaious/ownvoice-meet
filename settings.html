@@ -86,6 +86,9 @@
         </select>
       </label>
       <label>上下文行數 <input name="context_lines" type="number" min="0" max="50" /></label>
+      <label>摘要每幾分鐘更新一次（0＝不做即時摘要；用上面選的翻譯模型）
+        <input name="summary_every_min" type="number" min="0" max="60" step="1" />
+      </label>
 
       <h2>畫面</h2>
       <label class="check"><input id="hide_from_capture" type="checkbox" /> 分享螢幕、錄影與截圖時，隱藏「回覆」與「講稿」視窗（立即生效；需 Windows 10 2004 以上）</label>

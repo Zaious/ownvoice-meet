@@ -1,6 +1,6 @@
 # Every branch push and pull request: types and front-end tests on Linux; the Rust tests and a
-# release build (no installer) on a clean Windows machine, the platform OwnVoice Meet ships for.
-# Tests that call real services or need speakers are #[ignore] and do not run here.
+# release build (no installer) on clean Windows and macOS machines, the platforms OwnVoice Meet ships
+# for. Tests that call real services or need speakers are #[ignore] and do not run here.
 name: CI
 
 on:
@@ -47,3 +47,27 @@ jobs:
       - name: The app was built
         shell: pwsh
         run: Get-Item src-tauri/target/release/ownvoice-meet.exe | Format-List Name, Length
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      - run: npm run build
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test --lib
+      - run: npm run tauri build -- --bundles app
+      - name: The app was built, with the microphone text in its Info.plist
+        run: |
+          app="src-tauri/target/release/bundle/macos/OwnVoice Meet.app"
+          ls -la "$app/Contents/MacOS"
+          /usr/libexec/PlistBuddy -c 'Print :NSMicrophoneUsageDescription' "$app/Contents/Info.plist"

@@ -7,6 +7,7 @@
 
 mod archive;
 mod audio;
+mod batch;
 mod captions;
 mod catalog;
 mod demo;
@@ -23,6 +24,7 @@ mod sentences;
 mod session;
 mod settings;
 mod stt_chunk;
+mod summary;
 mod usage;
 mod vad;
 mod view;
@@ -74,6 +76,11 @@ fn stop_listening(app: &AppHandle) -> Option<PathBuf> {
     let running = app.state::<Mutex<Listener>>().lock().ok().and_then(|mut l| l.running.take());
     if let Some(r) = running {
         r.stop();
+    }
+    // The last lines go into the summary too; it comes back after the folder is closed and is
+    // written there all the same (archive::set_summary).
+    if settings::load(app).summary_every_min > 0.0 {
+        batch::flush_now(app);
     }
     // After the capture has stopped, so the recording gets every chunk.
     archive::end(app)
@@ -481,6 +488,20 @@ fn clear_captions(app: AppHandle, state: Shared<'_>) {
     if let Ok(mut s) = state.lock() {
         s.clear_captions(&app);
     }
+    batch::clear(&app);
+    summary::clear(&app);
+}
+
+/// The live summary as it stands.
+#[tauri::command]
+fn get_summary(app: AppHandle) -> summary::View {
+    summary::current(&app)
+}
+
+/// Bring the summary up to date now with whatever lines are waiting (the 摘要 window's button).
+#[tauri::command]
+fn summarize_now(app: AppHandle) -> bool {
+    batch::flush_now(&app)
 }
 
 /// How this copy was installed. "installed" (the Windows installer, which writes uninstall.exe next to
@@ -488,12 +509,28 @@ fn clear_captions(app: AppHandle, state: Shared<'_>) {
 /// only get a link to the download page.
 #[tauri::command]
 fn install_kind() -> &'static str {
-    if cfg!(debug_assertions) || !cfg!(target_os = "windows") {
+    if cfg!(debug_assertions) {
         return "other";
     }
     let Ok(exe) = std::env::current_exe() else { return "other" };
+    if cfg!(target_os = "macos") {
+        // As Basesmall: an app bundle that can replace itself, not one running from the read-only disk
+        // image or from where macOS runs a downloaded app it moved aside (App Translocation).
+        let path = exe.to_string_lossy();
+        let movable = path.contains(".app/Contents/MacOS/") && !path.starts_with("/Volumes/") && !path.contains("/AppTranslocation/");
+        return if movable { "installed" } else { "other" };
+    }
+    if !cfg!(target_os = "windows") {
+        return "other";
+    }
     let installed = exe.parent().is_some_and(|d| d.join("uninstall.exe").is_file());
     if installed { "installed" } else { "portable" }
+}
+
+/// "windows", "macos" or "linux": what the settings window may offer (a Mac has no loopback).
+#[tauri::command]
+fn platform() -> &'static str {
+    std::env::consts::OS
 }
 
 pub fn run() {
@@ -520,6 +557,8 @@ pub fn run() {
         .manage(captions::Lines::default())
         .manage(archive::Archive::default())
         .manage(idle::Activity::default())
+        .manage(batch::Batches::default())
+        .manage(summary::Summary::default())
         .manage(llm::Http(reqwest::Client::new()))
         // Closing the captions window quits; the optional windows go with it.
         .on_window_event(|window, event| {
@@ -552,6 +591,8 @@ pub fn run() {
             live_captions_open,
             start_demo,
             clear_captions,
+            get_summary,
+            summarize_now,
             list_microphones,
             mic_check,
             next_segment,
@@ -559,6 +600,7 @@ pub fn run() {
             current_segment,
             open_archive_dir,
             install_kind,
+            platform,
             get_view,
             set_view,
             click_through,
@@ -581,6 +623,9 @@ pub fn run() {
                 app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
             }
             view::setup(app.handle())?;
+            // Batches of finished lines every few minutes; the live summary is one taker.
+            batch::register(app.handle(), summary::on_batch);
+            batch::start(app.handle().clone());
             // Marks the next segment from anywhere (the meeting app or slides in front).
             {
                 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};

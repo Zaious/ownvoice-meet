@@ -30,13 +30,15 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
+    "targets": [
+      "nsis"
+    ],
     "publisher": "ChronicleCore Studio",
     "copyright": "Copyright 2026 ChronicleCore Studio. Apache License 2.0.",
     "category": "Productivity",
     "shortDescription": "Understand the meeting. Answer in your own voice.",
     "longDescription": "Type what you mean in your own language and read short, natural English aloud in your own voice. Live captions with translation and a bilingual script panel help you follow and prepare.",
-    "homepage": "https://github.com/Zaious/ownvoice-meet",
+    "homepage": "https://ownvoice.chroniclecore.com/",
     "resources": {
       "../LICENSE": "LICENSE.txt",
       "../NOTICE": "NOTICE.txt"
@@ -52,6 +54,10 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "macOS": {
+      "entitlements": "./Entitlements.plist",
+      "minimumSystemVersion": "11.0"
+    }
   }
 }

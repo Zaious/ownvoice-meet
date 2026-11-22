@@ -14,7 +14,7 @@ use crate::settings;
 
 /// The windows that hold the user's own words. The captions window stays capturable: what others
 /// said is already on everyone's screen.
-pub const PRIVATE: [&str; 2] = ["reply", "script"];
+pub const PRIVATE: [&str; 3] = ["reply", "script", "summary"];
 /// Turns click-through on and off from anywhere, including while it is on.
 pub const CLICK_THROUGH_SHORTCUT: &str = "CommandOrControl+Shift+F8";
 

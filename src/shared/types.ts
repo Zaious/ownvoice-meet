@@ -40,7 +40,18 @@ export interface Settings {
   idle_end_min: number;
   /** Ask GitHub for a newer version 20 s after start and show a reminder. */
   update_check: boolean;
+  /** Minutes between live summary updates (0 = no live summary). */
+  summary_every_min: number;
   view: Views;
+}
+
+/** summary.rs View: the live summary. */
+export interface SummaryView {
+  text: string;
+  updated: string;
+  lines: number;
+  working: boolean;
+  error: string;
 }
 
 /** archive.rs SegmentInfo: the saved session's current segment. */

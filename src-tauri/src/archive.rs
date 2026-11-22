@@ -30,6 +30,8 @@ pub struct Archive(Mutex<State>);
 struct State {
     generation: u64,
     active: Option<Active>,
+    /// The folder of the session that ended last: a summary that comes back after the end still lands there.
+    last_dir: Option<PathBuf>,
 }
 
 struct Active {
@@ -65,6 +67,8 @@ struct Line {
     seg: usize,
     en: String,
     zh: String,
+    /// Who said it, when the speech service can tell.
+    speaker: Option<String>,
 }
 
 /// What the captions window shows about the current segment.
@@ -150,7 +154,11 @@ pub fn end(app: &AppHandle) -> Option<PathBuf> {
         let state = app.state::<Archive>();
         let mut st = state.0.lock().ok()?;
         st.generation += 1;
-        st.active.take()
+        let a = st.active.take();
+        if let Some(a) = &a {
+            st.last_dir = Some(a.dir.clone());
+        }
+        a
     };
     let mut a = active?;
     if let Some(rec) = a.recorder.take() {
@@ -232,7 +240,7 @@ pub fn set_en(app: &AppHandle, id: u64, en: &str) {
             Some(&i) => a.lines[i].en = en.to_string(),
             None => {
                 a.by_id.insert(id, a.lines.len());
-                a.lines.push(Line { at, seg, en: en.to_string(), zh: String::new() });
+                a.lines.push(Line { at, seg, en: en.to_string(), zh: String::new(), speaker: None });
             }
         }
         a.dirty = true;
@@ -247,6 +255,20 @@ pub fn set_zh(app: &AppHandle, id: u64, zh: &str) {
             a.dirty = true;
         }
     });
+}
+
+/// The live summary, kept in the session folder as summary.md.
+pub fn set_summary(app: &AppHandle, text: &str, updated: &str) {
+    let dir = {
+        let state = app.state::<Archive>();
+        let Ok(st) = state.0.lock() else { return };
+        st.active.as_ref().map(|a| a.dir.clone()).or_else(|| st.last_dir.clone())
+    };
+    let Some(dir) = dir else { return };
+    let body = format!("# 摘要\n\n- 更新：{updated}\n\n{}\n", text.trim());
+    if let Err(e) = write_atomic(&dir.join("summary.md"), &body) {
+        eprintln!("archive: {e}");
+    }
 }
 
 /// A line that came to nothing.
@@ -391,7 +413,8 @@ fn render(header: &str, segments: &[Segment], lines: &[Line], only: Option<usize
         }
         out.push_str(&format!("\n## {:02} · {}（{} 開始，{}）\n\n", i + 1, seg.name, seg.wall.format("%H:%M"), hms(seg.at)));
         for l in lines.iter().filter(|l| l.seg == i && !l.en.trim().is_empty()) {
-            out.push_str(&format!("[{}] {}\n", hms(l.at), l.en.trim()));
+            let who = l.speaker.as_deref().map(|s| format!("{s}：")).unwrap_or_default();
+            out.push_str(&format!("[{}] {who}{}\n", hms(l.at), l.en.trim()));
             if !l.zh.trim().is_empty() {
                 out.push_str(&format!("　{}\n", l.zh.trim()));
             }
@@ -446,16 +469,16 @@ mod tests {
     fn transcript_is_grouped_by_segment_with_times() {
         let segments = vec![seg("Keynote", 0), seg("Q&A", 65)];
         let lines = vec![
-            Line { at: Duration::from_secs(12), seg: 0, en: "Welcome to the conference.".into(), zh: "歡迎來到研討會。".into() },
-            Line { at: Duration::from_secs(30), seg: 0, en: "  ".into(), zh: String::new() },
-            Line { at: Duration::from_secs(3_725), seg: 1, en: "Any questions?".into(), zh: String::new() },
+            Line { at: Duration::from_secs(12), seg: 0, en: "Welcome to the conference.".into(), zh: "歡迎來到研討會。".into(), speaker: None },
+            Line { at: Duration::from_secs(30), seg: 0, en: "  ".into(), zh: String::new(), speaker: None },
+            Line { at: Duration::from_secs(3_725), seg: 1, en: "Any questions?".into(), zh: String::new(), speaker: Some("講者 2".into()) },
         ];
         let all = render("- 開始：x\n", &segments, &lines, None);
         assert!(all.starts_with("# 逐字稿\n\n- 開始：x\n"));
         assert!(all.contains("## 01 · Keynote（"));
         assert!(all.contains("[00:00:12] Welcome to the conference.\n　歡迎來到研討會。\n"));
         assert!(all.contains("## 02 · Q&A（") && all.contains("00:01:05）"));
-        assert!(all.contains("[01:02:05] Any questions?\n\n"), "a line still waiting for its translation is kept");
+        assert!(all.contains("[01:02:05] 講者 2：Any questions?\n\n"), "a line still waiting for its translation is kept, with its speaker");
         assert_eq!(all.matches('[').count(), 2, "an empty line is left out");
 
         let second = render("- 開始：x\n", &segments, &lines, Some(1));

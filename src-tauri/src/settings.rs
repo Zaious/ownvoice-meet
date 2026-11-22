@@ -53,6 +53,8 @@ pub struct Settings {
     pub idle_pause_min: f32,
     /// Minutes with no new caption before listening ends by itself. 0 = never.
     pub idle_end_min: f32,
+    /// Minutes between updates of the live summary (batch.rs, summary.rs). 0 = no live summary.
+    pub summary_every_min: f32,
     /// Ask GitHub once, 20 seconds after start, whether a newer version is out, and show a reminder.
     /// Off: GitHub is contacted only when the user presses Check for updates.
     pub update_check: bool,
@@ -163,7 +165,8 @@ impl Default for Settings {
             local_stt_model: "Systran/faster-whisper-large-v3".into(),
             local_llm_url: "http://localhost:11434/v1".into(),
             local_llm_model: String::new(),
-            audio_source: "loopback".into(),
+            // A Mac cannot record what it plays (that would need ScreenCaptureKit): microphone.
+            audio_source: if cfg!(target_os = "macos") { "mic".into() } else { "loopback".into() },
             mic_device: String::new(),
             mic_gain: 1.0,
             save_mode: "off".into(),
@@ -172,6 +175,7 @@ impl Default for Settings {
             idle_pause_min: 3.0,
             idle_end_min: 20.0,
             update_check: true,
+            summary_every_min: 5.0,
             view: Views::default(),
         }
     }
