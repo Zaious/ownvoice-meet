@@ -6,7 +6,7 @@
 
 給開會時一下子想不出英文怎麼說，但還是想用自己的話、自己開口的人。想說什麼就用中文打，OwnVoice Meet 把它變成好唸的口語英文短句，你照著唸。話是你自己的，聲音也是你自己的。
 
-> 狀態：0.3.0，Windows 與 Mac（測試中）。已經接上真實服務使用。架構說明見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+> 狀態：0.3.1，Windows 與 Mac（測試中）。已經接上真實服務使用。架構說明見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
 ![聽到提問並即時翻譯，講稿裡打開準備好的回答，中文回覆變成要唸的英文](docs/media/demo.gif)
 
@@ -82,6 +82,7 @@ Windows 版還沒有數位簽章，Windows 可能顯示「Windows 已保護您�
 
 ## 版本沿革
 
+- **[0.3.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.1)**（2026-11-22）：設定改了就自動儲存，「儲存」按鈕固定在視窗底部（之前按鈕夾在設定頁中間，沒按就關掉會全部不見）。
 - **[0.3.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.0)**（2026-11-22）：Mac 版（測試中）：Intel 和 Apple 晶片都能用，有 Apple 簽章與公證，用麥克風收音。新增即時摘要視窗，每幾分鐘整理一次目前為止的重點。
 - **[0.2.3](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.3)**（2026-11-22）：啟動時檢查有沒有新版，有就提醒（可以關掉）。
 - **[0.2.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.2)**（2026-11-22）：安靜 3 分鐘自動暫停辨識、20 分鐘自動結束，忘了關也不會一直扣錢。
@@ -122,7 +123,7 @@ Apache License 2.0，見 [LICENSE](LICENSE) 與 [NOTICE](NOTICE)；從其他專�
 
 For people who can follow a meeting in English but can't always find the words in the moment, and still want to answer in their own words and their own voice. Type what you mean in your own language; OwnVoice Meet turns it into short, natural English that you read aloud. The words are yours, and so is the voice. The interface is in Traditional Chinese for now.
 
-Status: 0.3.0, Windows, and Mac (being tested). Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The demo above was recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script; the questions are text-to-speech.
+Status: 0.3.1, Windows, and Mac (being tested). Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The demo above was recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script; the questions are text-to-speech.
 
 ### What it does
 
@@ -184,6 +185,7 @@ The Windows builds are not code-signed yet, so Windows may say "Windows protecte
 
 ### Changes
 
+- **[0.3.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.1)** (2026-11-22): Settings save themselves as they change, and the save button stays at the bottom of the window (before, it sat mid-page and closing without it lost everything).
 - **[0.3.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.0)** (2026-11-22): A Mac version (being tested): Intel and Apple silicon, signed and notarized by Apple, listening through the microphone. A live summary window brings the main points up to date every few minutes.
 - **[0.2.3](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.3)** (2026-11-22): Checks for a newer version at start and tells you (can be turned off).
 - **[0.2.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.2)** (2026-11-22): Pauses recognition after 3 quiet minutes and stops after 20, so a forgotten session does not keep costing money.
