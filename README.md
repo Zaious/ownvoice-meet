@@ -6,7 +6,7 @@
 
 給開會時一下子想不出英文怎麼說，但還是想用自己的話、自己開口的人。想說什麼就用中文打，OwnVoice Meet 把它變成好唸的口語英文短句，你照著唸。話是你自己的，聲音也是你自己的。
 
-> 狀態：0.4.0，Windows 與 Mac（測試中）。已經接上真實服務使用。架構說明見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+> 狀態：0.4.0，Windows 與 Mac（測試中）。已經接上真實服務使用。每一版改了什麼見 [CHANGELOG.md](CHANGELOG.md)，架構說明見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
 ![聽到提問並即時翻譯，講稿裡打開準備好的回答，中文回覆變成要唸的英文](docs/media/demo.gif)
 
@@ -85,22 +85,6 @@ Windows 10、11 與 macOS 11 以上，到 [最新版下載頁](https://github.co
 
 Windows 版還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。Windows 版需要 Microsoft Edge WebView2 Runtime（Windows 11 內建）。啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕會出現小點；可以在設定關掉，關掉後只有按「檢查更新」時才會連到 GitHub。
 
-## 版本沿革
-
-- **[0.4.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.4.0)**（2026-11-23）：不用 API key 也能翻：設定的「翻」選「ChatGPT 方案」，按 Continue with ChatGPT 登入，翻譯、回覆和摘要改用你的 ChatGPT 方案額度（OpenAI 預覽中的功能）。
-- **[0.3.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.2)**（2026-11-23）：不只英文：別人說日文、韓文、德文等也聽得懂，字幕照樣翻成中文；回覆和講稿「補對照」可以改成你要說的語言（設定的「別人說的語言」「我說的語言」）。
-- **[0.3.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.1)**（2026-11-22）：設定改了就自動儲存，「儲存」按鈕固定在視窗底部（之前按鈕夾在設定頁中間，沒按就關掉會全部不見）。
-- **[0.3.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.0)**（2026-11-22）：Mac 版（測試中）：Intel 和 Apple 晶片都能用，有 Apple 簽章與公證，用麥克風收音。新增即時摘要視窗，每幾分鐘整理一次目前為止的重點。
-- **[0.2.3](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.3)**（2026-11-22）：啟動時檢查有沒有新版，有就提醒（可以關掉）。
-- **[0.2.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.2)**（2026-11-22）：安靜 3 分鐘自動暫停辨識、20 分鐘自動結束，忘了關也不會一直扣錢。
-- **[0.2.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.1)**（2026-11-21）：修正字幕每一行只顯示一小截。
-- **[0.2.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.0)**（2026-11-21）：研討會會場也能用：麥克風收音、錄音與逐字稿存在電腦、分段、只錄音不辨識。
-- **[0.1.3](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.3)**（2026-10-17）：翻譯一律台灣繁體；英文字幕不再黏字；設定的「聽」「翻」可以收合。
-- **[0.1.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.2)**（2026-10-17）：回覆視窗跟著 app 一起打開；新增「清除」；key 貼錯欄會提醒。
-- **[0.1.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.1)**（2026-10-17）：第一個公開版本。
-
-每一版的完整說明在 [GitHub Releases](https://github.com/Zaious/ownvoice-meet/releases)。
-
 ## 從原始碼建置
 
 需要 Node.js 20+、Rust（stable），Windows 上需要 WebView2 Runtime（Windows 11 內建）。
@@ -130,7 +114,7 @@ Apache License 2.0，見 [LICENSE](LICENSE) 與 [NOTICE](NOTICE)；從其他專�
 
 For people who can follow a meeting in English but can't always find the words in the moment, and still want to answer in their own words and their own voice. Type what you mean in your own language; OwnVoice Meet turns it into short, natural English that you read aloud. The words are yours, and so is the voice. The interface is in Traditional Chinese for now.
 
-Status: 0.4.0, Windows, and Mac (being tested). Working with real services. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The demo above was recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script; the questions are text-to-speech.
+Status: 0.4.0, Windows, and Mac (being tested). Working with real services. What changed in each version: [CHANGELOG.md](CHANGELOG.md) (in Chinese; release notes on GitHub are in both languages). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The demo above was recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script; the questions are text-to-speech.
 
 ### What it does
 
@@ -191,22 +175,6 @@ Windows 10 and 11, and macOS 11 or later, from [the latest release](https://gith
 - **Mac** (`OwnVoice.Meet_<version>_universal.dmg`, from 0.3.0, being tested): for Intel and Apple silicon. Open the dmg and drag the app to Applications. It is signed and notarized by Apple, so it opens like any other app. The Mac version listens through a microphone only, not to what the computer plays.
 
 The Windows builds are not code-signed yet, so Windows may say "Windows protected your PC": choose **More info**, then **Run anyway**. On Windows it needs the Microsoft Edge WebView2 Runtime, which Windows 11 includes. Twenty seconds after start OwnVoice Meet asks GitHub once whether a newer version is out and puts a dot on the settings button if so; turn it off in Settings and GitHub is contacted only when you press Check for updates.
-
-### Changes
-
-- **[0.4.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.4.0)** (2026-11-23): Translate without an API key: choose ChatGPT 方案 in Settings and Continue with ChatGPT; translation, replies and the summary use your ChatGPT plan (an OpenAI preview).
-- **[0.3.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.2)** (2026-11-23): Not only English: captions follow Japanese, Korean, German and more, translated into Chinese; replies and the script's 補對照 can be in the language you speak (Settings).
-- **[0.3.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.1)** (2026-11-22): Settings save themselves as they change, and the save button stays at the bottom of the window (before, it sat mid-page and closing without it lost everything).
-- **[0.3.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.0)** (2026-11-22): A Mac version (being tested): Intel and Apple silicon, signed and notarized by Apple, listening through the microphone. A live summary window brings the main points up to date every few minutes.
-- **[0.2.3](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.3)** (2026-11-22): Checks for a newer version at start and tells you (can be turned off).
-- **[0.2.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.2)** (2026-11-22): Pauses recognition after 3 quiet minutes and stops after 20, so a forgotten session does not keep costing money.
-- **[0.2.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.1)** (2026-11-21): Caption lines are no longer cut short.
-- **[0.2.0](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.2.0)** (2026-11-21): For conference rooms: microphone input, recordings and transcripts on your computer, segments, record without recognition.
-- **[0.1.3](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.3)** (2026-10-17): Translations always in Taiwan Traditional Chinese; English captions no longer glue words; collapsible Listen and Translate settings.
-- **[0.1.2](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.2)** (2026-10-17): The reply window opens with the app; a Clear button; a key pasted into the wrong field is caught.
-- **[0.1.1](https://github.com/Zaious/ownvoice-meet/releases/tag/v0.1.1)** (2026-10-17): First public release.
-
-Full notes for each version are on [GitHub Releases](https://github.com/Zaious/ownvoice-meet/releases).
 
 ### Building from source
 
