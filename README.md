@@ -57,10 +57,13 @@
 | Gemini 3.5 Transcribe Live（即時，約每小時 0.54 美元） | Claude Haiku 5.5、Sonnet 5.5 |
 | OpenAI gpt-live-transcribe（即時，約每小時 1.02 美元） | OpenAI gpt-6-luna、gpt-6.1-sol |
 | OpenAI gpt-4o-mini-transcribe（一句講完才出字，約每小時 0.18 美元） | Gemini 3.5 Flash-Lite、3.8 Flash |
+| | **ChatGPT 方案**（gpt-6-luna，不用 API key：按 Continue with ChatGPT 登入，用你的 Go／Plus／Pro／Business 方案額度） |
 | 自己電腦上的 Whisper 伺服器（免費） | 自己電腦上的 vLLM 或 Ollama（免費） |
 | Windows 11 即時輔助字幕（即時、免費、在電腦上辨識、不需要 key；實驗功能，設定會帶你完成一次性設定） | |
 
 長句子講到一半就會先翻（約 4 秒後，之後每 2 秒更新），不用等講者停下來；句子講完再換成完整翻譯。
+
+**完全不用 key**：Windows 11 即時輔助字幕（聽）加 ChatGPT 方案（翻），不用申請任何 API key，也不另外付費。ChatGPT 方案是 OpenAI 預覽中的功能，只能翻譯，不能辨識語音。
 
 翻譯選最快一級時每小時只要幾美分（例如 Claude Haiku 5.5，忙碌的一小時約 0.03 美元）。設定裡每個選項都列出價格和實測速度，也會記錄估算用量。價格是官方牌價，實際以各家帳單為準。省錢組合見 [使用手冊第 6 節](docs/MANUAL.md#6-省錢)。
 

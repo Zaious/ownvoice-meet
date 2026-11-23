@@ -46,6 +46,8 @@ Small local models vary a lot in Traditional Chinese and Taiwanese usage. Try a 
 
 ### A ChatGPT account instead of an API key (unofficial, at your own risk)
 
+OwnVoice Meet now has OpenAI's official Sign in with ChatGPT built in: Settings, 翻, 「ChatGPT 方案（gpt-6-luna，不用 API key）」, then Continue with ChatGPT (see the manual, section 6). Use that first; the unofficial route below is kept for those who want a local OpenAI-compatible endpoint.
+
 [openai-oauth](https://github.com/EvanZhouDev/openai-oauth) (Apache-2.0) runs a local OpenAI-compatible endpoint backed by your own ChatGPT account, so translation can work without an OpenAI API key:
 
 ```

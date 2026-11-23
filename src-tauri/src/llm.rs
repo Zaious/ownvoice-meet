@@ -50,6 +50,13 @@ pub fn target(s: &Settings) -> Result<Target, String> {
             let base = s.local_llm_url.trim_end_matches('/');
             (format!("{base}/chat/completions"), s.local_llm_model.trim().to_string(), settings::get_key("local"))
         }
+        // The ChatGPT plan: the token is fetched (and refreshed) for each request in stream_until.
+        "chatgpt" => {
+            if crate::chatgpt::load().is_none() {
+                return Err("還沒連上 ChatGPT：請到設定的「翻」按 Continue with ChatGPT".into());
+            }
+            (crate::chatgpt::URL.to_string(), m.api_model.to_string(), None)
+        }
         p => {
             let key = settings::get_key(p).ok_or_else(|| format!("沒有設定 {} 的 API key（請到設定填寫）", settings::display_name(p)))?;
             let url = match p {
@@ -63,6 +70,12 @@ pub fn target(s: &Settings) -> Result<Target, String> {
     Ok(Target { catalog_id: m.id.to_string(), transport: m.transport, url, key, model, effort })
 }
 
+/// A target with a given key, for live checks in other modules (chatgpt.rs).
+#[cfg(test)]
+pub(crate) fn tests_target(id: &str, key: &str) -> Target {
+    tests::target_for(id, key)
+}
+
 /// Stream one completion; `on_delta` gets each piece of text as it arrives. Returns token usage.
 pub async fn stream(client: &reqwest::Client, t: &Target, system: Vec<Value>, user: String, on_delta: impl FnMut(&str)) -> Result<Tally, String> {
     stream_until(client, t, system, user, on_delta, || false).await
@@ -71,7 +84,17 @@ pub async fn stream(client: &reqwest::Client, t: &Target, system: Vec<Value>, us
 /// `stream`, ending early (with the usage known so far) once `stop` returns true.
 async fn stream_until(client: &reqwest::Client, t: &Target, system: Vec<Value>, user: String, mut on_delta: impl FnMut(&str), stop: impl Fn() -> bool) -> Result<Tally, String> {
     let anthropic = t.transport == "anthropic";
-    let req = if anthropic {
+    let plan = t.transport == "chatgpt";
+    let req = if plan {
+        // Sign in with ChatGPT: the Responses API, the system blocks as its instructions.
+        let token = crate::chatgpt::access(client).await?;
+        let instructions = system.iter().filter_map(|b| b["text"].as_str()).collect::<Vec<_>>().join("\n\n");
+        client
+            .post(&t.url)
+            .bearer_auth(token)
+            .header("accept", "text/event-stream")
+            .json(&crate::chatgpt::request_body(&t.model, &t.effort, &instructions, &user))
+    } else if anthropic {
         let mut body = json!({
             "model": t.model,
             "max_tokens": 4000,
@@ -113,6 +136,9 @@ async fn stream_until(client: &reqwest::Client, t: &Target, system: Vec<Value>, 
     let status = resp.status();
     if !status.is_success() {
         let text = resp.text().await.unwrap_or_default();
+        if plan {
+            return Err(crate::chatgpt::friendly_error(status.as_u16(), &text));
+        }
         return Err(format!("{status}: {}", error_message(&text).chars().take(300).collect::<String>()));
     }
     let mut usage = Tally::default();
@@ -132,7 +158,11 @@ async fn stream_until(client: &reqwest::Client, t: &Target, system: Vec<Value>, 
                 continue;
             }
             let Ok(ev) = serde_json::from_str::<Value>(data) else { continue };
-            if anthropic {
+            if plan {
+                if crate::chatgpt::event(&ev, &mut usage, &mut on_delta)? {
+                    return Ok(usage);
+                }
+            } else if anthropic {
                 anthropic_event(&ev, &mut usage, &mut on_delta)?;
             } else {
                 openai_event(&ev, &mut usage, &mut on_delta)?;
@@ -337,6 +367,25 @@ mod tests {
         }
         println!("ran {ran} models");
         assert!(ran > 0, "no model could be reached");
+    }
+
+    // The app's own path through the ChatGPT plan (sign in first with the chatgpt_probe test):
+    //   cargo test --lib -- --ignored --nocapture live_chatgpt_plan
+    #[tokio::test]
+    #[ignore]
+    async fn live_chatgpt_plan() {
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        let s = Settings { llm_id: "chatgpt-luna".into(), ..Settings::default() };
+        let t = target(&s).expect("signed in to ChatGPT");
+        let system = prompts::system_blocks(prompts::LISTEN_SYSTEM, &[], "");
+        let mut zh = String::new();
+        let t0 = std::time::Instant::now();
+        let u = stream(&reqwest::Client::new(), &t, system, prompts::listen_user(&[], "Can we set up a follow-up meeting on Thursday afternoon?", false), |d| zh.push_str(d))
+            .await
+            .expect("plan request");
+        println!("{}ms in {} cached {} out {} | {zh}", t0.elapsed().as_millis(), u.input, u.cached, u.output);
+        assert!(zh.chars().any(|c| ('\u{4e00}'..='\u{9fff}').contains(&c)), "Chinese expected: {zh}");
+        assert!(u.output > 0, "usage read from response.completed");
     }
 
     // A reply in another spoken language, with Claude Haiku 5.5:

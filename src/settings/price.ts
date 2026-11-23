@@ -19,6 +19,8 @@ export function priceLine(p: Price): string {
       return `輸入 $${p.input} · 快取 $${p.cached} · 輸出 $${p.output} / 百萬 token`;
     case 'free':
       return '不計費';
+    case 'plan':
+      return '用你的 ChatGPT 方案額度，不另外計費';
   }
 }
 
@@ -30,11 +32,13 @@ export function hourly(m: Pick<CatalogModel, 'price'>): number {
     case 'per_m_tok':
       return (HOUR_INPUT_TOKENS * p.input + HOUR_OUTPUT_TOKENS * p.output) / 1_000_000;
     case 'free':
+    case 'plan':
       return 0;
   }
 }
 
 export function hourlyLine(m: Pick<CatalogModel, 'price'>): string {
+  if (m.price.unit === 'plan') return '方案額度';
   return m.price.unit === 'free' ? '每小時 $0' : `每小時約 ${usd(hourly(m))}`;
 }
 

@@ -2830,6 +2830,7 @@ dependencies = [
  "futures-util",
  "keyring",
  "reqwest",
+ "ring",
  "rustls",
  "serde",
  "serde_json",

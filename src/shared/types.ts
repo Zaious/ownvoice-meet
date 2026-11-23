@@ -47,6 +47,13 @@ export interface Settings {
   view: Views;
 }
 
+/** chatgpt.rs Status: the Sign in with ChatGPT connection. */
+export interface ChatgptStatus {
+  signed_in: boolean;
+  plan: boolean;
+  email: string;
+}
+
 /** summary.rs View: the live summary. */
 export interface SummaryView {
   text: string;
@@ -108,7 +115,8 @@ export interface Automation {
 export type Price =
   | { unit: 'per_minute'; usd: number }
   | { unit: 'per_m_tok'; input: number; cached: number; output: number }
-  | { unit: 'free' };
+  | { unit: 'free' }
+  | { unit: 'plan' };
 
 export interface CatalogModel {
   id: string;

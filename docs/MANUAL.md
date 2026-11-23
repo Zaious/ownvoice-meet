@@ -132,6 +132,7 @@
 
 | 組合 | 聽 | 翻 | 約每小時 | 適合 |
 |---|---|---|---|---|
+| **完全不用 key** | Windows 即時輔助字幕（免費，在電腦上辨識） | ChatGPT 方案（gpt-6-luna） | **US$0**（用 ChatGPT 方案額度） | 有 ChatGPT Go／Plus／Pro／Business；Windows 11；翻譯比 API key 慢約 1 秒 |
 | **最省** | Windows 即時輔助字幕（免費，在電腦上辨識） | Claude Haiku 5.5 或 gpt-6-luna | **US$0.03** | Windows 11；有灰字；辨識品質略遜雲端 |
 | **有 NVIDIA 顯卡** | 本機 Whisper（免費） | 同上 | **US$0.03** | 音訊不出電腦（見第 7 節） |
 | **雲端、不需要灰字** | OpenAI gpt-4o-mini-transcribe（US$0.18） | 同上 | **US$0.21** | 一句講完才出字 |
@@ -149,7 +150,11 @@
    - 兩個時間都在設定 → 收音與存檔裡調，填 0 表示不暫停或不結束。只錄音時看的是有沒有聲音。
 3. **講稿長沒關係**：講稿每次都會一起送出，但走「快取讀取」，費用約一般輸入的一成。JCDL 那一晚 557 萬個輸入 token 只花 0.11 美元，大部分就是講稿。
 4. **長句先翻**會多幾次翻譯呼叫（用量裡標示 `early`），每小時多幾美分；想再省可以選不出灰字的辨識。
-5. **用 ChatGPT 帳號翻譯**（非官方、風險自負）：見 [docs/LOCAL.md](LOCAL.md) 的 openai-oauth 一節，翻譯可以不用 OpenAI API key。
+5. **用 ChatGPT 方案翻譯，不用 API key**：設定 → 翻 → 選「ChatGPT 方案（gpt-6-luna，不用 API key）」→ 按 **Continue with ChatGPT**，在瀏覽器登入並按同意。之後字幕翻譯、回覆、摘要和「補對照」都用你的 ChatGPT 方案額度（Go、Plus、Pro、Business），不另外計費。
+   - 這是 OpenAI 的官方功能（Sign in with ChatGPT），目前還在預覽。只能做文字，**語音辨識不行**，「聽」還是要另外選（Windows 即時輔助字幕就不用 key）。
+   - 用量和 ChatGPT、Codex 共用同一份方案額度；到 chatgpt.com 的 設定 → 用量 看得到，也可以替這個 app 設上限。額度用完時，字幕會顯示提示，翻譯先停。
+   - 實測每句翻好約 2.3 秒（中位數），比 API key 慢約 1 秒；英文灰字照樣即時出現。
+   - 免費帳號不能用；公司的 Business 帳號要管理員開放。不想用了：設定裡按「登出 ChatGPT」，並到 ChatGPT 的 設定 → 安全性與登入 → Sign in with ChatGPT 中斷連線。
 6. **Gemini 免費層**：不付費也能用，但會議內容會被 Google 拿去改進產品。要省錢還是要隱私，由你決定；會議有保密要求就用付費層。
 
 ## 7. 本機執行（不上雲端）

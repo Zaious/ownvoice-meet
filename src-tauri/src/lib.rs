@@ -10,6 +10,7 @@ mod audio;
 mod batch;
 mod captions;
 mod catalog;
+mod chatgpt;
 mod demo;
 mod gemini;
 mod gloss;
@@ -527,6 +528,32 @@ fn install_kind() -> &'static str {
     if installed { "installed" } else { "portable" }
 }
 
+/// Sign in with ChatGPT: whether this computer is connected, and to which account.
+#[tauri::command]
+fn chatgpt_status() -> chatgpt::Status {
+    chatgpt::status()
+}
+
+/// Opens the browser to sign in with ChatGPT and waits (up to 5 minutes) for it to come back.
+#[tauri::command]
+async fn chatgpt_sign_in(app: AppHandle) -> Result<chatgpt::Status, String> {
+    let client = app.state::<llm::Http>().0.clone();
+    let previous = chatgpt::load().map(|t| t.client_id);
+    let t = chatgpt::sign_in(&client, previous.as_deref(), |url| {
+        let _ = tauri_plugin_opener::open_url(url, None::<&str>);
+    })
+    .await?;
+    chatgpt::save(&t)?;
+    Ok(chatgpt::status())
+}
+
+/// Forgets the ChatGPT connection on this computer (the account itself stays connected in ChatGPT's
+/// settings until the user disconnects it there).
+#[tauri::command]
+fn chatgpt_sign_out() {
+    chatgpt::forget();
+}
+
 /// "windows", "macos" or "linux": what the settings window may offer (a Mac has no loopback).
 #[tauri::command]
 fn platform() -> &'static str {
@@ -573,6 +600,9 @@ pub fn run() {
             }
         })
         .invoke_handler(tauri::generate_handler![
+            chatgpt_status,
+            chatgpt_sign_in,
+            chatgpt_sign_out,
             snapshot,
             set_script,
             compose_reply,

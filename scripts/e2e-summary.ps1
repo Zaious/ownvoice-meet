@@ -6,14 +6,15 @@
 # Debug builds read keys from .env.local.
 # Another language: -Language ja-JP -AudioDir <folder of .wav files>, played in name order instead
 # of the English TTS sentences.
-param([string]$Exe, [double]$EveryMin = 0.25, [string]$Language = 'en-US', [string]$AudioDir)
+# The translation model: -Llm chatgpt-luna goes through the ChatGPT plan (sign in from Settings first).
+param([string]$Exe, [double]$EveryMin = 0.25, [string]$Language = 'en-US', [string]$AudioDir, [string]$Llm = 'claude-haiku-5-5')
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Speech
 $UIA = [System.Windows.Automation.AutomationElement]; $Scope = [System.Windows.Automation.TreeScope]; $CT = [System.Windows.Automation.ControlType]
 
 $cfg = Join-Path ([IO.Path]::GetTempPath()) "ownvoice-summary-$(Get-Random)"
 New-Item -ItemType Directory -Force $cfg | Out-Null
-$settings = [ordered]@{ stt_id = 'gemini-live'; stt_language = $Language; llm_id = 'claude-haiku-5-5'; audio_source = 'loopback'; save_mode = 'text'; summary_every_min = $EveryMin; update_check = $false; view = @{ reply_open = $false } }
+$settings = [ordered]@{ stt_id = 'gemini-live'; stt_language = $Language; llm_id = $Llm; audio_source = 'loopback'; save_mode = 'text'; summary_every_min = $EveryMin; update_check = $false; view = @{ reply_open = $false } }
 [IO.File]::WriteAllText((Join-Path $cfg 'settings.json'), ($settings | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 $env:OWNVOICE_CONFIG_DIR = $cfg
 $p = Start-Process $Exe -PassThru

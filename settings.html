@@ -78,6 +78,15 @@
         <datalist id="local-models"></datalist>
         <div class="actions"><button type="button" id="test-llm">測試連線並列出模型</button><span id="test-llm-result" class="status"></span></div>
       </div>
+      <div id="llm-chatgpt" class="local" hidden>
+        <p class="hint">不用 API key：字幕翻譯、回覆、摘要和「補對照」改用你的 ChatGPT 方案額度（Go、Plus、Pro、Business）。這是 OpenAI 預覽中的功能，語音辨識仍然要另外選。</p>
+        <div class="actions">
+          <button type="button" id="chatgpt-sign-in" class="chatgpt">Continue with ChatGPT</button>
+          <button type="button" id="chatgpt-sign-out" hidden>登出 ChatGPT</button>
+          <a class="extlink" id="chatgpt-usage" href="https://chatgpt.com/settings/usage" hidden>管理用量 ↗</a>
+        </div>
+        <p id="chatgpt-state" class="hint"></p>
+      </div>
       <label>我說的語言（回覆視窗和講稿「補對照」產生的句子）
         <select name="speak_language"><option value="en">英文</option><option value="ja">日文</option><option value="ko">韓文</option><option value="de">德文</option><option value="fr">法文</option><option value="es">西班牙文</option><option value="vi">越南文</option><option value="th">泰文</option><option value="id">印尼文</option></select>
       </label>
@@ -109,7 +118,7 @@
       </label>
 
       <div class="actions">
-        <button type="button" id="clear-keys">清除所有 key</button>
+        <button type="button" id="clear-keys">清除所有 key（也登出 ChatGPT）</button>
       </div>
 
       <h2>用量（估算）</h2>

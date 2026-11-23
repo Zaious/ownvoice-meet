@@ -88,6 +88,8 @@ kbd { font: 11px var(--font-read); color: var(--muted); }
   background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 6px; font: inherit;
 }
 .settings .actions { display: flex; gap: 8px; align-items: center; margin: 16px 0 8px; }
+/* Sign in with ChatGPT: the light button of OpenAI's guidelines, on this dark window. */
+.settings button.chatgpt { background: #fff; color: #0d0d0d; border-color: #fff; font-weight: 600; }
 /* Settings: the save bar stays at the bottom of the window, below the scrolling form. */
 .savebar { display: flex; gap: 10px; align-items: center; padding: 8px 14px; border-top: 1px solid var(--line); background: var(--panel); }
 .savebar button { flex: none; white-space: nowrap; }

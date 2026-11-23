@@ -20,4 +20,10 @@ describe('switcher prices', () => {
   it('local and on-device options cost nothing', () => {
     expect(hourlyLine({ price: { unit: 'free' } })).toBe('每小時 $0');
   });
+
+  it('the ChatGPT plan is not billed through the app', () => {
+    expect(hourly({ price: { unit: 'plan' } })).toBe(0);
+    expect(hourlyLine({ price: { unit: 'plan' } })).toBe('方案額度');
+    expect(priceLine({ unit: 'plan' })).toContain('ChatGPT 方案額度');
+  });
 });

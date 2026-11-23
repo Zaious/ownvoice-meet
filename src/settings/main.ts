@@ -7,7 +7,7 @@ import { getVersion } from '@tauri-apps/api/app';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { openUrl } from '@tauri-apps/plugin-opener';
-import type { CatalogModel, LiveCaptionsSetup, MicCheck, Settings, UsageReport, UsageRow, Views } from '../shared/types.ts';
+import type { CatalogModel, ChatgptStatus, LiveCaptionsSetup, MicCheck, Settings, UsageReport, UsageRow, Views } from '../shared/types.ts';
 import { setView } from '../shared/view.ts';
 import { judgeLevel } from './level.ts';
 import { hourlyLine, money, priceLine } from './price.ts';
@@ -70,8 +70,46 @@ function chosen(group: string): string {
 function showLocalFields(): void {
   document.querySelector<HTMLElement>('#stt-local')!.hidden = chosen('stt') !== 'local-whisper';
   document.querySelector<HTMLElement>('#llm-local')!.hidden = chosen('llm') !== 'local-llm';
+  const plan = chosen('llm') === 'chatgpt-luna';
+  document.querySelector<HTMLElement>('#llm-chatgpt')!.hidden = !plan;
+  if (plan) void showChatgpt();
   followLiveCaptions(chosen('stt') === 'windows-live-captions');
 }
+
+// ---------- Sign in with ChatGPT: the plan pays for translation instead of an API key ----------
+const gptIn = document.querySelector<HTMLButtonElement>('#chatgpt-sign-in')!;
+const gptOut = document.querySelector<HTMLButtonElement>('#chatgpt-sign-out')!;
+const gptUsage = document.querySelector<HTMLElement>('#chatgpt-usage')!;
+const gptState = document.querySelector<HTMLElement>('#chatgpt-state')!;
+
+function drawChatgpt(s: ChatgptStatus): void {
+  gptOut.hidden = gptUsage.hidden = !s.signed_in;
+  gptIn.textContent = s.signed_in ? '換一個 ChatGPT 帳號' : 'Continue with ChatGPT';
+  if (!s.signed_in) gptState.textContent = '還沒連上 ChatGPT。按上面的按鈕，瀏覽器會打開 ChatGPT 的登入頁。';
+  else if (!s.plan) gptState.textContent = `已連上 ${s.email || 'ChatGPT'}，但沒有同意使用方案額度：請再按一次並按同意。`;
+  else gptState.textContent = `✓ 已連上 ${s.email || 'ChatGPT'}（Using ChatGPT plan）。用量算在你的方案額度裡。`;
+}
+
+async function showChatgpt(): Promise<void> {
+  drawChatgpt(await invoke<ChatgptStatus>('chatgpt_status'));
+}
+
+gptIn.addEventListener('click', async () => {
+  gptIn.disabled = true;
+  gptState.textContent = '瀏覽器已打開 ChatGPT 的登入頁：登入並按同意，完成後回到這裡（最多等 5 分鐘）。';
+  try {
+    drawChatgpt(await invoke<ChatgptStatus>('chatgpt_sign_in'));
+  } catch (err) {
+    gptState.textContent = `沒有連上：${String(err)}`;
+  } finally {
+    gptIn.disabled = false;
+  }
+});
+
+gptOut.addEventListener('click', async () => {
+  await invoke('chatgpt_sign_out');
+  await showChatgpt();
+});
 
 // ---------- Windows Live Captions: a checklist that checks itself ----------
 // First use needs the user's consent in Live Captions and the meeting language's speech files.
@@ -497,8 +535,10 @@ form.addEventListener('submit', (e) => {
 
 document.querySelector('#clear-keys')!.addEventListener('click', async () => {
   for (const provider of PROVIDERS) await invoke('set_key', { provider, key: '' });
+  await invoke('chatgpt_sign_out');
   await showKeyState();
-  saved.textContent = '所有 key 都已從鑰匙圈移除（若有設環境變數或 .env.local，開發版仍會使用）。';
+  if (chosen('llm') === 'chatgpt-luna') await showChatgpt();
+  saved.textContent = '所有 key 和 ChatGPT 登入都已從鑰匙圈移除（若有設環境變數或 .env.local，開發版仍會使用）。';
 });
 
 await load();

@@ -23,6 +23,8 @@ pub enum Price {
     /// Language models billed per million tokens.
     PerMTok { input: f64, cached: f64, output: f64 },
     Free,
+    /// Paid out of the user's ChatGPT plan (Sign in with ChatGPT): nothing billed through the app.
+    Plan,
 }
 
 #[derive(Clone, Copy, Serialize)]
@@ -214,6 +216,22 @@ pub const MODELS: &[Model] = &[
         available: true,
     },
     Model {
+        id: "chatgpt-luna",
+        kind: Kind::Llm,
+        provider: "chatgpt",
+        api_model: "gpt-6-luna",
+        label: "ChatGPT 方案（gpt-6-luna，不用 API key）",
+        transport: "chatgpt",
+        min_effort: "none",
+        price: Price::Plan,
+        price_note: "算在你的 ChatGPT 方案額度裡",
+        speed: "實測整句 1.8–3.7 秒（中位數 2.3 秒，約 API key 的兩倍）",
+        strength: "不用申請 API key：按「Continue with ChatGPT」登入就能翻",
+        caution: "OpenAI 預覽中的功能；用量和 ChatGPT、Codex 共用方案額度，到上限會暫停翻譯",
+        needs: "ChatGPT Go、Plus、Pro 或 Business 帳號",
+        available: true,
+    },
+    Model {
         id: "gpt-6.1-sol",
         kind: Kind::Llm,
         provider: "openai",
@@ -306,7 +324,7 @@ pub fn cost(m: &Model, audio_secs: f64, input: u64, cached: u64, output: u64) ->
         Price::PerMTok { input: pi, cached: pc, output: po } => {
             (input as f64 * pi + cached as f64 * pc + output as f64 * po) / 1_000_000.0
         }
-        Price::Free => 0.0,
+        Price::Free | Price::Plan => 0.0,
     }
 }
 
