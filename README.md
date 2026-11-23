@@ -1,40 +1,137 @@
+<!-- readme-standard: 2.0.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: Google,OpenAI,Anthropic -->
+
 # OwnVoice Meet
+
+**繁體中文** · [English](README.en.md)
 
 **聽得懂會議，用自己的聲音回答。**
 
-*Understand the meeting. Answer in your own voice.* · [English](#english) · 網站 [ownvoice.chroniclecore.com](https://ownvoice.chroniclecore.com/)
+Independent Windows and macOS app: live captions and a reply teleprompter for meetings in a second language.
+開會時把中文打字變成好唸的英文短句
 
-給開會時一下子想不出英文怎麼說，但還是想用自己的話、自己開口的人。想說什麼就用中文打，OwnVoice Meet 把它變成好唸的口語英文短句，你照著唸。話是你自己的，聲音也是你自己的。
+**[下載 Windows 版（.exe）](https://github.com/Zaious/ownvoice-meet/releases/latest)** · [Mac 版（測試中，.dmg）](https://github.com/Zaious/ownvoice-meet/releases/latest) · [開始使用](#開始使用)
 
-> 狀態：0.4.0，Windows 與 Mac（測試中）。已經接上真實服務使用。每一版改了什麼見 [CHANGELOG.md](CHANGELOG.md)，架構說明見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+<img src="docs/media/demo.gif" width="640" alt="示範、語音合成的提問：字幕視窗出現英文提問和中文意思，右邊講稿有準備好的回答；第二個提問不在講稿裡，於是在回覆視窗打中文，變成大字英文，最後停在要唸的那段英文。">
 
-![聽到提問並即時翻譯，講稿裡打開準備好的回答，中文回覆變成要唸的英文](docs/media/demo.gif)
+*示範：真實流程錄製，提問是電腦語音唸的，右側講稿視窗已調暗。完整、未調暗的錄影見 [MP4 版](docs/media/demo.mp4)（18 秒）。*
 
-*用真實流程錄製（Gemini Live 聽、Claude Haiku 5.5 翻），講稿是作者在 JCDL 2026 用的那份：第一個問題右邊講稿裡已經準備好答案；第二個問題用中文打回覆，變成要唸的英文。提問是語音合成的。[MP4 版](docs/media/demo.mp4)。*
+Gemini Live 聽、Claude Haiku 5.5 翻；語音辨識把 Jane 聽成了 Jinn。右側是作者 2026-10 在 JCDL 2026 用的講稿，數字是當時的。第一個問題的答案在講稿裡；第二個問題作者沒有準備，就用中文打回覆。
 
-**使用手冊：[docs/MANUAL.md](docs/MANUAL.md)**（安裝、開會流程、講稿、省錢組合、本機執行、常見問題）
+我英文看得懂，但開會時常常一下子想不出該怎麼說。用 OwnVoice Meet，你用中文打出想說的意思，它給你一句說得出口的英文，你照著唸。它不替你作答：話是你自己的，聲音也是你自己的。別人說的英文，字幕會即時接上中文意思；事先準備好的回答，就放在旁邊的中英對照講稿裡。
+
+> **狀態：0.4.0 · Windows 10、11 與 macOS 11 以上（Mac 版測試中） · Mac 版的程式內更新還沒實測過。**
 
 ## 它做什麼
 
-三個視窗，用得到的才開，各自放在順手的位置。
+- **想說的話，變成照著唸的英文。** 在回覆視窗用中文打、按 Enter，大字英文就出現。它參考剛剛的會議內容和你的講稿，名字和術語會用對。在 Zoom、Teams 裡按 `Ctrl+Shift+Space` 就叫得出來；建議放在攝影機旁邊。
+- **別人說什麼，馬上看到中文意思。** 字幕視窗即時顯示對方的英文，每句下面接著中文；也可以只看中文。長句講到一半就先翻（約 4 秒後，之後每 2 秒更新），講完再換成完整翻譯。
+- **準備好的回答就在手邊。** 講稿與備忘視窗分頁顯示你的簡報稿、準備好的回答和備忘，每行附中文意思，連結和指令可以一鍵複製。直接在視窗裡寫，英文或中文都行：**補對照** 會補上另一半。會自動保存，下次打開還在。真實範例見 [JCDL 2026 講稿](examples/scripts/journal-atlas-jcdl2026.md)。
+- **跟不上時看摘要。** 按 **摘要** 打開一個視窗，列出到目前為止的重點，每幾分鐘自動更新（可調，或關掉）。它只整理別人說過的話，不編造，也不建議你說什麼。
+- **在研討會會場也能用。** 收音改成麥克風，錄音和逐字稿存在你的電腦，每個場次一個檔（按 **新段落** 或 `Ctrl+Shift+F9` 切換，名稱可以先貼議程）。網路斷了錄音照樣繼續；網路太差可以只錄音、不辨識。
+- **不只英文。** 別人說日文、韓文、德文、法文、西班牙文、越南文、泰文、印尼文也聽得懂，字幕照樣翻成中文（設定 → **別人說的語言**）。回覆和 **補對照** 也可以改成你要說的語言（設定 → **我說的語言**）。預設是英文。
+- **分享螢幕時，提詞不會被看到。** 回覆與講稿視窗不會出現在分享畫面、錄影和截圖裡（Windows 10 2004 以上；設定裡可以關）；字幕視窗不隱藏。每個視窗有自己的字級（**A−**／**A+**）和背景透明度；字幕可以讓滑鼠點擊穿過去，操作下面的會議（按 `Ctrl+Shift+F8` 或系統匣圖示恢復）。
 
-| 視窗 | 功能 |
-|---|---|
-| **回覆** | 打中文、按 Enter，大字英文出現，照著唸。它知道會議剛剛在講什麼、你的講稿裡寫了什麼，所以名字和術語會用對。在 Zoom、Teams 裡按 `Ctrl+Shift+Space` 就會叫出來。建議放在攝影機旁邊。 |
-| **字幕** | 別人說的英文即時出現，每句下面接著中文意思。 |
-| **講稿與備忘** | 你的簡報稿、準備好的回答和備忘，每行附中文意思，分頁顯示，連結和指令可以一鍵複製。直接在視窗裡寫（內建範本與格式說明），寫英文或中文都行：**補對照** 會補上另一半，英文句補中文意思，中文句補要唸的英文。會自動保存，下次打開還在。真實範例見 [JCDL 2026 講稿](examples/scripts/journal-atlas-jcdl2026.md)。 |
+![Demo 模式，不需要 key：字幕、要唸的回覆、中英對照講稿](docs/images/overview.png)
 
-**在研討會會場也能用**：收音改成麥克風，同時把錄音和逐字稿存在電腦上（每個場次一個檔，按「新段落」或 `Ctrl+Shift+F9` 切換，名稱可以先貼議程）。網路斷了錄音照樣繼續；網路太差可以只錄音、不辨識。見[使用手冊](docs/MANUAL.md#在會場聽演講麥克風錄音分段)。
+*按 **Demo** 就能看到三個視窗在做什麼：畫面是預先寫好的示範文字，不收音、不需要 key。*
 
-**跟不上時看摘要**：按「摘要」打開一個視窗，列出到目前為止的重點，每幾分鐘自動更新（可調，或關掉）。它只整理別人說過的話，不編造、不建議你說什麼。開啟存檔時一併存成 `summary.md`。
-
-**不只英文**：別人說日文、韓文、德文、法文、西班牙文、越南文、泰文、印尼文也聽得懂，字幕照樣翻成中文（設定 →「別人說的語言」）。回覆和講稿的「補對照」也可以改成你要說的語言（設定 →「我說的語言」）。預設是英文。
-
-每個視窗有自己的字級（A− / A+）和背景透明度，會記住。字幕可以只顯示中文，也可以讓滑鼠點擊穿過去操作下面的會議（用 `Ctrl+Shift+F8` 或系統匣圖示關掉）。分享螢幕時，回覆與講稿視窗不會出現在分享畫面、錄影和截圖裡（需 Windows 10 2004 以上；設定裡可以關）。字幕視窗不隱藏。
+第一次用？先看「[開始使用](#開始使用)」。
 
 ## 它不做什麼
 
-它不會替你作答。沒有 AI 代寫的回答，也沒有合成語音：說什麼由你決定，也由你自己說出口。OwnVoice Meet 只幫你處理英文。
+它不會替你作答：沒有 AI 代寫的回答，也沒有合成語音。說什麼由你決定，也由你自己說出口；OwnVoice Meet 只把你的意思變成要唸的句子。它也不會加入會議，不是會議軟體的外掛：它聽的是電腦播放的聲音（Mac 版是麥克風）。
+
+## 下載
+
+到[最新版下載頁](https://github.com/Zaious/ownvoice-meet/releases/latest)：
+
+| | 檔案 | 說明 |
+| --- | --- | --- |
+| Windows 安裝版 | `OwnVoice.Meet_x.y.z_x64-setup.exe` | 只裝給目前使用者，不需要系統管理員權限。會檢查新版，按下才更新（見「[更新](#更新)」）。 |
+| Windows 免安裝版 | `OwnVoice.Meet_x.y.z_x64_portable.zip` | 解壓縮到任何地方，執行 `OwnVoice Meet.exe`。不會自己更新。 |
+| macOS（測試中） | `OwnVoice.Meet_x.y.z_universal.dmg` | Intel 和 Apple 晶片都能用，macOS 11 以上。打開 dmg，把 OwnVoice Meet 拖到「應用程式」。有 Apple 簽章並經過 Apple 公證。只能收麥克風，收不到電腦播放的聲音。我在一台 Intel Mac 上試過。 |
+
+Windows 版需要 Microsoft Edge WebView2 Runtime（Windows 11 內建）。
+
+> [!WARNING]
+> **出現「Windows 已保護您的電腦」？** OwnVoice Meet 沒有程式碼簽章，所以 Windows 會跳出警告。按 **其他資訊**，再按 **仍要執行**。免安裝版也可以在 `OwnVoice Meet.exe` 按右鍵，開 **內容**，勾選 **解除封鎖**。
+
+**核對檔案。** 下載頁的每個檔案旁邊都有 SHA-256，可以用這個指令比對（把 `x.y.z` 換成你下載的版本）：
+
+```powershell
+Get-FileHash .\OwnVoice.Meet_x.y.z_x64-setup.exe -Algorithm SHA256
+```
+
+這只能確認下載沒有損毀，擋不住下載頁本身被竄改。
+
+### 開始使用
+
+你需要 Windows 10 或 11（或 macOS 11 以上），以及「聽」和「翻」各一個服務：多數服務要你自己的 API key（設定裡有每家申請 key 的連結）。完全不用 key 的組合是 Windows 11 即時輔助字幕（聽）加 ChatGPT 方案（翻，要有 ChatGPT Go、Plus、Pro 或 Business）。選法見「[服務與費用](#服務與費用)」。
+
+想先看看、不必設定：打開 OwnVoice Meet，按 **Demo**。畫面是預先寫好的示範文字，不收音、不連網、不花錢。
+
+1. 按主視窗的 **⚙** 打開設定，在「聽」和「翻」各選一個服務。
+2. 在選到的服務旁按 **取得 key ↗**，到該網站建立 key，貼回來。選 ChatGPT 方案時，改按 **Continue with ChatGPT**，在瀏覽器登入。
+3. 打開會議，確認會議軟體的喇叭是 Windows 的預設輸出，按主視窗的 **▶ 聆聽**。Mac 版收的是麥克風。
+4. 想發言時，在回覆視窗用中文打想說的話，按 Enter。
+
+這時字幕視窗會出現對方的英文，下面接著中文意思；你按 Enter 之後，回覆視窗出現大字英文，照著唸就好。開會流程、講稿格式、省錢組合見[使用手冊](docs/MANUAL.md)。
+
+### 更新
+
+安裝版在啟動 20 秒後，以及每次打開設定時，會問 GitHub 一次有沒有新版；有的話 **⚙** 會出現小點。設定 → **檢查更新** 會找到新版，按 **更新並重新啟動** 才會下載並安裝。免安裝版不會自己更新，檢查更新會帶你到下載頁。Mac 版放進「應用程式」之後也能檢查更新，但 Mac 的程式內更新還沒實測過；更新失敗就重新下載 dmg。不想讓它自己去問，在設定裡取消勾選 **啟動時自動檢查有沒有新版**：之後只有你按 **檢查更新** 時才會連到 GitHub。更新檔安裝前會先驗證簽章；這跟 Windows 的程式碼簽章是兩回事。
+
+## 服務與費用
+
+用你自己的 key，或你的 ChatGPT 方案；key 存在系統的認證管理員。聽和翻各選一個：
+
+| 聽（語音辨識） | 翻（翻譯與回覆） |
+|---|---|
+| Gemini 3.5 Transcribe Live（即時，約每小時 0.54 美元） | Claude Haiku 5.5、Sonnet 5.5 |
+| OpenAI gpt-live-transcribe（即時，約每小時 1.02 美元） | OpenAI gpt-6-luna、gpt-6.1-sol |
+| OpenAI gpt-4o-mini-transcribe（一句講完才出字，約每小時 0.18 美元） | Gemini 3.5 Flash-Lite、3.8 Flash |
+| | **ChatGPT 方案**（gpt-6-luna，不用 API key：按 **Continue with ChatGPT** 登入，用你的 Go／Plus／Pro／Business 方案額度） |
+| 自己電腦上的 Whisper 伺服器（免費） | 自己電腦上的 vLLM 或 Ollama（免費） |
+| Windows 11 即時輔助字幕（即時、免費、在電腦上辨識、不需要 key；實驗功能，設定會帶你完成一次性設定） | |
+
+表中的每小時價格是依各家官方牌價估算的，2026-10-17 查自各家的價目頁；實際以各家帳單為準。翻譯選最快一級時，每小時約幾美分（例如 Claude Haiku 5.5，忙碌的一小時約 0.03 美元，同樣是牌價估算）。設定裡每個選項都列出價格、實測速度、強項、注意事項與需要什麼，也會記錄估算用量。ChatGPT 方案是 OpenAI 預覽中的功能，只能翻譯，不能辨識語音。省錢組合見[使用手冊第 6 節](docs/MANUAL.md#6-省錢)。
+
+<img src="docs/images/settings.png" alt="設定：每個選項的每小時價格、速度、強項、注意事項與需要什麼" width="380">
+
+全部在自己電腦上跑，只要在設定裡填網址：見 [docs/LOCAL.md](docs/LOCAL.md)（英文）。Apple 裝置上的選項（macOS 26）規劃中。
+
+## 說明文件
+
+- [使用手冊](docs/MANUAL.md)：安裝、開會流程、講稿、省錢組合、本機執行、常見問題
+- [變更紀錄](CHANGELOG.md)：每一版改了什麼
+- [架構](docs/ARCHITECTURE.md)（英文）：程式怎麼分工、哪些測試要手動跑
+- [在自己的伺服器上執行](docs/LOCAL.md)（英文）
+- [產品網站](https://ownvoice.chroniclecore.com/)
+
+## 隱私
+
+OwnVoice Meet 在你的電腦上執行，不需要註冊 OwnVoice Meet 的帳號，程式裡也沒有使用分析（analytics）。它只連到：
+
+- **你選的語音辨識服務**：Google 的 Gemini API（`generativelanguage.googleapis.com`）或 OpenAI（`api.openai.com`），在你按 **▶ 聆聽** 之後，送出會議的聲音。選本機伺服器時，只連你填的網址；選 Windows 即時輔助字幕或只錄音時，聲音不出電腦。
+- **你選的翻譯服務**：Anthropic（`api.anthropic.com`）、OpenAI（`api.openai.com`）、Google（`generativelanguage.googleapis.com`），或你填的本機伺服器。送出字幕文字、你打的回覆，以及你的講稿（名字和術語才會用對）；摘要也走同一個服務。
+- **ChatGPT 方案**：登入時用瀏覽器開 `auth.openai.com`，登入結果經本機 `127.0.0.1` 的暫時連接埠交回程式；之後的翻譯送到 `api.openai.com`。
+- **GitHub**：啟動 20 秒後與打開設定時，問 `api.github.com` 有沒有新版；按 **檢查更新**、**更新並重新啟動** 時，從 GitHub 取得更新資訊與檔案（`github.com`，以及它轉向的下載網址）。自動檢查可以在設定裡關掉（見「[更新](#更新)」）。
+
+設定裡的 **取得 key ↗** 和贊助連結，是你按了才用瀏覽器打開。
+
+用的是你自己的帳號：有些會議有保密要求，有些地方轉錄談話需要所有人同意，開始前請先確認。Gemini API 的免費層，Google 會用你送出的內容和產生的回應來提供、改進、開發它的產品與機器學習技術，也可能由人工審閱；付費層不會拿來改進產品（[Gemini API 附加服務條款](https://ai.google.dev/gemini-api/terms)，2026-03-23 生效版，2026-11-24 查核）。會議有保密要求時，請用付費層的 key。
+
+key 存在系統的認證管理員（Windows 認證管理員、Mac 鑰匙圈），不會寫進檔案；ChatGPT 登入的憑證也一樣。開啟存檔時，錄音、逐字稿與摘要只存在你的電腦，預設不存。
+
+**刪除存下的資料。** 先結束 OwnVoice Meet：
+
+1. key 與 ChatGPT 登入：設定 → **清除所有 key（也登出 ChatGPT）**。也可以到 ChatGPT 的設定中斷 Sign in with ChatGPT 的連線。
+2. 設定、講稿與用量紀錄：Windows 在 `%APPDATA%\io.github.zaious.ownvoice-meet\`，Mac 在 `~/Library/Application Support/io.github.zaious.ownvoice-meet/`。講稿是其中的 `script.md`，想備份就先複製它。
+3. 網頁元件的快取：Windows 在 `%LOCALAPPDATA%\io.github.zaious.ownvoice-meet\`。
+4. 錄音、逐字稿與摘要（有開存檔時）：預設在「文件」裡的 `OwnVoice Meet` 資料夾，或你在設定裡指定的存檔資料夾；設定裡的 **開啟存檔資料夾** 可以直接打開。
+5. 程式本身：安裝版從 Windows 的「設定 → 應用程式」解除安裝；免安裝版刪掉解壓縮出來的資料夾。
+
+在 Windows 上做完這五步，就清乾淨了。只有一個例外：用過 Windows 即時輔助字幕時，OwnVoice Meet 可能把它的辨識語言切成會議的語言；那是 Windows 即時輔助字幕自己的設定，不會跟著還原。Mac 版網頁元件的快取放在哪裡，我還沒核對過。
 
 ## 起源
 
@@ -44,151 +141,69 @@
 
 之後很多人來要這個工具。OwnVoice Meet 就是為了分享而重做的版本：語音辨識可以走雲端或在電腦上跑，不需要 GPU，服務也由你挑。那天晚上講稿的公開部分（簡報和準備好的回答）在 [examples/scripts/journal-atlas-jcdl2026.md](examples/scripts/journal-atlas-jcdl2026.md)。
 
-![Demo 模式，不需要 key：字幕、要唸的回覆、中英對照講稿](docs/images/overview.png)
+## 這是怎麼做的
 
-*按 **Demo** 就能看到三個視窗在做什麼，不需要音訊也不需要 key。*
+OwnVoice Meet 做什麼、主張什麼由我決定，每次發布由我負責。程式與文件大部分由 AI agent 撰寫：到 0.4.0 為止的 49 個 commit 中，46 個帶有 AI 共同作者標記（`Co-Authored-By`），在 git 歷史裡查得到；另外 3 個是合併 commit。CI 每次 push 都會跑型別檢查、前端測試與 Rust 測試，並在乾淨的 Windows 與 macOS 機器上建置（見 [ci.yml](.github/workflows/ci.yml)）；需要真實服務或喇叭的測試不在 CI 裡跑，清單在 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
-## 服務與費用
-
-用你自己的 key；設定裡有每家申請 key 的連結，key 存在系統的認證管理員。聽和翻各選一個：
-
-| 聽（語音辨識） | 翻（翻譯與回覆） |
-|---|---|
-| Gemini 3.5 Transcribe Live（即時，約每小時 0.54 美元） | Claude Haiku 5.5、Sonnet 5.5 |
-| OpenAI gpt-live-transcribe（即時，約每小時 1.02 美元） | OpenAI gpt-6-luna、gpt-6.1-sol |
-| OpenAI gpt-4o-mini-transcribe（一句講完才出字，約每小時 0.18 美元） | Gemini 3.5 Flash-Lite、3.8 Flash |
-| | **ChatGPT 方案**（gpt-6-luna，不用 API key：按 Continue with ChatGPT 登入，用你的 Go／Plus／Pro／Business 方案額度） |
-| 自己電腦上的 Whisper 伺服器（免費） | 自己電腦上的 vLLM 或 Ollama（免費） |
-| Windows 11 即時輔助字幕（即時、免費、在電腦上辨識、不需要 key；實驗功能，設定會帶你完成一次性設定） | |
-
-長句子講到一半就會先翻（約 4 秒後，之後每 2 秒更新），不用等講者停下來；句子講完再換成完整翻譯。
-
-**完全不用 key**：Windows 11 即時輔助字幕（聽）加 ChatGPT 方案（翻），不用申請任何 API key，也不另外付費。ChatGPT 方案是 OpenAI 預覽中的功能，只能翻譯，不能辨識語音。
-
-翻譯選最快一級時每小時只要幾美分（例如 Claude Haiku 5.5，忙碌的一小時約 0.03 美元）。設定裡每個選項都列出價格和實測速度，也會記錄估算用量。價格是官方牌價，實際以各家帳單為準。省錢組合見 [使用手冊第 6 節](docs/MANUAL.md#6-省錢)。
-
-<img src="docs/images/settings.png" alt="設定：每個選項的每小時價格、速度、強項、注意事項與需要什麼" width="380">
-
-全部在自己電腦上跑，只要在設定裡填網址：見 [docs/LOCAL.md](docs/LOCAL.md)。Apple 裝置上的選項（macOS 26）規劃中。
-
-## 隱私
-
-會議聲音會送到你選的語音辨識服務，文字送到你選的翻譯模型，用的是你自己的帳號。有些會議有保密要求，有些地方轉錄談話需要所有人同意，開始前請先確認。會拿免費層資料訓練的服務（Gemini 是），請用付費層的 key。選本機伺服器，一切都留在你的電腦；聽的部分選 Windows 即時輔助字幕也一樣。開啟存檔時，錄音和逐字稿只存在你的電腦（設定裡的存檔資料夾），預設不存。
-
-## 下載
-
-Windows 10、11 與 macOS 11 以上，到 [最新版下載頁](https://github.com/Zaious/ownvoice-meet/releases/latest)：
-
-- **安裝版**（`OwnVoice.Meet_<版本>_x64-setup.exe`）：只裝給目前使用者，不需要系統管理員權限。設定 → 檢查更新會找到新版，按「更新並重新啟動」會先驗證簽章再安裝。
-- **免安裝版**（`OwnVoice.Meet_<版本>_x64_portable.zip`）：解壓縮到任何地方，執行 `OwnVoice Meet.exe`。不會自己更新；檢查更新會帶你到下載頁。
-- **Mac 版**（`OwnVoice.Meet_<版本>_universal.dmg`，0.3.0 起，測試中）：Intel 和 Apple 晶片都能用。打開 dmg，把 OwnVoice Meet 拖到「應用程式」。有 Apple 簽章並經過 Apple 公證，直接打開就能用。Mac 版只能收麥克風，收不到電腦播放的聲音。見[使用手冊](docs/MANUAL.md#mac030-起測試中)。
-
-Windows 版還沒有數位簽章，Windows 可能顯示「Windows 已保護您的電腦」：按「其他資訊」，再按「仍要執行」。Windows 版需要 Microsoft Edge WebView2 Runtime（Windows 11 內建）。啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕會出現小點；可以在設定關掉，關掉後只有按「檢查更新」時才會連到 GitHub。
+程式裡的翻譯、回覆的英文和摘要，是你選的語言模型當場產生的，沒有人逐句查過。照著唸之前，請自己看一眼。
 
 ## 從原始碼建置
 
-需要 Node.js 20+、Rust（stable），Windows 上需要 WebView2 Runtime（Windows 11 內建）。
+需要 Node.js 24（CI 用的版本）、Rust 1.80 或更新版本（`Cargo.toml` 的 `rust-version`）。Windows 上另需 Microsoft C++ 建置工具與 WebView2 Runtime（Windows 11 內建）；macOS 上另需 Xcode Command Line Tools。
 
+從 lockfile 安裝相依套件，並以開發模式啟動（改了程式會自動重新載入）：
+
+```bash
+npm ci
+npm run tauri dev
 ```
-npm install
-npx tauri dev
+
+按 **Demo** 可以在沒有音訊和 key 的情況下看字幕。開發時把 `env.example` 複製成 `.env.local`（不會進 git）並填入 key，debug 版會讀它。
+
+建置正式版的程式，不打包安裝檔（CI 也這樣建）；在 Windows 上會得到 `src-tauri/target/release/ownvoice-meet.exe`：
+
+```bash
+npm run tauri build -- --no-bundle
 ```
 
-按 **Demo** 可以在沒有音訊和 key 的情況下看字幕。開發時把 `env.example` 複製成 `.env.local`（不會進 git）填入 key，debug 版會讀它。
+CI 每次 push 都會跑這些檢查（見 [ci.yml](.github/workflows/ci.yml)）：
 
-檢查：`npm test`、`npm run typecheck`，以及在 `src-tauri` 裡跑 `cargo test --lib`；CI 每次 push 都會跑。需要呼叫真實服務或喇叭的測試標為 ignored，清單在 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+```bash
+npm run typecheck
+npm test
+```
 
-## 支持作者
+Rust 的測試在 `src-tauri` 裡跑：
 
-如果它幫上你，歡迎到 [portaly.cc/chroniclecore](https://portaly.cc/chroniclecore) 贊助（設定 → 關於 也有連結）。
+```bash
+cd src-tauri
+cargo test --lib
+```
+
+## 貢獻與尋求協助
+
+卡住了，或發現錯誤？先看[使用手冊的常見問題](docs/MANUAL.md#9-常見問題)；還是不行，請開 [issue](https://github.com/Zaious/ownvoice-meet/issues)。開 issue 需要一個免費的 GitHub 帳號。Issue 與 PR 用中文或英文都可以。
+
+想改程式，請先開 issue 說明想改什麼，再送 PR；PR 要通過「[從原始碼建置](#從原始碼建置)」裡的檢查。
+
+## 致謝
+
+Windows 即時輔助字幕的讀取、斷句與長句先翻的做法，移植自 SakiRinn 與貢獻者的 [LiveCaptions-Translator](https://github.com/SakiRinn/LiveCaptions-Translator)（Apache-2.0）：讀過它的程式碼後用 Rust 重寫，改了哪些見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+## 資料、商標與聲明
+
+- 獨立專案，未獲 Google、OpenAI、Anthropic 贊助或背書。
+- OwnVoice Meet 呼叫你選的服務的 API：Google 的 Gemini API、OpenAI 的 API（包括用 ChatGPT 帳號登入的方式），以及 Anthropic 的 Claude API，用的是你自己的 key 或帳號。
+- 此處提及的商標、名稱與標誌屬各自權利人所有。Gemini、OpenAI、ChatGPT、Claude、Zoom、Teams、Windows 等名稱出現在這裡，只為說明本專案所涉的對象。
+
+## 贊助
+
+OwnVoice Meet 免費：沒有廣告，也沒有付費功能。如果它對你有用，可以到 [portaly.cc/chroniclecore](https://portaly.cc/chroniclecore) 贊助；程式裡只有設定 → **關於** 的 **♥ 贊助作者** 連到同一個頁面。贊助不會解鎖任何功能，每個人用到的功能都一樣。
 
 ## 授權
 
-Apache License 2.0，見 [LICENSE](LICENSE) 與 [NOTICE](NOTICE)；從其他專案移植的邏輯列在 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。以 OwnVoice Meet 為基礎的作品必須附上 NOTICE；「OwnVoice Meet」這個名稱不授權給其他作品使用。
+[Apache License 2.0](LICENSE)（`Apache-2.0`），另見 [NOTICE](NOTICE)。著作權人：ChronicleCore Studio 編年史記工作室（2026）。本授權涵蓋這個 repo 裡的程式碼與原創文字，也包括截圖、示範動圖與影片和範例講稿；Gemini、Claude、OpenAI、ChatGPT 等服務的名稱不在其中。以 OwnVoice Meet 為基礎的作品須保留 NOTICE 中的署名聲明（第 4(d) 條）。授權第 6 條不授予使用「OwnVoice Meet」這個名稱的許可，說明作品來源與轉載 NOTICE 時除外。
 
 ---
 
-## English
-
-**Understand the meeting. Answer in your own voice.**
-
-For people who can follow a meeting in English but can't always find the words in the moment, and still want to answer in their own words and their own voice. Type what you mean in your own language; OwnVoice Meet turns it into short, natural English that you read aloud. The words are yours, and so is the voice. The interface is in Traditional Chinese for now.
-
-Status: 0.4.0, Windows, and Mac (being tested). Working with real services. What changed in each version: [CHANGELOG.md](CHANGELOG.md) (in Chinese; release notes on GitHub are in both languages). See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The demo above was recorded with the real pipeline (Gemini Live listening, Claude Haiku 5.5 translating) and the author's JCDL 2026 script; the questions are text-to-speech.
-
-### What it does
-
-Three windows; use the ones you need and put each where it helps.
-
-| Window | What you get |
-|---|---|
-| **Reply** | Type in Chinese, press Enter, read the English aloud in large type. It knows what was just said in the meeting and what is in your script, so it uses the right names and terms. `Ctrl+Shift+Space` brings it up while Zoom or Teams has focus. Put it next to your webcam. |
-| **Captions** | What others say, in English as they speak, with the meaning in Chinese under each sentence. |
-| **Script & notes** | Your talk, prepared answers and notes, each line with its meaning, in tabs, with copy buttons for links and commands. Write it in the window (a template and a format guide are built in), in English or in Chinese: **補對照** fills in the other half, the Chinese meaning of an English line or the English to read for a Chinese one. It is saved and comes back next time. See [the JCDL 2026 script](examples/scripts/journal-atlas-jcdl2026.md) for a real one. |
-
-**At a conference venue, too**: switch the sound source to a microphone and keep the recording and the transcript on your computer, one file per session (press 新段落 or `Ctrl+Shift+F9` to move on; names can come from a pasted programme). The recording keeps going when the Wi-Fi drops, and on a bad network you can record without recognition.
-
-**A live summary when you fall behind**: 摘要 opens a window with the main points so far, brought up to date every few minutes (adjustable, or off). It only sums up what others said: nothing invented, no suggestions of what to say. With saving on it is kept as `summary.md` too.
-
-**Not only English**: captions follow Japanese, Korean, German, French, Spanish, Vietnamese, Thai or Indonesian too, always translated into Chinese (Settings, 別人說的語言). Replies and the script's 補對照 can be written in the language you speak (Settings, 我說的語言). English is the default.
-
-Each window has its own text size (A− / A+) and background opacity, remembered between runs. Captions can show the translation only, and can let clicks pass through to the meeting underneath (turn it off with `Ctrl+Shift+F8` or the tray icon). When you share your screen, the Reply and Script windows stay off the share, recordings and screenshots (Windows 10 2004 or later; can be turned off in Settings). The Captions window is not hidden.
-
-### What it does not do
-
-It does not answer for you. There are no AI-written replies and no synthetic voice: you decide what to say, and you say it. OwnVoice Meet helps with the English.
-
-### How it started
-
-I'm Zaious, an independent researcher from Taiwan. I read English well, but in a meeting I often can't find the words in time. On 16 October 2026 I had an online demo at JCDL 2026, the ACM/IEEE Joint Conference on Digital Libraries: a one-minute pitch, then questions in breakout rooms. That afternoon I built a first version in about two hours (Python, Whisper on my own GPU, Claude Haiku 5.5) and kept it open through the whole 1.5-hour session: captions with the Chinese meaning while others spoke, my bilingual script and prepared answers beside them, and the reply box for anything I had not prepared.
-
-Translation for that evening, a session of an hour and a half and a bit, cost **US$0.11** on Claude Haiku 5.5, according to the Claude Console: 5,570,065 input tokens and 28,585 output tokens. Most of the input is the prepared script, which goes with every request so names and terms come out right; it is read from the prompt cache, which is why it costs so little. Speech recognition ran on my own GPU, so it cost nothing.
-
-Many people asked for the tool afterwards. OwnVoice Meet is that tool rebuilt to be shared: speech recognition in the cloud or on the device, so you do not need a GPU, and your choice of providers. Press **Demo** to see all three windows without audio or keys.
-
-### Providers and cost
-
-Bring your own keys; Settings links to each provider's key page, and keys are kept in the system keychain. Pick one option for listening and one for translation:
-
-| Listening | Translation and replies |
-|---|---|
-| Gemini 3.5 Transcribe Live (live, about $0.54/hour) | Claude Haiku 5.5, Sonnet 5.5 |
-| OpenAI gpt-live-transcribe (live, about $1.02/hour) | OpenAI gpt-6-luna, gpt-6.1-sol |
-| OpenAI gpt-4o-mini-transcribe (per sentence, about $0.18/hour) | Gemini 3.5 Flash-Lite, 3.8 Flash |
-| A Whisper server on your own machine (free) | vLLM or Ollama on your own machine (free) |
-| Windows 11 Live Captions (live, free, on the device, no key; experimental, Settings walks you through a one-time setup) | |
-
-Long sentences are translated while they are still being spoken (after about 4 seconds, then every 2 seconds), so you are not left waiting for the speaker to pause; the final translation replaces it when the sentence ends.
-
-Translation costs a few cents an hour on the fastest models (for example Claude Haiku 5.5, about $0.03 for a busy hour). Settings shows every option with its price, measured speed, strengths, cautions and what it needs, and tracks estimated usage. Prices are list prices; your provider's bill is the authority. Running everything locally is a matter of URLs in Settings: see [docs/LOCAL.md](docs/LOCAL.md). Apple on-device options (macOS 26) are planned.
-
-### Privacy
-
-Meeting audio goes to the speech service you choose, and text to the language model you choose, under your own account. Some meetings are confidential, and some places require everyone's consent before a conversation is transcribed: check before you turn it on. Use paid-tier keys where the provider uses free-tier data for training (Gemini does). Local servers keep everything on your machine, and so does Windows Live Captions for listening. With saving on, recordings and transcripts stay on your computer, in the folder Settings shows; saving is off by default.
-
-### Download
-
-Windows 10 and 11, and macOS 11 or later, from [the latest release](https://github.com/Zaious/ownvoice-meet/releases/latest):
-
-- **Installer** (`OwnVoice.Meet_<version>_x64-setup.exe`): installs for your user only, no administrator rights. Settings > Check for updates finds a newer version, and Update installs it after checking its signature.
-- **Portable** (`OwnVoice.Meet_<version>_x64_portable.zip`): unzip anywhere and run `OwnVoice Meet.exe`. It never updates itself; Check for updates links to the download page.
-- **Mac** (`OwnVoice.Meet_<version>_universal.dmg`, from 0.3.0, being tested): for Intel and Apple silicon. Open the dmg and drag the app to Applications. It is signed and notarized by Apple, so it opens like any other app. The Mac version listens through a microphone only, not to what the computer plays.
-
-The Windows builds are not code-signed yet, so Windows may say "Windows protected your PC": choose **More info**, then **Run anyway**. On Windows it needs the Microsoft Edge WebView2 Runtime, which Windows 11 includes. Twenty seconds after start OwnVoice Meet asks GitHub once whether a newer version is out and puts a dot on the settings button if so; turn it off in Settings and GitHub is contacted only when you press Check for updates.
-
-### Building from source
-
-Requirements: Node.js 20+, Rust (stable), and on Windows the WebView2 runtime (included in Windows 11).
-
-```
-npm install
-npx tauri dev
-```
-
-Press **Demo** to see captions without audio or keys. For development, copy `env.example` to `.env.local` (git-ignored) and fill in keys; debug builds read it.
-
-Checks: `npm test`, `npm run typecheck`, and `cargo test --lib` in `src-tauri`; CI runs them on every push. Tests that call real services or need speakers are marked ignored; [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) lists them.
-
-### Support and license
-
-If OwnVoice Meet helps you, you can support the author at [portaly.cc/chroniclecore](https://portaly.cc/chroniclecore). Apache License 2.0: see [LICENSE](LICENSE) and [NOTICE](NOTICE); logic ported from other projects is credited in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). A work based on OwnVoice Meet must carry the NOTICE; the name "OwnVoice Meet" is not licensed for other works.
+Made by [Zaious](https://zaious.dev/) at [ChronicleCore Studio](https://studio.chroniclecore.com) 編年史記工作室.

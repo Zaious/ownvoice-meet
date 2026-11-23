@@ -5,7 +5,8 @@
 # .env.local. Windows are opened and listening is started through OWNVOICE_AUTOMATION (debug builds
 # only), so the mouse is not used; only the reply is typed. It plays sound for about 40 s.
 #   powershell -ExecutionPolicy Bypass -File scripts\record-demo.ps1 -Exe src-tauri\target\debug\ownvoice-meet.exe
-# Writes docs/media/demo.gif and demo.mp4 (ffmpeg on PATH). Look at them before committing.
+# Writes docs/media/demo.mp4 (ffmpeg on PATH); scripts/demo-gif.py cuts the README GIF from it. Look at
+# both before committing.
 param([string]$Exe, [string]$OutDir = (Join-Path $PSScriptRoot '..\docs\media'))
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Speech, System.Windows.Forms
@@ -94,8 +95,8 @@ $fps = [Math]::Round(($n - 1) / [Math]::Max($secs, 1), 2)
 "frames: $n over $([Math]::Round($secs, 1)) s = $fps fps"
 $in = Join-Path $frames 'f%05d.png'
 & ffmpeg -y -loglevel error -framerate $fps -i $in -vf 'scale=1280:-2:flags=lanczos' -c:v libx264 -pix_fmt yuv420p -r 30 (Join-Path $OutDir 'demo.mp4')
-# GIF for the README: 3 frames a second, 800 px wide, and only the changed rectangle stored per frame
-# (most of the picture is still), with one palette for the whole clip and no dithering noise.
-& ffmpeg -y -loglevel error -framerate $fps -i $in -vf 'fps=3,scale=800:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=64:stats_mode=diff[p];[b][p]paletteuse=dither=none:diff_mode=rectangle' -loop 0 (Join-Path $OutDir 'demo.gif')
-Get-ChildItem $OutDir -Filter 'demo.*' | ForEach-Object { "{0} {1:N0} KB" -f $_.Name, ($_.Length / 1KB) }
+# The README GIF is cut from this MP4 afterwards, starting where a caption is already on screen:
+# look at the frames, then run scripts/demo-gif.py --start <second>.
+Get-ChildItem $OutDir -Filter 'demo.mp4' | ForEach-Object { "{0} {1:N0} KB" -f $_.Name, ($_.Length / 1KB) }
+"Next: py -3 scripts/demo-gif.py --start <second where the first question is on screen>"
 Remove-Item -Recurse -Force $cfg -ErrorAction SilentlyContinue
