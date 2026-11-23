@@ -63,9 +63,8 @@
         <div class="actions"><button type="button" id="test-stt">測試連線</button><span id="test-stt-result" class="status"></span></div>
       </div>
       <div id="stt-lc" class="local lc-setup" hidden></div>
-      <label>語言（BCP-47，例如 en-US；留空＝自動偵測）
-        <input name="stt_language" list="langs" />
-        <datalist id="langs"><option value="en-US"></option><option value="en-GB"></option><option value="ja-JP"></option></datalist>
+      <label>別人說的語言（字幕一律翻成中文；選「自動偵測」會自己判斷）
+        <select name="stt_language"><option value="">自動偵測</option><option value="en-US">英文</option><option value="ja-JP">日文</option><option value="ko-KR">韓文</option><option value="de-DE">德文</option><option value="fr-FR">法文</option><option value="es-ES">西班牙文</option><option value="vi-VN">越南文</option><option value="th-TH">泰文</option><option value="id-ID">印尼文</option><option value="en-GB">英文（英國）</option></select>
       </label>
 
       <details class="fold" name="pick">
@@ -79,6 +78,9 @@
         <datalist id="local-models"></datalist>
         <div class="actions"><button type="button" id="test-llm">測試連線並列出模型</button><span id="test-llm-result" class="status"></span></div>
       </div>
+      <label>我說的語言（回覆視窗和講稿「補對照」產生的句子）
+        <select name="speak_language"><option value="en">英文</option><option value="ja">日文</option><option value="ko">韓文</option><option value="de">德文</option><option value="fr">法文</option><option value="es">西班牙文</option><option value="vi">越南文</option><option value="th">泰文</option><option value="id">印尼文</option></select>
+      </label>
       <label>思考深度
         <select name="llm_effort">
           <option value="auto">自動（該模型最快的設定）</option>
@@ -102,7 +104,7 @@
       <label>本機伺服器（選填）<span class="keystate" data-provider="local"></span><input name="key_local" type="password" autocomplete="off" /></label>
 
       <h2>術語表</h2>
-      <label>每行「中文 = English」，兩個方向都會套用
+      <label>每行「中文 = 外語」（外語就是上面「我說的語言」），兩個方向都會套用
         <textarea name="glossary" rows="6" placeholder="季度營收 = quarterly revenue"></textarea>
       </label>
 

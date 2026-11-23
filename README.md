@@ -28,6 +28,8 @@
 
 **跟不上時看摘要**：按「摘要」打開一個視窗，列出到目前為止的重點，每幾分鐘自動更新（可調，或關掉）。它只整理別人說過的話，不編造、不建議你說什麼。開啟存檔時一併存成 `summary.md`。
 
+**不只英文**：別人說日文、韓文、德文、法文、西班牙文、越南文、泰文、印尼文也聽得懂，字幕照樣翻成中文（設定 →「別人說的語言」）。回覆和講稿的「補對照」也可以改成你要說的語言（設定 →「我說的語言」）。預設是英文。
+
 每個視窗有自己的字級（A− / A+）和背景透明度，會記住。字幕可以只顯示中文，也可以讓滑鼠點擊穿過去操作下面的會議（用 `Ctrl+Shift+F8` 或系統匣圖示關掉）。分享螢幕時，回覆與講稿視窗不會出現在分享畫面、錄影和截圖裡（需 Windows 10 2004 以上；設定裡可以關）。字幕視窗不隱藏。
 
 ## 它不做什麼
@@ -138,6 +140,8 @@ Three windows; use the ones you need and put each where it helps.
 **At a conference venue, too**: switch the sound source to a microphone and keep the recording and the transcript on your computer, one file per session (press 新段落 or `Ctrl+Shift+F9` to move on; names can come from a pasted programme). The recording keeps going when the Wi-Fi drops, and on a bad network you can record without recognition.
 
 **A live summary when you fall behind**: 摘要 opens a window with the main points so far, brought up to date every few minutes (adjustable, or off). It only sums up what others said: nothing invented, no suggestions of what to say. With saving on it is kept as `summary.md` too.
+
+**Not only English**: captions follow Japanese, Korean, German, French, Spanish, Vietnamese, Thai or Indonesian too, always translated into Chinese (Settings, 別人說的語言). Replies and the script's 補對照 can be written in the language you speak (Settings, 我說的語言). English is the default.
 
 Each window has its own text size (A− / A+) and background opacity, remembered between runs. Captions can show the translation only, and can let clicks pass through to the meeting underneath (turn it off with `Ctrl+Shift+F8` or the tray icon). When you share your screen, the Reply and Script windows stay off the share, recordings and screenshots (Windows 10 2004 or later; can be turned off in Settings). The Captions window is not hidden.
 

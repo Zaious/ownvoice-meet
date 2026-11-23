@@ -247,7 +247,8 @@ pub fn spawn_reply(app: AppHandle, id: u64, zh: String) {
             Ok(t) => t,
             Err(e) => return emit(&format!("[{e}]"), true),
         };
-        let system = prompts::system_blocks(prompts::REPLY_SYSTEM, &prompts::parse_glossary(&s.glossary), &script);
+        let instructions = prompts::reply_system(&prompts::language_name(&s.speak_language));
+        let system = prompts::system_blocks(&instructions, &prompts::parse_glossary(&s.glossary), &script);
         let client = app.state::<Http>().0.clone();
         let mut en = String::new();
         let res = stream(&client, &t, system, prompts::reply_user(&ctx, &zh), |d| {
@@ -336,6 +337,28 @@ mod tests {
         }
         println!("ran {ran} models");
         assert!(ran > 0, "no model could be reached");
+    }
+
+    // A reply in another spoken language, with Claude Haiku 5.5:
+    //   cargo test --lib -- --ignored --nocapture live_reply_in
+    #[tokio::test]
+    #[ignore]
+    async fn live_reply_in_japanese_and_german() {
+        let _ = dotenvy::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/../.env.local"));
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        let Some(key) = std::env::var("ANTHROPIC_API_KEY").ok().filter(|k| !k.is_empty()) else {
+            println!("ANTHROPIC_API_KEY not set; skipped");
+            return;
+        };
+        let t = target_for("claude-haiku-5-5", &key);
+        let ctx = vec!["残っている問題は、助成金が終わった後、誰が保存費用を払うのかということです。".to_string()];
+        for (code, check) in [("ja", (|s: &str| s.chars().any(|c| ('\u{3040}'..='\u{30ff}').contains(&c))) as fn(&str) -> bool), ("de", |s: &str| s.split_whitespace().count() > 3 && !s.chars().any(|c| ('\u{4e00}'..='\u{9fff}').contains(&c)))] {
+            let system = prompts::system_blocks(&prompts::reply_system(&prompts::language_name(code)), &[], "");
+            let mut out = String::new();
+            stream(&reqwest::Client::new(), &t, system, prompts::reply_user(&ctx, "我們打算向大學申請經費，明年再討論"), |d| out.push_str(d)).await.expect("reply");
+            println!("{code}: {out}");
+            assert!(check(&out), "{code}: not in that language: {out}");
+        }
     }
 
     #[tokio::test]

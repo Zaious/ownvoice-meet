@@ -18,6 +18,8 @@ export interface Reply {
 export interface Settings {
   stt_id: string;
   stt_language: string;
+  /** The language the user speaks: replies and the script's 補對照 ("en", "ja", ...). */
+  speak_language: string;
   llm_id: string;
   llm_effort: string;
   context_lines: number;

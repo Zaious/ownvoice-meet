@@ -51,7 +51,7 @@ try {
   $main = Win 'OwnVoice Meet'; if (-not $main) { throw 'main window not found' }
   $set = OpenSettings $main
   Start-Sleep -Seconds 2
-  $gl = EditNamed $set '*中文 = English*'; $dir = EditNamed $set '存檔資料夾*'
+  $gl = EditNamed $set '*每行「中文 =*'; $dir = EditNamed $set '存檔資料夾*'
   Enter-Text $gl 'autosave check = autosave check'
   Enter-Text $dir 'D:/autosave-check'
   "typed: glossary '$(Value $gl)', save folder '$(Value $dir)'"

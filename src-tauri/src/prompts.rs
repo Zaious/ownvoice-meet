@@ -9,12 +9,36 @@ The utterance comes from speech recognition: it may contain recognition errors o
 When a word looks misrecognized, silently use the most plausible reading; keep an unknown name as heard. Never comment on the recognition or on your translation.
 Your entire output is shown as a subtitle: output only the Chinese translation, with no quotes, labels or notes.";
 
-pub const REPLY_SYSTEM: &str = "You help a Taiwanese participant speak in an English-language meeting. They type what they want to say in Chinese (it may be casual, incomplete, or mixed with English). Write the English they will read aloud word for word.
-- Spoken style: short sentences of at most about 15 words, plain words that are easy to pronounce, natural meeting register.
+/// The language the participant speaks in the meeting (Settings: speak_language), by its English
+/// name for the prompts. A code it does not know is passed on as it is.
+pub fn language_name(code: &str) -> String {
+    let base = code.trim().split(['-', '_']).next().unwrap_or("").to_ascii_lowercase();
+    let name = match base.as_str() {
+        "" | "en" => "English",
+        "ja" => "Japanese",
+        "ko" => "Korean",
+        "de" => "German",
+        "fr" => "French",
+        "es" => "Spanish",
+        "vi" => "Vietnamese",
+        "th" => "Thai",
+        "id" => "Indonesian",
+        _ => return code.trim().to_string(),
+    };
+    name.to_string()
+}
+
+/// What turns typed Chinese into words to read aloud in `lang` (an English language name).
+pub fn reply_system(lang: &str) -> String {
+    format!(
+        "You help a Taiwanese participant speak in a {lang}-language meeting. They type what they want to say in Chinese (it may be casual, incomplete, or mixed with other languages). Write the {lang} they will read aloud word for word.
+- Spoken style: short sentences (in English at most about 15 words), plain words that are easy to pronounce, natural meeting register.
 - Keep their meaning, stance and tone. Do not add points, greetings, or filler they did not imply.
 - Use the conversation context to pick the right terms and refer to what others said.
-- If their prepared script is provided and what they type matches a point in it, reuse the script's English wording and terms.
-Output only the English script, with no quotes, labels or notes.";
+- If their prepared script is provided and what they type matches a point in it, reuse the script's {lang} wording and terms.
+Output only the {lang} script, with no quotes, labels or notes."
+    )
+}
 
 pub const SUMMARY_SYSTEM: &str = "You keep a running summary of a meeting or talk for a Taiwanese participant who follows it in a language other than their own, with Chinese captions.
 You get the summary so far (it may be empty) and the newest stretch of the transcript, which comes from speech recognition and may contain recognition errors.
@@ -89,6 +113,17 @@ mod tests {
     fn an_unfinished_utterance_is_marked_as_such() {
         assert!(listen_user(&[], "so the plan is", true).contains("stops mid-sentence"));
         assert!(!listen_user(&[], "So the plan is set.", false).contains("mid-sentence"));
+    }
+
+    #[test]
+    fn the_spoken_language_reaches_the_reply_prompt() {
+        assert_eq!(language_name(""), "English");
+        assert_eq!(language_name("ja-JP"), "Japanese");
+        assert_eq!(language_name("ko"), "Korean");
+        assert_eq!(language_name("Swahili"), "Swahili", "an unknown name is kept");
+        let p = reply_system("Japanese");
+        assert!(p.contains("Japanese-language meeting") && p.contains("Output only the Japanese script"));
+        assert!(!reply_system("English").contains("{lang}"));
     }
 
     #[test]

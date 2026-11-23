@@ -39,7 +39,7 @@ describe('editor template', () => {
     const { TEMPLATE } = await import('../src/script/template.ts');
     const { sections, items } = parse(TEMPLATE);
     expect(sections).toEqual(['開場', 'Q&A']);
-    expect(missingGloss(items)).toEqual(['寫中文也可以，按「補對照」會幫你產生要唸的英文。', '它不會替你作答，你說的是自己的話。']);
+    expect(missingGloss(items)).toEqual(['寫中文也可以，按「補對照」會幫你產生要唸的句子（語言在設定的「我說的語言」選）。', '它不會替你作答，你說的是自己的話。']);
   });
 });
 

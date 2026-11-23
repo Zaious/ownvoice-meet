@@ -1,6 +1,7 @@
-// "補對照": fill in the missing half of a bilingual script. A line to read in English with no meaning
-// under it gets its Chinese meaning; a line written in Chinese becomes English to read aloud, with
-// the Chinese kept as its meaning. Only the lines that need it go to the model, as a numbered JSON
+// "補對照": fill in the missing half of a bilingual script. A line to read in the language the user
+// speaks (Settings: speak_language; English unless changed) with no meaning under it gets its
+// Chinese meaning; a line written in Chinese becomes that language to read aloud, with the Chinese
+// kept as its meaning. Only the lines that need it go to the model, as a numbered JSON
 // list; the answer is merged back here, so headings, cues, copy blocks and lines that already have a
 // meaning are never touched. Format: see src/script/format.ts.
 
@@ -17,11 +18,16 @@ use crate::usage;
 
 const BATCH: usize = 40;
 
-const SYSTEM: &str = "You prepare a bilingual script for a Taiwanese participant in an English-language meeting or talk.
-You get a JSON list of items. Each has \"to\": \"zh\" or \"en\", and \"text\".
-- to = zh: give the meaning in natural Traditional Chinese as used in Taiwan, as a reading aid. Keep names and technical terms in English where Taiwanese speakers would.
-- to = en: write the English the participant will read aloud: short spoken sentences, plain words, their meaning and tone, nothing added.
-Answer with only a JSON array of strings, one per item, in the same order. No other text.";
+/// The instructions, for a participant who speaks `lang` (an English language name) in the meeting.
+fn system(lang: &str) -> String {
+    format!(
+        "You prepare a bilingual script for a Taiwanese participant in a {lang}-language meeting or talk.
+You get a JSON list of items. Each has \"to\": \"zh\" or \"speak\", and \"text\".
+- to = zh: give the meaning in natural Traditional Chinese as used in Taiwan, as a reading aid. Keep names and technical terms as they are where Taiwanese speakers would.
+- to = speak: write the {lang} the participant will read aloud: short spoken sentences, plain words, their meaning and tone, nothing added.
+Answer with only a JSON array of strings, one per item, in the same order. No other text."
+    )
+}
 
 #[derive(Debug, PartialEq)]
 pub enum Dir {
@@ -39,10 +45,13 @@ pub struct Need {
     pub dir: Dir,
 }
 
+/// Written in Chinese (to become the spoken language), not in the spoken language itself. Japanese
+/// shares the characters: a line with kana is Japanese.
 fn is_chinese(s: &str) -> bool {
     let cjk = s.chars().filter(|c| ('\u{4e00}'..='\u{9fff}').contains(c) || ('\u{3400}'..='\u{4dbf}').contains(c)).count();
     let latin = s.chars().filter(|c| c.is_ascii_alphabetic()).count();
-    cjk > 0 && cjk * 2 >= latin
+    let kana = s.chars().filter(|c| ('\u{3040}'..='\u{30ff}').contains(c)).count();
+    cjk > 0 && cjk * 2 >= latin && kana == 0
 }
 
 /// Lines to fill, in the same terms as the script parser (format.ts).
@@ -80,8 +89,8 @@ pub fn plan(script: &str) -> Vec<Need> {
     needs
 }
 
-/// Put the answers back: English lines get "> Chinese" under them; Chinese lines become the English
-/// to read, with "> the Chinese" under it.
+/// Put the answers back: lines in the spoken language get "> Chinese" under them; Chinese lines
+/// become the spoken language to read, with "> the Chinese" under it.
 pub fn merge(script: &str, needs: &[Need], answers: &[String]) -> String {
     let mut out: Vec<String> = Vec::new();
     let mut k = 0;
@@ -128,13 +137,15 @@ pub async fn fill(app: &AppHandle, script: &str) -> Result<(String, usize), Stri
     let s = settings::load(app);
     let target = llm::target(&s)?;
     let client = app.state::<Http>().0.clone();
-    fill_with(&client, &target, &prompts::parse_glossary(&s.glossary), script, |u| usage::add_tokens(app, &target.catalog_id, u)).await
+    let lang = prompts::language_name(&s.speak_language);
+    fill_with(&client, &target, &lang, &prompts::parse_glossary(&s.glossary), script, |u| usage::add_tokens(app, &target.catalog_id, u)).await
 }
 
 /// The work of `fill`, given a client and model; `on_usage` gets each request's token counts.
 pub async fn fill_with(
     client: &reqwest::Client,
     target: &llm::Target,
+    lang: &str,
     glossary: &[(String, String)],
     script: &str,
     mut on_usage: impl FnMut(usage::Tally),
@@ -147,10 +158,10 @@ pub async fn fill_with(
     for chunk in needs.chunks(BATCH) {
         let items: Vec<Value> = chunk
             .iter()
-            .map(|n| json!({ "to": if n.dir == Dir::ToZh { "zh" } else { "en" }, "text": n.text }))
+            .map(|n| json!({ "to": if n.dir == Dir::ToZh { "zh" } else { "speak" }, "text": n.text }))
             .collect();
         let mut text = String::new();
-        let u = llm::stream(client, target, prompts::system_blocks(SYSTEM, glossary, ""), Value::Array(items).to_string(), |d| text.push_str(d)).await?;
+        let u = llm::stream(client, target, prompts::system_blocks(&system(lang), glossary, ""), Value::Array(items).to_string(), |d| text.push_str(d)).await?;
         on_usage(u);
         answers.extend(parse_answers(&text, chunk.len())?);
     }
@@ -223,7 +234,7 @@ mod tests {
         };
         let script = "# 開場\nHi everyone, thanks for having me.\n我們的工具不會替你作答。\nQ: 費用大概多少？\n";
         let t0 = std::time::Instant::now();
-        let (out, n) = fill_with(&reqwest::Client::new(), &target, &[], script, |_| {}).await.expect("fill");
+        let (out, n) = fill_with(&reqwest::Client::new(), &target, "English", &[], script, |_| {}).await.expect("fill");
         println!("{:.2}s, filled {n}:\n{out}", t0.elapsed().as_secs_f32());
         assert_eq!(n, 3);
         assert!(plan(&out).is_empty(), "every line has its other half");
@@ -235,5 +246,37 @@ mod tests {
     fn mixed_lines_go_by_their_main_language() {
         assert!(is_chinese("我們用 Claude Code 安裝"));
         assert!(!is_chinese("Install it in Claude Code, 很快"));
+        // Japanese to read is not Chinese to turn into Japanese.
+        assert!(!is_chinese("本日はお招きいただきありがとうございます。"));
+        assert!(!is_chinese("감사합니다"));
+    }
+
+    // Real API call, Japanese as the spoken language:
+    //   cargo test --lib -- --ignored --nocapture gloss_live_japanese
+    #[tokio::test]
+    #[ignore]
+    async fn gloss_live_japanese() {
+        let _ = dotenvy::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/../.env.local"));
+        let Some(key) = std::env::var("ANTHROPIC_API_KEY").ok().filter(|k| !k.is_empty()) else {
+            println!("ANTHROPIC_API_KEY not set; skipped");
+            return;
+        };
+        let _ = rustls::crypto::ring::default_provider().install_default();
+        let target = llm::Target {
+            catalog_id: "claude-haiku-5-5".into(),
+            transport: "anthropic",
+            url: "https://api.anthropic.com/v1/messages".into(),
+            key: Some(key),
+            model: "claude-haiku-5-5".into(),
+            effort: "low".into(),
+        };
+        let script = "# 開場\n本日はお招きいただきありがとうございます。\n我們的工具不會替你作答。\n";
+        let (out, n) = fill_with(&reqwest::Client::new(), &target, "Japanese", &[], script, |_| {}).await.expect("fill");
+        println!("filled {n}:\n{out}");
+        assert_eq!(n, 2);
+        assert!(out.contains("> 我們的工具不會替你作答。"), "Chinese kept as the meaning");
+        // "# 開場", the Japanese line, its "> " meaning, then the Chinese line turned into Japanese.
+        let spoken = out.lines().nth(3).unwrap_or("");
+        assert!(spoken.chars().any(|c| ('\u{3040}'..='\u{30ff}').contains(&c)), "the Chinese line became Japanese: {spoken}");
     }
 }

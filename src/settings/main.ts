@@ -292,7 +292,8 @@ async function load(): Promise<void> {
   renderChoices(document.querySelector('#llm-list')!, catalog.filter((m) => m.kind === 'llm'), 'llm', s.llm_id);
   for (const m of catalog) models.set(m.id, m);
   showPicked();
-  field('stt_language').value = s.stt_language;
+  choose('stt_language', s.stt_language);
+  choose('speak_language', s.speak_language || 'en');
   field<HTMLSelectElement>('llm_effort').value = s.llm_effort;
   field('context_lines').value = String(s.context_lines);
   field('summary_every_min').value = String(s.summary_every_min);
@@ -336,6 +337,13 @@ function setSource(value: string): void {
   const radio = form.querySelector<HTMLInputElement>(`input[name="audio_source"][value="${value}"]`);
   if (radio) radio.checked = true;
   micBox.hidden = value !== 'mic';
+}
+
+/** Selects `value` in a dropdown, adding it when the list does not have it (set by hand before). */
+function choose(name: string, value: string): void {
+  const select = field<HTMLSelectElement>(name);
+  if (![...select.options].some((o) => o.value === value)) select.add(new Option(value, value));
+  select.value = value;
 }
 
 /** A minutes field: empty means the default, anything else at least 0. */
@@ -420,6 +428,7 @@ function collect(): Omit<Settings, 'view'> {
   return {
     stt_id: chosen('stt'),
     stt_language: field('stt_language').value.trim(),
+    speak_language: field<HTMLSelectElement>('speak_language').value,
     llm_id: chosen('llm'),
     llm_effort: field<HTMLSelectElement>('llm_effort').value,
     context_lines: Number(field('context_lines').value) || 0,

@@ -4,7 +4,7 @@ export const TEMPLATE = `# 開場
 ! 灰色提示：這行不用唸，例如「切到第 2 張投影片」
 Hi everyone, thanks for having me.
 > 大家好，謝謝邀請。
-寫中文也可以，按「補對照」會幫你產生要唸的英文。
+寫中文也可以，按「補對照」會幫你產生要唸的句子（語言在設定的「我說的語言」選）。
 
 # Q&A
 Q: How is this different from other tools?

@@ -18,7 +18,7 @@ const editor = document.querySelector<HTMLElement>('#editor')!;
 const src = document.querySelector<HTMLTextAreaElement>('#src')!;
 const editBtn = document.querySelector<HTMLButtonElement>('#edit')!;
 const glossBtn = document.querySelector<HTMLButtonElement>('#gloss')!;
-const EMPTY = '還沒有講稿。按「編輯」直接寫，或「開啟講稿…」讀 .md 檔。只寫英文或只寫中文都可以，按「補對照」補上另一半。';
+const EMPTY = '還沒有講稿。按「編輯」直接寫，或「開啟講稿…」讀 .md 檔。只寫外語或只寫中文都可以，按「補對照」補上另一半。';
 
 let current = '';
 let editing = false;

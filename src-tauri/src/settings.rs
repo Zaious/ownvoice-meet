@@ -21,12 +21,15 @@ pub struct Settings {
     pub stt_id: String,
     /// BCP-47 code such as en-US; empty lets the model detect the language.
     pub stt_language: String,
+    /// The language the user speaks in the meeting ("en", "ja", ...): what replies and the script's
+    /// 補對照 are written in. Captions are always translated into Chinese.
+    pub speak_language: String,
     /// Catalog id of the translation model.
     pub llm_id: String,
     /// "auto" = the lowest thinking setting the model accepts (fastest); or low / medium / high.
     pub llm_effort: String,
     pub context_lines: usize,
-    /// `中文 = English` per line.
+    /// `中文 = 外語` per line (the language the user speaks).
     pub glossary: String,
     /// OpenAI-compatible transcription server, e.g. a self-hosted faster-whisper server.
     pub local_stt_url: String,
@@ -157,6 +160,7 @@ impl Default for Settings {
         Self {
             stt_id: "gemini-live".into(),
             stt_language: "en-US".into(),
+            speak_language: "en".into(),
             llm_id: "claude-haiku-5-5".into(),
             llm_effort: "auto".into(),
             context_lines: 12,
