@@ -247,13 +247,19 @@ fn show(app: &AppHandle, id: u64, seq: u64, stop: &AtomicBool, zh: &str, early: 
     true
 }
 
-/// An early translation is a guess at half a sentence; one that came back as notes or English
-/// (more English words than Chinese characters, or several lines) is not shown, and the final one
-/// will come.
+/// An early translation is a guess at half a sentence; one that came back as notes or untranslated
+/// (more Latin-script words than Chinese characters, more than a couple of Japanese kana or Korean
+/// hangul, or several lines) is not shown, and the final one will come.
 fn reads_as_subtitle(zh: &str) -> bool {
     let han = zh.chars().filter(|c| ('\u{4e00}'..='\u{9fff}').contains(c)).count();
-    let words = zh.split(|c: char| !c.is_ascii_alphabetic()).filter(|w| !w.is_empty()).count();
-    !zh.trim().contains('\n') && han > 0 && han >= words
+    let words = zh.split(|c: char| !c.is_alphabetic() || !c.is_ascii() && !is_latin(c)).filter(|w| !w.is_empty()).count();
+    let kana_hangul = zh.chars().filter(|c| matches!(*c as u32, 0x3040..=0x30ff | 0xac00..=0xd7af)).count();
+    !zh.trim().contains('\n') && han > 0 && han >= words && kana_hangul <= 2
+}
+
+/// A letter of a Latin script beyond ASCII (é, ü, ñ): part of a word, not a separator.
+fn is_latin(c: char) -> bool {
+    matches!(c as u32, 0xc0..=0x24f)
 }
 
 fn debug_log(app: &AppHandle, line: &str) {
@@ -331,6 +337,11 @@ mod tests {
         assert!(!reads_as_subtitle("to the new cluster and then retire the old build servers once every"));
         assert!(!reads_as_subtitle("遷移到新的叢集\n\nWait, I must output only the translation."));
         assert!(!reads_as_subtitle(""));
+        // Left in the meeting's language: not a subtitle yet.
+        assert!(!reads_as_subtitle("図書館は来年三月までに移行します"));
+        assert!(!reads_as_subtitle("도서관은 내년 삼월까지"));
+        assert!(!reads_as_subtitle("die Bibliothek wird bis März umziehen"));
+        assert!(reads_as_subtitle("圖書館將在明年三月前搬遷"));
     }
 
     #[test]

@@ -116,10 +116,13 @@ fn due(pending: usize, since_last: Duration, every: Option<Duration>) -> bool {
 
 /// How many sentences the lines hold. A speaker who hardly pauses can come back as one long line
 /// (Gemini through a Mac's microphone joined four sentences), so lines alone undercount.
+/// Any language: Japanese and Chinese end sentences with 。？！ and leave no spaces, so a piece counts
+/// with two words or, unspaced, a few characters.
 fn sentences(lines: &[FinishedLine]) -> usize {
+    let counts = |s: &&str| s.split_whitespace().count() >= 2 || s.chars().filter(|c| c.is_alphanumeric()).count() >= 4 && !s.contains(' ');
     lines
         .iter()
-        .map(|l| l.en.split(['.', '?', '!']).filter(|s| s.split_whitespace().count() >= 2).count().max(1))
+        .map(|l| l.en.split(['.', '?', '!', '。', '？', '！', '…']).filter(counts).count().max(1))
         .sum()
 }
 
@@ -159,5 +162,9 @@ mod tests {
         assert_eq!(sentences(&[joined]), 5);
         assert_eq!(sentences(&[line("20 years"), line("Thanks.")]), 2, "a short line still counts once");
         assert_eq!(sentences(&[line("Moved to the U.S. last year.")]), 2);
+        // Other languages count too.
+        assert_eq!(sentences(&[line("図書館は来年三月までに全ての資料を移行します。費用の問題が残っています。")]), 2);
+        assert_eq!(sentences(&[line("Die Bibliothek zieht um. Wer zahlt danach?")]), 2);
+        assert_eq!(sentences(&[line("はい。")]), 1, "a short line still counts once");
     }
 }

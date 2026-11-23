@@ -4,14 +4,16 @@
 # stops and shows the session folder's summary.md.
 #   powershell -ExecutionPolicy Bypass -File scripts\e2e-summary.ps1 -Exe src-tauri\target\debug\ownvoice-meet.exe
 # Debug builds read keys from .env.local.
-param([string]$Exe, [double]$EveryMin = 0.25)
+# Another language: -Language ja-JP -AudioDir <folder of .wav files>, played in name order instead
+# of the English TTS sentences.
+param([string]$Exe, [double]$EveryMin = 0.25, [string]$Language = 'en-US', [string]$AudioDir)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Speech
 $UIA = [System.Windows.Automation.AutomationElement]; $Scope = [System.Windows.Automation.TreeScope]; $CT = [System.Windows.Automation.ControlType]
 
 $cfg = Join-Path ([IO.Path]::GetTempPath()) "ownvoice-summary-$(Get-Random)"
 New-Item -ItemType Directory -Force $cfg | Out-Null
-$settings = [ordered]@{ stt_id = 'gemini-live'; stt_language = 'en-US'; llm_id = 'claude-haiku-5-5'; audio_source = 'loopback'; save_mode = 'text'; summary_every_min = $EveryMin; update_check = $false; view = @{ reply_open = $false } }
+$settings = [ordered]@{ stt_id = 'gemini-live'; stt_language = $Language; llm_id = 'claude-haiku-5-5'; audio_source = 'loopback'; save_mode = 'text'; summary_every_min = $EveryMin; update_check = $false; view = @{ reply_open = $false } }
 [IO.File]::WriteAllText((Join-Path $cfg 'settings.json'), ($settings | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 $env:OWNVOICE_CONFIG_DIR = $cfg
 $p = Start-Process $Exe -PassThru
@@ -44,14 +46,19 @@ try {
   Press $main '▶'
   Start-Sleep -Seconds 5
   # A pause after each sentence, so each one ends as its own caption line.
-  foreach ($line in @(
+  if ($AudioDir) {
+    foreach ($wav in (Get-ChildItem $AudioDir -Filter *.wav | Sort-Object Name)) {
+      (New-Object System.Media.SoundPlayer $wav.FullName).PlaySync()
+      Start-Sleep -Milliseconds 1800
+    }
+  } else { foreach ($line in @(
       'Welcome to the panel on digital libraries. I am the moderator.',
       'Our first panelist will talk about preserving web archives for twenty years.',
       'The library decided to move the whole collection to open formats by March next year.',
       'One open question is who pays for the storage after the grant ends.')) {
     Say $line
     Start-Sleep -Milliseconds 1800
-  }
+  } }
   Press $main '摘要'
   $sum = Win 'OwnVoice Meet · Summary'
   $end = (Get-Date).AddSeconds(90)
@@ -67,6 +74,8 @@ try {
 $session = Get-ChildItem (Join-Path $cfg 'sessions') -Directory | Select-Object -First 1
 "session folder files: " + ((Get-ChildItem $session.FullName -File | ForEach-Object Name) -join ', ')
 "transcript lines: " + @(Get-Content (Join-Path $session.FullName 'transcript.md') -Encoding UTF8 | Where-Object { $_ -match '^\[\d' }).Count
+"--- transcript.md (lines) ---"
+Get-Content (Join-Path $session.FullName 'transcript.md') -Encoding UTF8 | Where-Object { $_ -match '^\[\d' -or $_ -match '^　' }
 "--- summary.md ---"
 Get-Content (Join-Path $session.FullName 'summary.md') -Encoding UTF8
 Remove-Item -Recurse -Force $cfg
