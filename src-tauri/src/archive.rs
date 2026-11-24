@@ -257,6 +257,26 @@ pub fn set_zh(app: &AppHandle, id: u64, zh: &str) {
     });
 }
 
+/// Who said a caption line (speakers.rs).
+pub fn set_speaker(app: &AppHandle, id: u64, name: &str) {
+    with_active(app, |a| {
+        if let Some(&i) = a.by_id.get(&id) {
+            a.lines[i].speaker = Some(name.to_string());
+            a.dirty = true;
+        }
+    });
+}
+
+/// A speaker was named: every line of theirs in this session follows.
+pub fn rename_speaker(app: &AppHandle, old: &str, name: &str) {
+    with_active(app, |a| {
+        for l in a.lines.iter_mut().filter(|l| l.speaker.as_deref() == Some(old)) {
+            l.speaker = Some(name.to_string());
+            a.dirty = true;
+        }
+    });
+}
+
 /// The live summary, kept in the session folder as summary.md.
 pub fn set_summary(app: &AppHandle, text: &str, updated: &str) {
     let dir = {

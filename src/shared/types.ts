@@ -5,6 +5,9 @@ export interface Segment {
   en: string;
   zh: string;
   final: boolean;
+  /** Who said it (speakers.rs), once known: the name shown and the speaker's number. */
+  speaker?: string;
+  who?: number;
 }
 
 export interface Reply {
@@ -44,6 +47,8 @@ export interface Settings {
   update_check: boolean;
   /** Minutes between live summary updates (0 = no live summary). */
   summary_every_min: number;
+  /** Label caption lines by speaker, from voice prints worked out on this computer. */
+  speaker_labels: boolean;
   view: Views;
 }
 

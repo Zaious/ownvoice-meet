@@ -4,6 +4,8 @@ OwnVoice Meet 每一版改了什麼，寫給使用者看。格式參考 [Keep a 
 
 ## [Unreleased]
 
+- 標出講者：每句字幕前面標「講者 1、講者 2…」，點一下可以改成名字，逐字稿和摘要跟著改。在電腦上用聲紋分辨，不送出聲音、不花錢；第一次勾選會下載約 31 MB 的模型（設定 → 收音與存檔）。
+
 ## [0.4.0] - 2026-11-23
 
 - 不用 API key 也能翻譯：設定的「翻」選「ChatGPT 方案（gpt-6-luna，不用 API key）」，按 Continue with ChatGPT 登入。字幕翻譯、回覆、即時摘要和講稿「補對照」改用你的 ChatGPT 方案額度（Go、Plus、Pro、Business），不另外計費。

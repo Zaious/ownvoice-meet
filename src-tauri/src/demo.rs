@@ -47,7 +47,7 @@ pub fn start(app: AppHandle) {
             let chars: Vec<char> = zh.chars().collect();
             for n in (4..=chars.len()).step_by(4).chain([chars.len()]) {
                 let zh: String = chars[..n].iter().collect();
-                if !push(&app, run, Segment { id, en: en.to_string(), zh, is_final: true }) {
+                if !push(&app, run, Segment { id, en: en.to_string(), zh, is_final: true, ..Default::default() }) {
                     return;
                 }
                 thread::sleep(Duration::from_millis(60));

@@ -25,6 +25,7 @@ mod sentences;
 mod session;
 mod settings;
 mod stt_chunk;
+mod speakers;
 mod summary;
 mod usage;
 mod vad;
@@ -83,6 +84,7 @@ fn stop_listening(app: &AppHandle) -> Option<PathBuf> {
     if settings::load(app).summary_every_min > 0.0 {
         batch::flush_now(app);
     }
+    speakers::end(app);
     // After the capture has stopped, so the recording gets every chunk.
     archive::end(app)
 }
@@ -269,6 +271,8 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
         Some((dir, tap)) => (Some(dir), tap),
         None => (None, None),
     };
+    // Speaker labels hear the same sound as the recording.
+    let tap = speakers::begin(&app, rate, tap);
     let (tx, rx) = mpsc::channel::<Vec<i16>>(64);
     let level_app = app.clone();
     let cap = match audio::start(rate, source, tx, tap, move |rms| {
@@ -276,6 +280,7 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
     }) {
         Ok(cap) => cap,
         Err(e) => {
+            speakers::end(&app);
             archive::end(&app);
             return Err(e);
         }
@@ -528,6 +533,25 @@ fn install_kind() -> &'static str {
     if installed { "installed" } else { "portable" }
 }
 
+/// Speaker labels: whether the two models (about 31 MB) are on this computer.
+#[tauri::command]
+fn speaker_models_ready(app: AppHandle) -> bool {
+    speakers::ready(&app)
+}
+
+/// Downloads the speaker models when they are missing; progress arrives as "speaker-models" events.
+#[tauri::command]
+async fn prepare_speakers(app: AppHandle) -> Result<(), String> {
+    let client = app.state::<llm::Http>().0.clone();
+    speakers::download(&app, &client).await
+}
+
+/// The user named speaker `who` (from 0) on a caption line.
+#[tauri::command]
+fn rename_speaker(app: AppHandle, who: usize, name: String) -> Result<(), String> {
+    speakers::rename(&app, who, &name)
+}
+
 /// Sign in with ChatGPT: whether this computer is connected, and to which account.
 #[tauri::command]
 fn chatgpt_status() -> chatgpt::Status {
@@ -586,6 +610,7 @@ pub fn run() {
         .manage(idle::Activity::default())
         .manage(batch::Batches::default())
         .manage(summary::Summary::default())
+        .manage(speakers::Speakers::default())
         .manage(llm::Http(reqwest::Client::new()))
         // Closing the captions window quits; the optional windows go with it.
         .on_window_event(|window, event| {
@@ -600,6 +625,9 @@ pub fn run() {
             }
         })
         .invoke_handler(tauri::generate_handler![
+            speaker_models_ready,
+            prepare_speakers,
+            rename_speaker,
             chatgpt_status,
             chatgpt_sign_in,
             chatgpt_sign_out,

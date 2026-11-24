@@ -153,6 +153,9 @@ kbd { font: 11px var(--font-read); color: var(--muted); }
 .seg .en { color: var(--text); }
 .seg.interim .en { color: var(--interim); }
 .seg .zh { color: var(--zh); }
+/* Who said the line (speaker labels): a small tag before the words; click to name the speaker. */
+.seg button.who { font: 600 0.72em/1.4 var(--font-ui); padding: 0 6px; margin-right: 6px; border-radius: 4px; border: 1px solid #3a4a5f; background: #1d2a3a; color: #9cc4ff; vertical-align: 0.15em; cursor: pointer; }
+.seg input.who-edit { font-size: 0.8em; width: 9em; margin-right: 6px; }
 /* Translation only: English shows until its translation arrives, so nothing said is lost. */
 .zh-only .seg:not(.pending) .en { display: none; }
 .zh-only .seg.pending .en { color: var(--interim); }

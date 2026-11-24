@@ -66,6 +66,24 @@ pub fn line_translated(app: &AppHandle, id: u64, zh: &str) {
     }
 }
 
+/// Who said a caption line (speakers.rs), when it is still waiting for a batch.
+pub fn set_speaker(app: &AppHandle, id: u64, name: &str) {
+    if let Ok(mut p) = app.state::<Batches>().pending.lock() {
+        if let Some(l) = p.iter_mut().find(|l| l.id == id) {
+            l.speaker = Some(name.to_string());
+        }
+    }
+}
+
+/// A speaker was named: the lines still waiting follow.
+pub fn rename_speaker(app: &AppHandle, old: &str, name: &str) {
+    if let Ok(mut p) = app.state::<Batches>().pending.lock() {
+        for l in p.iter_mut().filter(|l| l.speaker.as_deref() == Some(old)) {
+            l.speaker = Some(name.to_string());
+        }
+    }
+}
+
 /// Lines a hook could not take this time (it was busy): back to the front of the next batch.
 pub fn requeue(app: &AppHandle, mut lines: Vec<FinishedLine>) {
     if let Ok(mut p) = app.state::<Batches>().pending.lock() {

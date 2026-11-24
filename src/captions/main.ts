@@ -26,7 +26,7 @@ function render(seg: Segment): void {
   if (!row) {
     list.querySelector('.empty')?.remove();
     row = document.createElement('div');
-    row.innerHTML = '<div class="en"></div><div class="zh"></div>';
+    row.innerHTML = '<div class="en"><button class="who" hidden></button><span class="text"></span></div><div class="zh"></div>';
     list.append(row);
     rows.set(seg.id, row);
     if (rows.size > MAX_ROWS) {
@@ -38,10 +38,55 @@ function render(seg: Segment): void {
     }
   }
   row.className = (seg.final ? 'seg' : 'seg interim') + (seg.zh ? '' : ' pending');
-  row.querySelector('.en')!.textContent = seg.en;
+  row.querySelector('.en .text')!.textContent = seg.en;
+  const who = row.querySelector<HTMLButtonElement>('.who')!;
+  who.hidden = seg.who === undefined;
+  if (seg.who !== undefined) {
+    who.dataset.who = String(seg.who);
+    who.textContent = seg.speaker ?? `講者 ${seg.who + 1}`;
+  }
   row.querySelector('.zh')!.textContent = seg.zh || (seg.final ? '…' : '');
   follow.settle();
 }
+
+// Speaker labels: click one to give that speaker a name; every line of theirs follows.
+list.addEventListener('click', (e) => {
+  const chip = (e.target as HTMLElement).closest<HTMLButtonElement>('button.who');
+  if (!chip || chip.dataset.who === undefined) return;
+  const input = document.createElement('input');
+  input.className = 'who-edit';
+  input.value = chip.textContent ?? '';
+  input.setAttribute('aria-label', '講者名字');
+  chip.hidden = true;
+  chip.after(input);
+  // Focus after this click has finished, and only then let leaving the field save: otherwise the
+  // click's own focus change can close the field the moment it opens.
+  setTimeout(() => {
+    input.focus();
+    input.select();
+    input.addEventListener('blur', () => void done(true), { once: true });
+  }, 0);
+  let closed = false;
+  const done = async (save: boolean) => {
+    if (closed) return;
+    closed = true;
+    const name = input.value.trim();
+    input.remove();
+    chip.hidden = false;
+    if (save && name && name !== chip.textContent) {
+      await invoke('rename_speaker', { who: Number(chip.dataset.who), name }).catch(() => undefined);
+    }
+  };
+  input.addEventListener('keydown', (k) => {
+    if (k.key === 'Enter') void done(true);
+    if (k.key === 'Escape') void done(false);
+  });
+});
+void listen<{ who: number; name: string }>('speaker-renamed', (e) => {
+  for (const chip of list.querySelectorAll<HTMLButtonElement>(`button.who[data-who="${e.payload.who}"]`)) {
+    chip.textContent = e.payload.name;
+  }
+});
 
 function setListening(on: boolean): void {
   listenBtn.setAttribute('aria-pressed', String(on));

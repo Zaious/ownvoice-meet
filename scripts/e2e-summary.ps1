@@ -7,14 +7,19 @@
 # Another language: -Language ja-JP -AudioDir <folder of .wav files>, played in name order instead
 # of the English TTS sentences.
 # The translation model: -Llm chatgpt-luna goes through the ChatGPT plan (sign in from Settings first).
-param([string]$Exe, [double]$EveryMin = 0.25, [string]$Language = 'en-US', [string]$AudioDir, [string]$Llm = 'claude-haiku-5-5')
+# Speaker labels: -SpeakerModels <folder holding the two model files> turns them on (copied in, no download).
+param([string]$Exe, [double]$EveryMin = 0.25, [string]$Language = 'en-US', [string]$AudioDir, [string]$Llm = 'claude-haiku-5-5', [string]$SpeakerModels, [string]$Rename)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Speech
 $UIA = [System.Windows.Automation.AutomationElement]; $Scope = [System.Windows.Automation.TreeScope]; $CT = [System.Windows.Automation.ControlType]
 
 $cfg = Join-Path ([IO.Path]::GetTempPath()) "ownvoice-summary-$(Get-Random)"
 New-Item -ItemType Directory -Force $cfg | Out-Null
-$settings = [ordered]@{ stt_id = 'gemini-live'; stt_language = $Language; llm_id = $Llm; audio_source = 'loopback'; save_mode = 'text'; summary_every_min = $EveryMin; update_check = $false; view = @{ reply_open = $false } }
+$settings = [ordered]@{ stt_id = 'gemini-live'; stt_language = $Language; llm_id = $Llm; audio_source = 'loopback'; save_mode = 'text'; summary_every_min = $EveryMin; update_check = $false; speaker_labels = [bool]$SpeakerModels; view = @{ reply_open = $false } }
+if ($SpeakerModels) {
+  New-Item -ItemType Directory -Force (Join-Path $cfg 'models') | Out-Null
+  foreach ($m in 'silero_vad_v5.onnx', '3dspeaker_speech_campplus_sv_en_voxceleb_16k.onnx') { Copy-Item (Join-Path $SpeakerModels $m) (Join-Path $cfg 'models') }
+}
 [IO.File]::WriteAllText((Join-Path $cfg 'settings.json'), ($settings | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
 $env:OWNVOICE_CONFIG_DIR = $cfg
 $p = Start-Process $Exe -PassThru
@@ -60,6 +65,28 @@ try {
     Say $line
     Start-Sleep -Milliseconds 1800
   } }
+  # -Rename '講者 4=Cukurova': click that speaker's tag on a caption line and type a name.
+  if ($Rename) {
+    $old, $new = $Rename -split '=', 2
+    $chip = $main.FindAll($Scope::Descendants, (New-Object System.Windows.Automation.PropertyCondition($UIA::ControlTypeProperty, $CT::Button))) | Where-Object { $_.Current.Name -eq $old } | Select-Object -First 1
+    if (-not $chip) { "rename: no tag named '$old' on screen" } else {
+      # The window must be in front, or the name field loses the focus as soon as it gets it.
+      $chip.SetFocus()
+      Start-Sleep -Milliseconds 300
+      $chip.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
+      Start-Sleep -Milliseconds 500
+      $edits = @($main.FindAll($Scope::Descendants, (New-Object System.Windows.Automation.PropertyCondition($UIA::ControlTypeProperty, $CT::Edit))))
+      "rename: edit fields " + (($edits | ForEach-Object { "'$($_.Current.Name)' focus=$($_.Current.HasKeyboardFocus)" }) -join '; ')
+      $edit = $edits | Where-Object { $_.Current.Name -eq '講者名字' } | Select-Object -First 1
+      # UI Automation cannot set this field's value; it has the keyboard focus, so type into it.
+      Add-Type -AssemblyName System.Windows.Forms
+      [System.Windows.Forms.SendKeys]::SendWait('^a')
+      [System.Windows.Forms.SendKeys]::SendWait($new)
+      [System.Windows.Forms.SendKeys]::SendWait('{ENTER}')
+      Start-Sleep -Seconds 3
+      "rename: tags now " + (($main.FindAll($Scope::Descendants, (New-Object System.Windows.Automation.PropertyCondition($UIA::ControlTypeProperty, $CT::Button))) | ForEach-Object { $_.Current.Name } | Where-Object { $_ -like '講者*' -or $_ -like "$($new.Substring(0,1))*" } | Group-Object | ForEach-Object { "$($_.Name)×$($_.Count)" }) -join ', ')
+    }
+  }
   Press $main '摘要'
   $sum = Win 'OwnVoice Meet · Summary'
   $end = (Get-Date).AddSeconds(90)
@@ -78,5 +105,6 @@ $session = Get-ChildItem (Join-Path $cfg 'sessions') -Directory | Select-Object 
 "--- transcript.md (lines) ---"
 Get-Content (Join-Path $session.FullName 'transcript.md') -Encoding UTF8 | Where-Object { $_ -match '^\[\d' -or $_ -match '^　' }
 "--- summary.md ---"
-Get-Content (Join-Path $session.FullName 'summary.md') -Encoding UTF8
+$sumFile = Join-Path $session.FullName 'summary.md'
+if (Test-Path $sumFile) { Get-Content $sumFile -Encoding UTF8 } else { '(none: -EveryMin 0)' }
 Remove-Item -Recurse -Force $cfg

@@ -58,6 +58,8 @@ pub struct Settings {
     pub idle_end_min: f32,
     /// Minutes between updates of the live summary (batch.rs, summary.rs). 0 = no live summary.
     pub summary_every_min: f32,
+    /// Label caption lines by speaker from voice prints worked out on this computer (speakers.rs).
+    pub speaker_labels: bool,
     /// Ask GitHub once, 20 seconds after start, whether a newer version is out, and show a reminder.
     /// Off: GitHub is contacted only when the user presses Check for updates.
     pub update_check: bool,
@@ -180,6 +182,7 @@ impl Default for Settings {
             idle_end_min: 20.0,
             update_check: true,
             summary_every_min: 5.0,
+            speaker_labels: false,
             view: Views::default(),
         }
     }

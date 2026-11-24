@@ -76,6 +76,27 @@ function showLocalFields(): void {
   followLiveCaptions(chosen('stt') === 'windows-live-captions');
 }
 
+// ---------- Speaker labels: the models come down the first time it is turned on ----------
+const speakerLabels = document.querySelector<HTMLInputElement>('#speaker_labels')!;
+const speakerState = document.querySelector<HTMLElement>('#speaker-state')!;
+speakerLabels.addEventListener('change', async () => {
+  if (!speakerLabels.checked || (await invoke<boolean>('speaker_models_ready'))) return;
+  const note = speakerState.textContent;
+  const off = await listen<{ done: number; total: number }>('speaker-models', (e) => {
+    speakerState.textContent = `下載講者模型中… ${Math.round((100 * e.payload.done) / e.payload.total)}%`;
+  });
+  try {
+    await invoke('prepare_speakers');
+    speakerState.textContent = '✓ 講者模型已下載。下次按「聆聽」開始標講者。';
+  } catch (err) {
+    speakerLabels.checked = false;
+    void save(false);
+    speakerState.textContent = `沒有下載完成：${String(err)}　${note ?? ''}`;
+  } finally {
+    off();
+  }
+});
+
 // ---------- Sign in with ChatGPT: the plan pays for translation instead of an API key ----------
 const gptIn = document.querySelector<HTMLButtonElement>('#chatgpt-sign-in')!;
 const gptOut = document.querySelector<HTMLButtonElement>('#chatgpt-sign-out')!;
@@ -359,6 +380,7 @@ async function load(): Promise<void> {
   field('idle_pause_min').value = String(s.idle_pause_min);
   field('idle_end_min').value = String(s.idle_end_min);
   updateCheck.checked = s.update_check;
+  speakerLabels.checked = s.speaker_labels;
   ready = true;
   await Promise.all([showKeyState(), loadUsage(), showVersion()]);
   if (s.update_check) void runCheck();
@@ -485,6 +507,7 @@ function collect(): Omit<Settings, 'view'> {
     idle_end_min: minutesField('idle_end_min', 20),
     update_check: updateCheck.checked,
     summary_every_min: minutesField('summary_every_min', 5),
+    speaker_labels: speakerLabels.checked,
   };
 }
 

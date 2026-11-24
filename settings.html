@@ -38,6 +38,8 @@
       </label>
       <label>存檔資料夾（留空＝「文件」裡的 OwnVoice Meet）<input name="archive_dir" /></label>
       <div class="actions"><button type="button" id="open-archive">開啟存檔資料夾</button><span id="archive-result" class="status"></span></div>
+      <label class="check"><input id="speaker_labels" name="speaker_labels" type="checkbox" /> 標出講者：每句字幕前面標「講者 1、講者 2…」，點一下可以改成名字</label>
+      <p id="speaker-state" class="hint">在這台電腦上用聲紋分辨，聲音不會送出去；第一次開啟會下載約 31 MB 的模型。Windows 即時輔助字幕聽不到聲音本身，不能標講者。</p>
       <label>議程（每行一個段落名稱；按主視窗的「新段落」或 Ctrl+Shift+F9 換到下一個）
         <textarea name="agenda" rows="4" placeholder="Keynote&#10;Session 3A: Digital Libraries&#10;Panel"></textarea>
       </label>

@@ -15,6 +15,11 @@ pub struct Segment {
     pub zh: String,
     #[serde(rename = "final")]
     pub is_final: bool,
+    /// Who said it (speakers.rs), once known: the name shown and the speaker's number.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub speaker: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub who: Option<usize>,
 }
 
 #[derive(Clone, Serialize, Default)]
@@ -62,8 +67,25 @@ impl Session {
     /// Insert or update a caption's English, keeping the Chinese it has (an early translation stays
     /// under a line that is still growing).
     pub fn set_en(&mut self, app: &AppHandle, id: u64, en: &str, is_final: bool) {
-        let zh = self.segments.iter().rev().find(|s| s.id == id).map(|s| s.zh.clone()).unwrap_or_default();
-        self.upsert_segment(app, Segment { id, en: en.to_string(), zh, is_final });
+        let old = self.segments.iter().rev().find(|s| s.id == id);
+        let (zh, speaker, who) = old.map(|s| (s.zh.clone(), s.speaker.clone(), s.who)).unwrap_or_default();
+        self.upsert_segment(app, Segment { id, en: en.to_string(), zh, is_final, speaker, who });
+    }
+
+    /// A line's speaker became known.
+    pub fn set_speaker(&mut self, app: &AppHandle, id: u64, who: usize, name: &str) {
+        if let Some(s) = self.segments.iter_mut().rev().find(|s| s.id == id) {
+            s.speaker = Some(name.to_string());
+            s.who = Some(who);
+            let _ = app.emit("caption", s.clone());
+        }
+    }
+
+    /// A speaker was named: the lines kept here follow (the windows redraw from "speaker-renamed").
+    pub fn rename_speaker(&mut self, who: usize, name: &str) {
+        for s in self.segments.iter_mut().filter(|s| s.who == Some(who)) {
+            s.speaker = Some(name.to_string());
+        }
     }
 
     /// Empty the captions in every window, and stop a demo that is playing.

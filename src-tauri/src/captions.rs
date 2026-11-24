@@ -125,7 +125,7 @@ pub fn open(app: &AppHandle) -> u64 {
         let state = app.state::<Mutex<Session>>();
         let Ok(mut s) = state.lock() else { return 0 };
         let id = s.next_segment_id();
-        s.upsert_segment(app, Segment { id, en: "…".into(), zh: String::new(), is_final: false });
+        s.upsert_segment(app, Segment { id, en: "…".into(), ..Default::default() });
         id
     };
     if let Ok(mut lines) = app.state::<Lines>().0.lock() {
@@ -168,12 +168,33 @@ pub fn finish(app: &AppHandle, id: u64, text: &str) {
     idle::touch(app);
     debug_log(app, &format!("line {id} ended: {text}"));
     let now = Instant::now();
-    let req = {
+    let (req, opened) = {
         let state = app.state::<Lines>();
         let Ok(mut lines) = state.0.lock() else { return };
-        lines.entry(id).or_insert_with(|| Line::new(now)).start(text, false, now)
+        let line = lines.entry(id).or_insert_with(|| Line::new(now));
+        let opened = line.opened;
+        (line.start(text, false, now), opened)
     };
+    crate::speakers::label_later(app, id, opened, now);
     spawn_translate(app.clone(), id, text.to_string(), req.0, req.1, false);
+}
+
+/// Who said line `id` (speakers.rs): shown on the line, kept in the transcript and the summary.
+pub fn set_speaker(app: &AppHandle, id: u64, who: usize, name: &str) {
+    if let Ok(mut s) = app.state::<Mutex<Session>>().lock() {
+        s.set_speaker(app, id, who, name);
+    }
+    archive::set_speaker(app, id, name);
+    batch::set_speaker(app, id, name);
+}
+
+/// Speaker `who`, until now `old`, is called `name` from here on.
+pub fn rename_speaker(app: &AppHandle, who: usize, old: &str, name: &str) {
+    if let Ok(mut s) = app.state::<Mutex<Session>>().lock() {
+        s.rename_speaker(who, name);
+    }
+    archive::rename_speaker(app, old, name);
+    batch::rename_speaker(app, old, name);
 }
 
 pub fn drop_line(app: &AppHandle, id: u64) {
@@ -187,7 +208,7 @@ pub fn drop_line(app: &AppHandle, id: u64) {
 /// Show an error in place of a line's text, without translating it.
 pub fn fail(app: &AppHandle, id: u64, msg: &str) {
     if let Ok(mut s) = app.state::<Mutex<Session>>().lock() {
-        s.upsert_segment(app, Segment { id, en: format!("〔{msg}〕"), zh: String::new(), is_final: true });
+        s.upsert_segment(app, Segment { id, en: format!("〔{msg}〕"), is_final: true, ..Default::default() });
     }
     forget(app, id);
 }

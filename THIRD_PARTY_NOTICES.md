@@ -1,8 +1,15 @@
 # Third-party notices
 
-OwnVoice Meet contains logic ported from the projects below. Their code is not copied: it was read
-and reimplemented in Rust, with the changes listed. Dependencies pulled in by Cargo and npm carry
-their own licences and are not listed here.
+OwnVoice Meet contains logic ported from the projects below, and uses the speech models listed.
+Ported code is not copied: it was read and reimplemented in Rust, with the changes listed. Other
+dependencies pulled in by Cargo and npm carry their own licences and are not listed here.
+
+## Speaker labels: sherpa-onnx and two models
+
+- sherpa-onnx (https://github.com/k2-fsa/sherpa-onnx), by the Next-gen Kaldi team, Apache License 2.0: linked into the app through its Rust crate, with ONNX Runtime (Microsoft, MIT License) inside it.
+- Downloaded on first use, not shipped with the app, from sherpa-onnx's releases:
+  - Silero VAD v5 (https://github.com/snakers4/silero-vad), MIT License: finds where speech starts and ends.
+  - CAM++ speaker embedding, trained on VoxCeleb, from 3D-Speaker (https://github.com/modelscope/3D-Speaker), Apache License 2.0: the voice prints.
 
 ## LiveCaptions-Translator
 
