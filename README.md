@@ -1,4 +1,4 @@
-<!-- readme-standard: 2.0.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: Google,OpenAI,Anthropic -->
+<!-- readme-standard: 2.1.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: Google,OpenAI,Anthropic -->
 
 # OwnVoice Meet
 
@@ -98,7 +98,7 @@ Get-FileHash .\OwnVoice.Meet_x.y.z_x64-setup.exe -Algorithm SHA256
 
 <img src="docs/images/settings.png" alt="設定：每個選項的每小時價格、速度、強項、注意事項與需要什麼" width="380">
 
-全部在自己電腦上跑，只要在設定裡填網址：見 [docs/LOCAL.md](docs/LOCAL.md)（英文）。Apple 裝置上的選項（macOS 26）規劃中。
+全部在自己電腦上跑，只要在設定裡填網址：見 [docs/LOCAL.md](docs/LOCAL.md)（英文）。設定裡列出的 Apple 裝置上的選項（macOS 26）是灰的，不能選。
 
 ## 說明文件
 
@@ -184,7 +184,7 @@ cargo test --lib
 
 卡住了，或發現錯誤？先看[使用手冊的常見問題](docs/MANUAL.md#9-常見問題)；還是不行，請開 [issue](https://github.com/Zaious/ownvoice-meet/issues)。開 issue 需要一個免費的 GitHub 帳號。Issue 與 PR 用中文或英文都可以。
 
-想改程式，請先開 issue 說明想改什麼，再送 PR；PR 要通過「[從原始碼建置](#從原始碼建置)」裡的檢查。
+收 PR。改動比較大時，請先開 issue 說明想改什麼；PR 要通過「[從原始碼建置](#從原始碼建置)」裡的檢查。收什麼、不收什麼，以及 AI 輔助的貢獻怎麼寫，見 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 ## 致謝
 

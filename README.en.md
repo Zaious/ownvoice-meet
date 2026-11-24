@@ -1,4 +1,4 @@
-<!-- readme-standard: 2.0.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: Google,OpenAI,Anthropic -->
+<!-- readme-standard: 2.1.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: Google,OpenAI,Anthropic -->
 
 # OwnVoice Meet
 
@@ -17,7 +17,7 @@ Independent Windows and macOS app: live captions and a reply teleprompter for me
 
 Gemini Live is listening and Claude Haiku 5.5 translating; speech recognition heard "Jane" as "Jinn". On the right is the script the author used at JCDL 2026 in October 2026, with the numbers of that time. The answer to the first question is in the script; the second was not prepared, so the reply is typed in Chinese.
 
-I read English well, but in a meeting I often can't find the words in time. With OwnVoice Meet you type what you mean in Chinese and get a sentence you can say in English, which you read aloud. It does not answer for you: the words are yours, and so is the voice. While others speak, the captions add the Chinese meaning under each English sentence, and the answers you prepared sit beside them in a bilingual script. The interface is in Traditional Chinese for now.
+I read English well, but in a meeting I often can't find the words in time. With OwnVoice Meet you type what you mean in Chinese and get a sentence you can say in English, which you read aloud. It does not answer for you: the words are yours, and so is the voice. While others speak, the captions add the Chinese meaning under each English sentence, and the answers you prepared sit beside them in a bilingual script. The interface is in Traditional Chinese.
 
 > **Status: 0.4.0 · Windows 10 and 11, macOS 11 or later (the Mac version is being tested) · in-app updates on the Mac not yet tried.**
 
@@ -98,7 +98,7 @@ The hourly prices in the table are estimates from the providers' list prices, ch
 
 <img src="docs/images/settings.png" alt="Settings: each option with its hourly price, speed, strengths, cautions and what it needs" width="380">
 
-Running everything locally is a matter of URLs in Settings: see [docs/LOCAL.md](docs/LOCAL.md). Apple on-device options (macOS 26) are planned.
+Running everything locally is a matter of URLs in Settings: see [docs/LOCAL.md](docs/LOCAL.md). The Apple on-device options (macOS 26) listed in Settings are greyed out and cannot be chosen.
 
 ## Documentation
 
@@ -184,7 +184,7 @@ cargo test --lib
 
 Stuck, or found a mistake? Look at [the common questions in the manual](docs/MANUAL.md#9-常見問題) (in Traditional Chinese) first; if that does not help, open an [issue](https://github.com/Zaious/ownvoice-meet/issues). Opening an issue needs a free GitHub account. Issues and pull requests are welcome in Chinese or English.
 
-To change the code, open an issue first to say what you want to change, then send a pull request; it needs to pass the checks in [Build from source](#build-from-source).
+Pull requests are accepted. For a larger change, open an issue first to say what you want to change; a pull request needs to pass the checks in [Build from source](#build-from-source). What is welcome, what is not, and how to note AI-assisted work: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Acknowledgements
 
