@@ -145,7 +145,7 @@
 
 | 組合 | 聽 | 翻 | 約每小時 | 適合 |
 |---|---|---|---|---|
-| **聲音不出電腦** | 本機辨識（免費，Parakeet＋SenseVoice） | ChatGPT 方案或 Claude Haiku 5.5 | **US$0**／**US$0.03** | Windows 或 Mac 都行；第一次下載約 910 MB；沒有灰字 |
+| **聲音不出電腦** | 本機辨識（免費，Parakeet＋SenseVoice） | ChatGPT 方案或 Claude Haiku 5.5 | **US$0**／**US$0.03** | Windows 上實測過，Mac 版還沒試；第一次下載約 910 MB；沒有灰字 |
 | **完全不用 key** | Windows 即時輔助字幕（免費，在電腦上辨識） | ChatGPT 方案（gpt-6-luna） | **US$0**（用 ChatGPT 方案額度） | 有 ChatGPT Go／Plus／Pro／Business；Windows 11；翻譯比 API key 慢約 1 秒 |
 | **最省** | Windows 即時輔助字幕（免費，在電腦上辨識） | Claude Haiku 5.5 或 gpt-6-luna | **US$0.03** | Windows 11；有灰字；辨識品質略遜雲端 |
 | **有 NVIDIA 顯卡** | 本機 Whisper（免費） | 同上 | **US$0.03** | 音訊不出電腦（見第 7 節） |
