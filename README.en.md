@@ -1,4 +1,4 @@
-<!-- readme-standard: 2.1.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: none -->
+<!-- readme-standard: 2.1.1; type: A; has: autoupdate,userkeys,loopback,binaries; brands: none -->
 
 # OwnVoice Meet
 
@@ -20,6 +20,8 @@ Gemini Live is listening and Claude Haiku 5.5 translating; speech recognition he
 I read English well, but in a meeting I often can't find the words in time. With OwnVoice Meet you type what you mean in Chinese and get a sentence you can say in English, which you read aloud. It does not answer for you: the words are yours, and so is the voice. While others speak, the captions add the Chinese meaning under each English sentence, and the answers you prepared sit beside them in a bilingual script. The interface is in Traditional Chinese.
 
 > **Status: 0.4.0 · Windows 10 and 11, macOS 11 or later (the Mac version is being tested) · in-app updates on the Mac not yet tried.**
+
+The app is free · your own API keys or ChatGPT plan, or a combination with no key at all · cloud speech recognition about US$0.18–1.02 an hour, translation on the fastest models a few cents (list-price estimates, 2026-10-17; see [Providers and cost](#providers-and-cost))
 
 ## What it does
 

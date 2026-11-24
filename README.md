@@ -1,4 +1,4 @@
-<!-- readme-standard: 2.1.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: none -->
+<!-- readme-standard: 2.1.1; type: A; has: autoupdate,userkeys,loopback,binaries; brands: none -->
 
 # OwnVoice Meet
 
@@ -20,6 +20,8 @@ Gemini Live 聽、Claude Haiku 5.5 翻；語音辨識把 Jane 聽成了 Jinn。�
 我英文看得懂，但開會時常常一下子想不出該怎麼說。用 OwnVoice Meet，你用中文打出想說的意思，它給你一句說得出口的英文，你照著唸。它不替你作答：話是你自己的，聲音也是你自己的。別人說的英文，字幕會即時接上中文意思；事先準備好的回答，就放在旁邊的中英對照講稿裡。
 
 > **狀態：0.4.0 · Windows 10、11 與 macOS 11 以上（Mac 版測試中） · Mac 版的程式內更新還沒實測過。**
+
+程式免費 · 用你自己的 API key 或 ChatGPT 方案，也有完全不用 key 的組合 · 雲端語音辨識每小時約 0.18～1.02 美元，翻譯選最快一級約幾美分（牌價估算，2026-10-17；見「[服務與費用](#服務與費用)」）
 
 ## 它做什麼
 
