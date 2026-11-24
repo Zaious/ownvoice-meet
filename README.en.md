@@ -1,4 +1,4 @@
-<!-- readme-standard: 2.1.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: Google,OpenAI,Anthropic -->
+<!-- readme-standard: 2.1.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: none -->
 
 # OwnVoice Meet
 
@@ -6,7 +6,7 @@
 
 **Understand the meeting. Answer in your own voice.**
 
-Independent Windows and macOS app: live captions and a reply teleprompter for meetings in a second language.
+Desktop app for Windows and macOS: live captions and a reply teleprompter for meetings in a second language.
 開會時把中文打字變成好唸的英文短句
 
 **[Download for Windows (.exe)](https://github.com/Zaious/ownvoice-meet/releases/latest)** · [Mac (being tested, .dmg)](https://github.com/Zaious/ownvoice-meet/releases/latest) · [Getting started](#getting-started)
@@ -189,12 +189,6 @@ Pull requests are accepted. For a larger change, open an issue first to say what
 ## Acknowledgements
 
 Reading Windows Live Captions, cutting its text into sentences and translating long sentences early follow [LiveCaptions-Translator](https://github.com/SakiRinn/LiveCaptions-Translator) by SakiRinn and contributors (Apache-2.0): its code was read and the logic rewritten in Rust; [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) lists what changed.
-
-## Data, trademarks and disclaimers
-
-- Independent project. Not sponsored or endorsed by Google, OpenAI or Anthropic.
-- OwnVoice Meet calls the APIs of the services you choose: Google's Gemini API, OpenAI's API (including the Sign in with ChatGPT route) and Anthropic's Claude API, with your own keys or account.
-- Trademarks, names and logos mentioned here belong to their respective owners. Gemini, OpenAI, ChatGPT, Claude, Zoom, Teams and Windows appear only to say what this project relates to.
 
 ## Sponsor
 

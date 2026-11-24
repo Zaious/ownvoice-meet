@@ -1,4 +1,4 @@
-<!-- readme-standard: 2.1.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: Google,OpenAI,Anthropic -->
+<!-- readme-standard: 2.1.0; type: A; has: autoupdate,userkeys,loopback,binaries; brands: none -->
 
 # OwnVoice Meet
 
@@ -6,7 +6,7 @@
 
 **聽得懂會議，用自己的聲音回答。**
 
-Independent Windows and macOS app: live captions and a reply teleprompter for meetings in a second language.
+Desktop app for Windows and macOS: live captions and a reply teleprompter for meetings in a second language.
 開會時把中文打字變成好唸的英文短句
 
 **[下載 Windows 版（.exe）](https://github.com/Zaious/ownvoice-meet/releases/latest)** · [Mac 版（測試中，.dmg）](https://github.com/Zaious/ownvoice-meet/releases/latest) · [開始使用](#開始使用)
@@ -189,12 +189,6 @@ cargo test --lib
 ## 致謝
 
 Windows 即時輔助字幕的讀取、斷句與長句先翻的做法，移植自 SakiRinn 與貢獻者的 [LiveCaptions-Translator](https://github.com/SakiRinn/LiveCaptions-Translator)（Apache-2.0）：讀過它的程式碼後用 Rust 重寫，改了哪些見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
-
-## 資料、商標與聲明
-
-- 獨立專案，未獲 Google、OpenAI、Anthropic 贊助或背書。
-- OwnVoice Meet 呼叫你選的服務的 API：Google 的 Gemini API、OpenAI 的 API（包括用 ChatGPT 帳號登入的方式），以及 Anthropic 的 Claude API，用的是你自己的 key 或帳號。
-- 此處提及的商標、名稱與標誌屬各自權利人所有。Gemini、OpenAI、ChatGPT、Claude、Zoom、Teams、Windows 等名稱出現在這裡，只為說明本專案所涉的對象。
 
 ## 贊助
 
