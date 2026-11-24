@@ -39,6 +39,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+      - name: sherpa-onnx libraries after a cache restore
+        working-directory: src-tauri
+        shell: bash
+        run: bash ../scripts/sherpa-after-cache.sh "${{ matrix.rust_targets }}"
       - name: The tag matches the version in package.json, Cargo.toml and tauri.conf.json
         shell: pwsh
         run: |

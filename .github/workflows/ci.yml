@@ -37,6 +37,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+      - name: sherpa-onnx libraries after a cache restore
+        working-directory: src-tauri
+        shell: bash
+        run: bash ../scripts/sherpa-after-cache.sh
       - run: npm ci
       # The front end first: tauri's build script embeds dist/ into the crate.
       - run: npm run build
@@ -60,6 +64,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+      - name: sherpa-onnx libraries after a cache restore
+        working-directory: src-tauri
+        shell: bash
+        run: bash ../scripts/sherpa-after-cache.sh
       - run: npm ci
       - run: npm run build
       - name: Rust tests
