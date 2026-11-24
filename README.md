@@ -1,4 +1,4 @@
-<!-- readme-standard: 2.1.1; type: A; has: autoupdate,userkeys,loopback,binaries; brands: none -->
+<!-- readme-standard: 2.1.2; type: A; has: autoupdate,userkeys,loopback,binaries; brands: none -->
 
 # OwnVoice Meet
 
@@ -101,6 +101,18 @@ Get-FileHash .\OwnVoice.Meet_x.y.z_x64-setup.exe -Algorithm SHA256
 <img src="docs/images/settings.png" alt="設定：每個選項的每小時價格、速度、強項、注意事項與需要什麼" width="380">
 
 全部在自己電腦上跑，只要在設定裡填網址：見 [docs/LOCAL.md](docs/LOCAL.md)（英文）。設定裡列出的 Apple 裝置上的選項（macOS 26）是灰的，不能選。
+
+## 疑難排解
+
+| 狀況 | 怎麼辦 |
+| --- | --- |
+| 出現「Windows 已保護您的電腦」 | 見「[下載](#下載)」。 |
+| OwnVoice Meet 打不開 | 通常是少了 Microsoft Edge WebView2 Runtime：Windows 11 內建，Windows 10 請到微軟官網安裝。 |
+| 沒有字幕、音量條不動 | 會議軟體的喇叭要是 Windows 的預設輸出；換了耳機，要先按 **■ 停止** 再按 **▶ 聆聽**。 |
+| 有字幕，中文卻沒出來 | 看中文那一行的錯誤訊息：多半是翻譯的 key 沒填、額度不足，或帳號沒開那個模型。 |
+| 字幕跳成別的語言 | 設定 → **別人說的語言** 選對的語言，不要用「自動偵測」。 |
+
+其他狀況見[使用手冊第 9 節](docs/MANUAL.md#9-常見問題)。還是卡住？請看「[貢獻與尋求協助](#貢獻與尋求協助)」。
 
 ## 說明文件
 

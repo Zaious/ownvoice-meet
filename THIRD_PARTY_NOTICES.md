@@ -24,7 +24,7 @@ Changes from the original:
 - A point or comma between digits (`3.5`, `1,200`) is not a sentence end or a place to add a space.
 - The acronym rules apply only after a single capital letter, so `OK. So` and `AWS. Then` keep their periods.
 - A very short sentence joins the next sentence instead of the one before it.
-- Sentences are cut where the words have settled: the place reached is found again by words (ignoring case and punctuation), and a sentence end counts only once it has stayed put, because current Live Captions adds a provisional period after the word being recognized and moves or removes periods for a few seconds. Text shown before listening started is skipped.
+- Sentences are cut where the words have settled: the place reached is found again by words (ignoring case and punctuation), and a sentence end counts only once it has stayed put, because current Live Captions adds a provisional period after the word being recognised and moves or removes periods for a few seconds. Text shown before listening started is skipped.
 - Newer Live Captions also exposes the text as the Name of `CaptionsScrollViewer`; both ids are read.
 - A Live Captions window the user already had open is reused and given back when listening stops, instead of every running Live Captions being killed.
 - Early translations are throttled by time (after 4 s of a growing sentence, at most every 2 s) rather than by the number of text changes.

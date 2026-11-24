@@ -1,4 +1,4 @@
-<!-- readme-standard: 2.1.1; type: A; has: autoupdate,userkeys,loopback,binaries; brands: none -->
+<!-- readme-standard: 2.1.2; type: A; has: autoupdate,userkeys,loopback,binaries; brands: none -->
 
 # OwnVoice Meet
 
@@ -101,6 +101,18 @@ The hourly prices in the table are estimates from the providers' list prices, ch
 <img src="docs/images/settings.png" alt="Settings: each option with its hourly price, speed, strengths, cautions and what it needs" width="380">
 
 Running everything locally is a matter of URLs in Settings: see [docs/LOCAL.md](docs/LOCAL.md). The Apple on-device options (macOS 26) listed in Settings are greyed out and cannot be chosen.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| "Windows protected your PC" | See [Download](#download). |
+| OwnVoice Meet does not start | Usually the Microsoft Edge WebView2 Runtime is missing: Windows 11 includes it; on Windows 10, install it from Microsoft. |
+| No captions, and the level meter does not move | The meeting app must play through the default Windows output; after switching to headphones, press **■ 停止** (stop) and then **▶ 聆聽** (listen). |
+| Captions appear but no Chinese | Read the error on the Chinese line: usually the translation key is missing, the quota is used up, or the account cannot use that model. |
+| Captions switch to another language | In Settings, set **別人說的語言** (the language others speak) to the right one instead of automatic detection. |
+
+More in [section 9 of the manual](docs/MANUAL.md#9-常見問題) (in Traditional Chinese). Still stuck? See [Contributing and getting help](#contributing-and-getting-help).
 
 ## Documentation
 
