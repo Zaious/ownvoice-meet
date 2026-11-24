@@ -64,6 +64,13 @@
         <label>模型名稱 <input name="local_stt_model" /></label>
         <div class="actions"><button type="button" id="test-stt">測試連線</button><span id="test-stt-result" class="status"></span></div>
       </div>
+      <div id="stt-sherpa" class="local" hidden>
+        <p class="hint">在你的電腦上辨識：免費、聲音不送出去、不需要 key。英文與歐洲語言用 NVIDIA Parakeet，中文、日文、韓文用 SenseVoice；「別人說的語言」選「自動偵測」時，每句自己判斷語言，中英夾雜的場合也聽得懂。第一次要下載約 910 MB 的模型。</p>
+        <div class="actions">
+          <button type="button" id="sherpa-download">下載本機辨識模型（約 910 MB）</button>
+          <span id="sherpa-state" class="status"></span>
+        </div>
+      </div>
       <div id="stt-lc" class="local lc-setup" hidden></div>
       <label>別人說的語言（字幕一律翻成中文；選「自動偵測」會自己判斷）
         <select name="stt_language"><option value="">自動偵測</option><option value="en-US">英文</option><option value="ja-JP">日文</option><option value="ko-KR">韓文</option><option value="de-DE">德文</option><option value="fr-FR">法文</option><option value="es-ES">西班牙文</option><option value="vi-VN">越南文</option><option value="th-TH">泰文</option><option value="id-ID">印尼文</option><option value="en-GB">英文（英國）</option></select>

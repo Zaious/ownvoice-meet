@@ -11,17 +11,15 @@
 // interjections are counted with the speaker before them.
 
 use std::collections::VecDeque;
-use std::io::Write as _;
-use std::path::PathBuf;
 use std::sync::mpsc;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
-use futures_util::StreamExt;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager};
 
 use crate::audio::Tap;
+use crate::models::{self, SPEAKERS};
 use crate::settings;
 
 const RATE: u32 = 16_000;
@@ -39,83 +37,6 @@ const LABEL_TRIES: usize = 10;
 const MAX_STRETCH: f32 = 10.0;
 /// Stretches kept for matching caption lines.
 const KEEP: usize = 400;
-
-/// The two models, from sherpa-onnx's releases; checked against these digests after download.
-struct ModelFile {
-    name: &'static str,
-    url: &'static str,
-    sha256: &'static str,
-    bytes: u64,
-}
-
-const MODELS: [ModelFile; 2] = [
-    ModelFile {
-        name: "silero_vad_v5.onnx",
-        url: "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad_v5.onnx",
-        sha256: "6b99cbfd39246b6706f98ec13c7c50c6b299181f2474fa05cbc8046acc274396",
-        bytes: 2_313_101,
-    },
-    ModelFile {
-        name: "3dspeaker_speech_campplus_sv_en_voxceleb_16k.onnx",
-        url: "https://github.com/k2-fsa/sherpa-onnx/releases/download/speaker-recongition-models/3dspeaker_speech_campplus_sv_en_voxceleb_16k.onnx",
-        sha256: "98daf9bcf1c8abf3db374fec4c27a5eda7c58705bb3f180d057b085a72a88bb5",
-        bytes: 29_596_979,
-    },
-];
-
-pub fn models_dir(app: &AppHandle) -> Result<PathBuf, String> {
-    Ok(settings::config_dir(app)?.join("models"))
-}
-
-/// Both model files are here, whole.
-pub fn ready(app: &AppHandle) -> bool {
-    let Ok(dir) = models_dir(app) else { return false };
-    MODELS.iter().all(|m| std::fs::metadata(dir.join(m.name)).is_ok_and(|md| md.len() == m.bytes))
-}
-
-#[derive(Clone, Serialize)]
-struct Progress {
-    done: u64,
-    total: u64,
-}
-
-/// Downloads what is missing (about 31 MB), checking each file's digest before it is used.
-pub async fn download(app: &AppHandle, client: &reqwest::Client) -> Result<(), String> {
-    let dir = models_dir(app)?;
-    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    let total: u64 = MODELS.iter().map(|m| m.bytes).sum();
-    let mut done = 0u64;
-    for m in MODELS.iter() {
-        let path = dir.join(m.name);
-        if std::fs::metadata(&path).is_ok_and(|md| md.len() == m.bytes) {
-            done += m.bytes;
-            continue;
-        }
-        let resp = client.get(m.url).send().await.map_err(|e| format!("下載模型失敗：{e}"))?;
-        if !resp.status().is_success() {
-            return Err(format!("下載模型失敗：{}", resp.status()));
-        }
-        let part = dir.join(format!("{}.part", m.name));
-        let mut file = std::fs::File::create(&part).map_err(|e| e.to_string())?;
-        let mut digest = ring::digest::Context::new(&ring::digest::SHA256);
-        let mut bytes = resp.bytes_stream();
-        while let Some(chunk) = bytes.next().await {
-            let chunk = chunk.map_err(|e| format!("下載模型失敗：{e}"))?;
-            digest.update(&chunk);
-            file.write_all(&chunk).map_err(|e| e.to_string())?;
-            done += chunk.len() as u64;
-            let _ = app.emit("speaker-models", Progress { done, total });
-        }
-        drop(file);
-        let got: String = digest.finish().as_ref().iter().map(|b| format!("{b:02x}")).collect();
-        if got != m.sha256 {
-            let _ = std::fs::remove_file(&part);
-            return Err(format!("{} 下載後核對不符，已刪除，請再試一次", m.name));
-        }
-        std::fs::rename(&part, &path).map_err(|e| e.to_string())?;
-    }
-    Ok(())
-}
 
 struct Stretch {
     start: Instant,
@@ -139,7 +60,7 @@ pub struct Speakers(Mutex<Inner>);
 /// audio tap to use (the recording's, with the voice prints fed alongside).
 pub fn begin(app: &AppHandle, rate: u32, record: Option<Tap>) -> Option<Tap> {
     let s = settings::load(app);
-    if !s.speaker_labels || !ready(app) {
+    if !s.speaker_labels || !models::ready(app, &SPEAKERS) {
         return record;
     }
     let (tx, rx) = mpsc::channel::<Vec<i16>>();
@@ -232,9 +153,8 @@ impl Clusters {
 }
 
 fn work(app: &AppHandle, rate: u32, rx: mpsc::Receiver<Vec<i16>>, session: u64) -> Result<(), String> {
-    let dir = models_dir(app)?;
     let mut vc = sherpa_onnx::VadModelConfig::default();
-    vc.silero_vad.model = Some(dir.join(MODELS[0].name).to_string_lossy().into_owned());
+    vc.silero_vad.model = Some(models::path(app, &SPEAKERS[0])?);
     vc.silero_vad.threshold = 0.5;
     vc.silero_vad.min_silence_duration = 0.4;
     vc.silero_vad.min_speech_duration = 0.25;
@@ -244,7 +164,7 @@ fn work(app: &AppHandle, rate: u32, rx: mpsc::Receiver<Vec<i16>>, session: u64) 
     vc.num_threads = 1;
     let vad = sherpa_onnx::VoiceActivityDetector::create(&vc, 60.0).ok_or("VAD 模型載入失敗")?;
     let ec = sherpa_onnx::SpeakerEmbeddingExtractorConfig {
-        model: Some(dir.join(MODELS[1].name).to_string_lossy().into_owned()),
+        model: Some(models::path(app, &SPEAKERS[1])?),
         num_threads: 1,
         ..Default::default()
     };

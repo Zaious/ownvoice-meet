@@ -8,14 +8,20 @@
 # of the English TTS sentences.
 # The translation model: -Llm chatgpt-luna goes through the ChatGPT plan (sign in from Settings first).
 # Speaker labels: -SpeakerModels <folder holding the two model files> turns them on (copied in, no download).
-param([string]$Exe, [double]$EveryMin = 0.25, [string]$Language = 'en-US', [string]$AudioDir, [string]$Llm = 'claude-haiku-5-5', [string]$SpeakerModels, [string]$Rename)
+# Models on this computer: -ModelsDir <a folder laid out as the app's models folder> is linked in
+# (no copy, no download); with it, -Stt sherpa-local listens locally and -Speakers labels speakers.
+param([string]$Exe, [double]$EveryMin = 0.25, [string]$Language = 'en-US', [string]$AudioDir, [string]$Llm = 'claude-haiku-5-5', [string]$SpeakerModels, [string]$Rename,
+  [string]$Stt = 'gemini-live', [string]$ModelsDir, [switch]$Speakers)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Speech
 $UIA = [System.Windows.Automation.AutomationElement]; $Scope = [System.Windows.Automation.TreeScope]; $CT = [System.Windows.Automation.ControlType]
 
 $cfg = Join-Path ([IO.Path]::GetTempPath()) "ownvoice-summary-$(Get-Random)"
 New-Item -ItemType Directory -Force $cfg | Out-Null
-$settings = [ordered]@{ stt_id = 'gemini-live'; stt_language = $Language; llm_id = $Llm; audio_source = 'loopback'; save_mode = 'text'; summary_every_min = $EveryMin; update_check = $false; speaker_labels = [bool]$SpeakerModels; view = @{ reply_open = $false } }
+# -Language auto: detect the language (an empty setting; PowerShell will not pass an empty argument).
+if ($Language -eq 'auto') { $Language = '' }
+$settings = [ordered]@{ stt_id = $Stt; stt_language = $Language; llm_id = $Llm; audio_source = 'loopback'; save_mode = 'text'; summary_every_min = $EveryMin; update_check = $false; speaker_labels = ([bool]$SpeakerModels -or [bool]$Speakers); view = @{ reply_open = $false } }
+if ($ModelsDir) { New-Item -ItemType Junction -Path (Join-Path $cfg 'models') -Target $ModelsDir | Out-Null }
 if ($SpeakerModels) {
   New-Item -ItemType Directory -Force (Join-Path $cfg 'models') | Out-Null
   foreach ($m in 'silero_vad_v5.onnx', '3dspeaker_speech_campplus_sv_en_voxceleb_16k.onnx') { Copy-Item (Join-Path $SpeakerModels $m) (Join-Path $cfg 'models') }
@@ -107,4 +113,7 @@ Get-Content (Join-Path $session.FullName 'transcript.md') -Encoding UTF8 | Where
 "--- summary.md ---"
 $sumFile = Join-Path $session.FullName 'summary.md'
 if (Test-Path $sumFile) { Get-Content $sumFile -Encoding UTF8 } else { '(none: -EveryMin 0)' }
+# The linked models folder goes first, as a link only: a recursive delete could follow it.
+$link = Join-Path $cfg 'models'
+if ($ModelsDir -and (Test-Path $link)) { [IO.Directory]::Delete($link, $false) }
 Remove-Item -Recurse -Force $cfg

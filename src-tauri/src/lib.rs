@@ -16,6 +16,7 @@ mod gemini;
 mod gloss;
 mod idle;
 mod live_captions;
+mod local_stt;
 mod llm;
 mod local;
 mod openai_rt;
@@ -25,6 +26,7 @@ mod sentences;
 mod session;
 mod settings;
 mod stt_chunk;
+mod models;
 mod speakers;
 mod summary;
 mod usage;
@@ -85,6 +87,7 @@ fn stop_listening(app: &AppHandle) -> Option<PathBuf> {
         batch::flush_now(app);
     }
     speakers::end(app);
+    local_stt::unload();
     // After the capture has stopped, so the recording gets every chunk.
     archive::end(app)
 }
@@ -252,7 +255,11 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
     let record_only = m.transport == RECORD_ONLY;
     // Each option needs its own key (local servers may not need one).
     let key = settings::get_key(m.provider);
-    if key.is_none() && m.provider != "local" && !record_only {
+    if m.provider == "sherpa" && !models::ready(&app, &models::LOCAL_STT) {
+        set_status(&app, "本機辨識的模型還沒下載：請到「設定」的「聽」按「下載本機辨識模型」");
+        return Ok(false);
+    }
+    if key.is_none() && !matches!(m.provider, "local" | "sherpa") && !record_only {
         set_status(&app, format!("請先到「設定」填 {} 的 API key", settings::display_name(m.provider)));
         return Ok(false);
     }
@@ -313,6 +320,7 @@ fn set_listening(app: AppHandle, listener: State<'_, Mutex<Listener>>, on: bool)
                 let language = s.stt_language.clone();
                 match m.transport {
                     "gemini-live" => gemini::run(a, key.unwrap_or_default(), m.api_model.into(), language, rx).await,
+                    "sherpa" => local_stt::run(a, language, rx).await,
                     "openai-live" => openai_rt::run(a, m.id.into(), key.unwrap_or_default(), m.api_model.into(), captions::iso639(&language), rx).await,
                     _ => {
                         let (base_url, model) = if m.provider == "local" {
@@ -536,14 +544,27 @@ fn install_kind() -> &'static str {
 /// Speaker labels: whether the two models (about 31 MB) are on this computer.
 #[tauri::command]
 fn speaker_models_ready(app: AppHandle) -> bool {
-    speakers::ready(&app)
+    models::ready(&app, &models::SPEAKERS)
 }
 
 /// Downloads the speaker models when they are missing; progress arrives as "speaker-models" events.
 #[tauri::command]
 async fn prepare_speakers(app: AppHandle) -> Result<(), String> {
     let client = app.state::<llm::Http>().0.clone();
-    speakers::download(&app, &client).await
+    models::download(&app, &client, &models::SPEAKERS, "speaker-models").await
+}
+
+/// Local recognition: whether its models (about 910 MB) are on this computer.
+#[tauri::command]
+fn local_stt_ready(app: AppHandle) -> bool {
+    models::ready(&app, &models::LOCAL_STT)
+}
+
+/// Downloads the local recognition models; progress arrives as "local-stt-models" events.
+#[tauri::command]
+async fn prepare_local_stt(app: AppHandle) -> Result<(), String> {
+    let client = app.state::<llm::Http>().0.clone();
+    models::download(&app, &client, &models::LOCAL_STT, "local-stt-models").await
 }
 
 /// The user named speaker `who` (from 0) on a caption line.
@@ -627,6 +648,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             speaker_models_ready,
             prepare_speakers,
+            local_stt_ready,
+            prepare_local_stt,
             rename_speaker,
             chatgpt_status,
             chatgpt_sign_in,

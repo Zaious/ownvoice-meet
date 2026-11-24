@@ -69,12 +69,42 @@ function chosen(group: string): string {
 
 function showLocalFields(): void {
   document.querySelector<HTMLElement>('#stt-local')!.hidden = chosen('stt') !== 'local-whisper';
+  const sherpa = chosen('stt') === 'sherpa-local';
+  document.querySelector<HTMLElement>('#stt-sherpa')!.hidden = !sherpa;
+  if (sherpa) void showSherpa();
   document.querySelector<HTMLElement>('#llm-local')!.hidden = chosen('llm') !== 'local-llm';
   const plan = chosen('llm') === 'chatgpt-luna';
   document.querySelector<HTMLElement>('#llm-chatgpt')!.hidden = !plan;
   if (plan) void showChatgpt();
   followLiveCaptions(chosen('stt') === 'windows-live-captions');
 }
+
+// ---------- Local recognition: its models come down once, from Settings ----------
+const sherpaBtn = document.querySelector<HTMLButtonElement>('#sherpa-download')!;
+const sherpaState = document.querySelector<HTMLElement>('#sherpa-state')!;
+
+async function showSherpa(): Promise<void> {
+  const ready = await invoke<boolean>('local_stt_ready');
+  sherpaBtn.hidden = ready;
+  sherpaState.textContent = ready ? '✓ 模型已在這台電腦上，可以按「聆聽」。' : '還沒下載。';
+}
+
+sherpaBtn.addEventListener('click', async () => {
+  sherpaBtn.disabled = true;
+  const off = await listen<{ done: number; total: number }>('local-stt-models', (e) => {
+    const mb = (n: number) => Math.round(n / 1048576);
+    sherpaState.textContent = `下載中… ${mb(e.payload.done)} / ${mb(e.payload.total)} MB`;
+  });
+  try {
+    await invoke('prepare_local_stt');
+    await showSherpa();
+  } catch (err) {
+    sherpaState.textContent = `沒有下載完成：${String(err)}（再按一次會從沒下載完的檔案接著下載）`;
+  } finally {
+    off();
+    sherpaBtn.disabled = false;
+  }
+});
 
 // ---------- Speaker labels: the models come down the first time it is turned on ----------
 const speakerLabels = document.querySelector<HTMLInputElement>('#speaker_labels')!;

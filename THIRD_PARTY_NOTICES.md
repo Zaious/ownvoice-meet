@@ -4,6 +4,12 @@ OwnVoice Meet contains logic ported from the projects below, and uses the speech
 Ported code is not copied: it was read and reimplemented in Rust, with the changes listed. Other
 dependencies pulled in by Cargo and npm carry their own licences and are not listed here.
 
+## Local speech recognition: two models
+
+Downloaded on first use, not shipped with the app, run with sherpa-onnx (below):
+- Parakeet TDT 0.6B v3 by NVIDIA (https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3), Creative Commons Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/); the int8 ONNX export by the sherpa-onnx project. NVIDIA does not endorse OwnVoice Meet.
+- SenseVoice Small by Alibaba's FunAudioLLM team (https://github.com/FunAudioLLM/SenseVoice), FunASR Model Open Source License Agreement 1.1 (https://github.com/modelscope/FunASR/blob/main/MODEL_LICENSE); the int8 ONNX export of 2024-07-17 by the sherpa-onnx project.
+
 ## Speaker labels: sherpa-onnx and two models
 
 - sherpa-onnx (https://github.com/k2-fsa/sherpa-onnx), by the Next-gen Kaldi team, Apache License 2.0: linked into the app through its Rust crate, with ONNX Runtime (Microsoft, MIT License) inside it.
