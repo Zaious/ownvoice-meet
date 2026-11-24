@@ -1,19 +1,23 @@
 # OwnVoice Meet
 
-> A free, open-source Windows app for meetings, talks and Q&A in English, for people who read English better than they speak it. It shows live captions with the meaning in Chinese, and turns what the user types in Chinese into short, natural English that the user reads aloud themselves. It never answers for the user and has no synthetic voice. Since version 0.2.0 it also listens through a microphone at a conference venue and keeps recordings and transcripts on the user's computer.
+> A free, open-source desktop app for Windows and macOS for meetings, talks and Q&A in a second language, for people who follow the meeting but cannot always find the words in time. It shows live captions with the meaning in Chinese, and turns what the user types in Chinese into a short sentence in English (or another language the user speaks) that the user reads aloud themselves. It never answers for the user and has no synthetic voice. The interface is in Traditional Chinese.
 
 - Home (Traditional Chinese): https://ownvoice.chroniclecore.com/
 - Home (English): https://ownvoice.chroniclecore.com/en/
-- Download (latest release, Windows installer and portable zip): https://github.com/Zaious/ownvoice-meet/releases/latest
-- Source code and README: https://github.com/Zaious/ownvoice-meet
+- Download (latest release: Windows installer, Windows portable zip, macOS dmg): https://github.com/Zaious/ownvoice-meet/releases/latest
+- Source code and README (Traditional Chinese): https://github.com/Zaious/ownvoice-meet
+- README (English): https://github.com/Zaious/ownvoice-meet/blob/main/README.en.md
+- Changelog (Traditional Chinese): https://github.com/Zaious/ownvoice-meet/blob/main/CHANGELOG.md
 - User manual (Traditional Chinese): https://github.com/Zaious/ownvoice-meet/blob/main/docs/MANUAL.md
 
-## Facts
+## Facts (latest release: 0.4.0, 2026-11-23)
 
-- Platform: Windows 10 and 11; macOS 11 or later from 0.3.0 (being tested; microphone only, signed and notarized).
-- Price: the app is free (Apache License 2.0). Speech recognition and translation use the user's own API keys, paid to the providers: about US$0.03 an hour with Windows Live Captions or a self-hosted Whisper server plus Claude Haiku 5.5 or gpt-6-luna; about US$0.57 an hour with Gemini 3.5 Transcribe Live plus the same translation (list-price estimates).
-- Speech recognition options: Gemini 3.5 Transcribe Live, OpenAI gpt-4o-mini-transcribe, OpenAI gpt-live-transcribe, Windows Live Captions, a self-hosted OpenAI-compatible Whisper server, or record without recognition.
-- Translation options: Claude Haiku 5.5, Claude Sonnet 5.5, OpenAI gpt-6-luna, gpt-6.1-sol, Gemini 3.5 Flash-Lite, Gemini 3.8 Flash, or a self-hosted OpenAI-compatible model (vLLM, Ollama).
+- Platform: Windows 10 and 11; macOS 11 or later since 0.3.0 (being tested; listens through a microphone only, not to what the computer plays; signed and notarised by Apple).
+- Price: the app is free (Apache License 2.0). Speech recognition and translation use the user's own API keys or ChatGPT plan, paid to the providers: cloud speech recognition about US$0.18 to 1.02 an hour, translation on the fastest models a few cents an hour (estimates from list prices checked 2026-10-17). Windows 11 Live Captions for listening plus the ChatGPT plan for translation needs no API key at all.
+- Speech recognition options: Gemini 3.5 Transcribe Live, OpenAI gpt-live-transcribe, OpenAI gpt-4o-mini-transcribe, Windows 11 Live Captions, a self-hosted OpenAI-compatible Whisper server, or record without recognition.
+- Translation options: Claude Haiku 5.5, Claude Sonnet 5.5, OpenAI gpt-6-luna, gpt-6.1-sol, Gemini 3.5 Flash-Lite, Gemini 3.8 Flash, the ChatGPT plan through Sign in with ChatGPT (gpt-6-luna, since 0.4.0; an OpenAI feature in preview), or a self-hosted OpenAI-compatible model (vLLM, Ollama).
+- Languages (since 0.3.2): captions follow English, Japanese, Korean, German, French, Spanish, Vietnamese, Thai and Indonesian, always translated into Chinese; replies can be written in the language the user speaks (English by default).
+- Live summary (since 0.3.0): a window lists the main points so far and is brought up to date every few minutes; it only sums up what others said.
 - Saving is off by default. When on, each session gets a folder with one WAV recording and one Markdown transcript per segment and a whole-session transcript.md. Recording continues when speech recognition fails.
-- Privacy: audio goes only to the speech service the user picks; the author runs no server; besides those services, the app only asks GitHub once after start whether a newer version is out (can be turned off in Settings).
+- Privacy: audio goes only to the speech service the user picks and text only to the translation model the user picks; the app sends nothing to the author; it asks GitHub whether a newer version is out 20 seconds after start and when Settings opens (can be turned off in Settings), and has no analytics.
 - Author: Zaious, ChronicleCore Studio (https://studio.chroniclecore.com). Origin: built for the author's online demo at JCDL 2026 in October 2026.
