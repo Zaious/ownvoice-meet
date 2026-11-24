@@ -271,7 +271,7 @@ fn show(app: &AppHandle, id: u64, seq: u64, stop: &AtomicBool, zh: &str, early: 
 /// An early translation is a guess at half a sentence; one that came back as notes or untranslated
 /// (more Latin-script words than Chinese characters, more than a couple of Japanese kana or Korean
 /// hangul, or several lines) is not shown, and the final one will come.
-fn reads_as_subtitle(zh: &str) -> bool {
+pub(crate) fn reads_as_subtitle(zh: &str) -> bool {
     let han = zh.chars().filter(|c| ('\u{4e00}'..='\u{9fff}').contains(c)).count();
     let words = zh.split(|c: char| !c.is_alphabetic() || !c.is_ascii() && !is_latin(c)).filter(|w| !w.is_empty()).count();
     let kana_hangul = zh.chars().filter(|c| matches!(*c as u32, 0x3040..=0x30ff | 0xac00..=0xd7af)).count();

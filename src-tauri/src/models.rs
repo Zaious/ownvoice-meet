@@ -47,6 +47,14 @@ pub const LOCAL_STT: [ModelFile; 6] = [
     ModelFile { name: "sensevoice/tokens.txt", url: "https://huggingface.co/csukuangfj/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17/resolve/main/tokens.txt", sha256: "f449eb28dc567533d7fa59be34e2abca8784f771850c78a47fb731a31429a1dc", bytes: 315_894 },
 ];
 
+/// Local translation (local_llm.rs): Qwen3 1.7B (Apache-2.0), Q4_K_M GGUF quantized by Unsloth. 1.1 GB.
+pub const LOCAL_LLM: [ModelFile; 1] = [ModelFile {
+    name: "qwen3/Qwen3-1.7B-Q4_K_M.gguf",
+    url: "https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf",
+    sha256: "b139949c5bd74937ad8ed8c8cf3d9ffb1e99c866c823204dc42c0d91fa181897",
+    bytes: 1_107_409_472,
+}];
+
 pub fn dir(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(settings::config_dir(app)?.join("models"))
 }

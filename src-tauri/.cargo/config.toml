@@ -1,0 +1,10 @@
+# llama.cpp (local translation) is built from source. On Windows it must use the static C runtime,
+# like the prebuilt sherpa-onnx libraries (speaker labels, local recognition): MSVC refuses to link
+# C++ objects built for /MT with ones built for /MD (LNK2038). It is always built as Release, for the
+# same reason (a Debug llama.cpp would be /MTd) and because a debug model is far too slow to try.
+[env]
+LLAMA_STATIC_CRT = "1"
+LLAMA_LIB_PROFILE = "Release"
+# The /MT flag alone is overruled by llama.cpp's CMake (CMAKE_MSVC_RUNTIME_LIBRARY); this toolchain
+# file sets that too. The cmake crate reads it for this target only, so the Mac build is untouched.
+CMAKE_TOOLCHAIN_FILE_x86_64-pc-windows-msvc = { value = "cmake/msvc-static-crt.cmake", relative = true }

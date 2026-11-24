@@ -4,6 +4,11 @@ OwnVoice Meet contains logic ported from the projects below, and uses the speech
 Ported code is not copied: it was read and reimplemented in Rust, with the changes listed. Other
 dependencies pulled in by Cargo and npm carry their own licences and are not listed here.
 
+## Local translation: Qwen3 1.7B with llama.cpp
+
+- llama.cpp (https://github.com/ggml-org/llama.cpp), MIT License: built from source into the app through the `llama-cpp-2` crate (MIT or Apache-2.0).
+- Qwen3 1.7B by the Qwen team, Alibaba Cloud (https://huggingface.co/Qwen/Qwen3-1.7B), Apache License 2.0; the Q4_K_M GGUF quantization by Unsloth (https://huggingface.co/unsloth/Qwen3-1.7B-GGUF). Downloaded on first use, not shipped with the app.
+
 ## Local speech recognition: two models
 
 Downloaded on first use, not shipped with the app, run with sherpa-onnx (below):

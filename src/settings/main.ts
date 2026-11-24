@@ -73,11 +73,41 @@ function showLocalFields(): void {
   document.querySelector<HTMLElement>('#stt-sherpa')!.hidden = !sherpa;
   if (sherpa) void showSherpa();
   document.querySelector<HTMLElement>('#llm-local')!.hidden = chosen('llm') !== 'local-llm';
+  const llama = chosen('llm') === 'qwen3-local';
+  document.querySelector<HTMLElement>('#llm-llama')!.hidden = !llama;
+  if (llama) void showLlama();
   const plan = chosen('llm') === 'chatgpt-luna';
   document.querySelector<HTMLElement>('#llm-chatgpt')!.hidden = !plan;
   if (plan) void showChatgpt();
   followLiveCaptions(chosen('stt') === 'windows-live-captions');
 }
+
+// ---------- Local translation: its model comes down once, from Settings ----------
+const llamaBtn = document.querySelector<HTMLButtonElement>('#llama-download')!;
+const llamaState = document.querySelector<HTMLElement>('#llama-state')!;
+
+async function showLlama(): Promise<void> {
+  const ready = await invoke<boolean>('local_llm_ready');
+  llamaBtn.hidden = ready;
+  llamaState.textContent = ready ? '✓ 模型已在這台電腦上。' : '還沒下載。';
+}
+
+llamaBtn.addEventListener('click', async () => {
+  llamaBtn.disabled = true;
+  const off = await listen<{ done: number; total: number }>('local-llm-models', (e) => {
+    const mb = (n: number) => Math.round(n / 1048576);
+    llamaState.textContent = `下載中… ${mb(e.payload.done)} / ${mb(e.payload.total)} MB`;
+  });
+  try {
+    await invoke('prepare_local_llm');
+    await showLlama();
+  } catch (err) {
+    llamaState.textContent = `沒有下載完成：${String(err)}（再按一次會重新下載）`;
+  } finally {
+    off();
+    llamaBtn.disabled = false;
+  }
+});
 
 // ---------- Local recognition: its models come down once, from Settings ----------
 const sherpaBtn = document.querySelector<HTMLButtonElement>('#sherpa-download')!;

@@ -87,6 +87,13 @@
         <datalist id="local-models"></datalist>
         <div class="actions"><button type="button" id="test-llm">測試連線並列出模型</button><span id="test-llm-result" class="status"></span></div>
       </div>
+      <div id="llm-llama" class="local" hidden>
+        <p class="hint">在你的電腦上翻譯：免費、文字不送出去、不需要 key。搭配「聽」的本機辨識，就完全不用網路、不花錢。品質不如雲端模型，意思大多對、偶爾漏字。第一次要下載約 1.1 GB 的模型。</p>
+        <div class="actions">
+          <button type="button" id="llama-download">下載本機翻譯模型（約 1.1 GB）</button>
+          <span id="llama-state" class="status"></span>
+        </div>
+      </div>
       <div id="llm-chatgpt" class="local" hidden>
         <p class="hint">不用 API key：字幕翻譯、回覆、摘要和「補對照」改用你的 ChatGPT 方案額度（Go、Plus、Pro、Business）。這是 OpenAI 預覽中的功能，語音辨識仍然要另外選。</p>
         <div class="actions">

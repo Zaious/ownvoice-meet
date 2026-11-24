@@ -16,6 +16,7 @@ mod gemini;
 mod gloss;
 mod idle;
 mod live_captions;
+mod local_llm;
 mod local_stt;
 mod llm;
 mod local;
@@ -88,6 +89,7 @@ fn stop_listening(app: &AppHandle) -> Option<PathBuf> {
     }
     speakers::end(app);
     local_stt::unload();
+    local_llm::unload();
     // After the capture has stopped, so the recording gets every chunk.
     archive::end(app)
 }
@@ -567,6 +569,19 @@ async fn prepare_local_stt(app: AppHandle) -> Result<(), String> {
     models::download(&app, &client, &models::LOCAL_STT, "local-stt-models").await
 }
 
+/// Local translation: whether its model (about 1.1 GB) is on this computer.
+#[tauri::command]
+fn local_llm_ready(app: AppHandle) -> bool {
+    models::ready(&app, &models::LOCAL_LLM)
+}
+
+/// Downloads the local translation model; progress arrives as "local-llm-models" events.
+#[tauri::command]
+async fn prepare_local_llm(app: AppHandle) -> Result<(), String> {
+    let client = app.state::<llm::Http>().0.clone();
+    models::download(&app, &client, &models::LOCAL_LLM, "local-llm-models").await
+}
+
 /// The user named speaker `who` (from 0) on a caption line.
 #[tauri::command]
 fn rename_speaker(app: AppHandle, who: usize, name: String) -> Result<(), String> {
@@ -650,6 +665,8 @@ pub fn run() {
             prepare_speakers,
             local_stt_ready,
             prepare_local_stt,
+            local_llm_ready,
+            prepare_local_llm,
             rename_speaker,
             chatgpt_status,
             chatgpt_sign_in,
@@ -690,6 +707,10 @@ pub fn run() {
         // The restart after an in-app update.
         .plugin(tauri_plugin_process::init())
         .setup(|app| {
+            // Local translation reads its model from the models folder.
+            if let Ok(p) = models::path(app.handle(), &models::LOCAL_LLM[0]) {
+                local_llm::set_model_path(p.into());
+            }
             // The script open last time comes back (settings folder, script.md).
             let script = settings::load_script(app.handle());
             if !script.is_empty() {

@@ -3,7 +3,9 @@
 # the files that arrived.
 #   powershell -ExecutionPolicy Bypass -File scripts\e2e-speaker-models.ps1 -Exe src-tauri\target\debug\ownvoice-meet.exe
 # -Local: the local recognition models instead (about 910 MB): picks 本機辨識 and presses its download button.
-param([string]$Exe, [switch]$Local)
+# -Translation: the local translation model instead (about 1.1 GB): picks 本機翻譯 and presses its download button.
+param([string]$Exe, [switch]$Local, [switch]$Translation)
+if ($Translation) { $Local = $true }
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
 $UIA = [System.Windows.Automation.AutomationElement]; $Scope = [System.Windows.Automation.TreeScope]; $CT = [System.Windows.Automation.ControlType]
@@ -11,7 +13,7 @@ $UIA = [System.Windows.Automation.AutomationElement]; $Scope = [System.Windows.A
 $cfg = Join-Path ([IO.Path]::GetTempPath()) "ownvoice-spkmodels-$(Get-Random)"
 New-Item -ItemType Directory -Force $cfg | Out-Null
 # With -Local, 本機辨識 is already chosen, so Settings opens with its download button showing.
-$json = if ($Local) { '{"stt_id":"sherpa-local","update_check":false,"view":{"reply_open":false}}' } else { '{"update_check":false,"view":{"reply_open":false}}' }
+$json = if ($Translation) { '{"llm_id":"qwen3-local","update_check":false,"view":{"reply_open":false}}' } elseif ($Local) { '{"stt_id":"sherpa-local","update_check":false,"view":{"reply_open":false}}' } else { '{"update_check":false,"view":{"reply_open":false}}' }
 [IO.File]::WriteAllText((Join-Path $cfg 'settings.json'), $json, (New-Object Text.UTF8Encoding($false)))
 $env:OWNVOICE_CONFIG_DIR = $cfg; $env:OWNVOICE_NO_DEV_KEYS = '1'
 $p = Start-Process $Exe -PassThru
@@ -36,7 +38,7 @@ try {
   }
   Start-Sleep -Seconds 2
   if ($Local) {
-    $btn = $set.FindAll($Scope::Descendants, (New-Object System.Windows.Automation.PropertyCondition($UIA::ControlTypeProperty, $CT::Button))) | Where-Object { $_.Current.Name -like '下載本機辨識模型*' } | Select-Object -First 1
+    $btn = $set.FindAll($Scope::Descendants, (New-Object System.Windows.Automation.PropertyCondition($UIA::ControlTypeProperty, $CT::Button))) | Where-Object { $_.Current.Name -like $(if ($Translation) { '下載本機翻譯模型*' } else { '下載本機辨識模型*' }) } | Select-Object -First 1
     $btn.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke()
     $want = '模型已在這台電腦上|沒有下載完成'; $limit = 900
   } else {

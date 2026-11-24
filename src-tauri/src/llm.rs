@@ -51,6 +51,8 @@ pub fn target(s: &Settings) -> Result<Target, String> {
             (format!("{base}/chat/completions"), s.local_llm_model.trim().to_string(), settings::get_key("local"))
         }
         // The ChatGPT plan: the token is fetched (and refreshed) for each request in stream_until.
+        // Qwen3 on this computer (local_llm.rs): no address, no key.
+        "llama" => (String::new(), m.id.to_string(), None),
         "chatgpt" => {
             if crate::chatgpt::load().is_none() {
                 return Err("還沒連上 ChatGPT：請到設定的「翻」按 Continue with ChatGPT".into());
@@ -83,6 +85,10 @@ pub async fn stream(client: &reqwest::Client, t: &Target, system: Vec<Value>, us
 
 /// `stream`, ending early (with the usage known so far) once `stop` returns true.
 async fn stream_until(client: &reqwest::Client, t: &Target, system: Vec<Value>, user: String, mut on_delta: impl FnMut(&str), stop: impl Fn() -> bool) -> Result<Tally, String> {
+    if t.transport == "llama" {
+        let blocks = system.iter().filter_map(|b| b["text"].as_str().map(str::to_owned)).collect();
+        return crate::local_llm::stream(blocks, user, on_delta, stop).await;
+    }
     let anthropic = t.transport == "anthropic";
     let plan = t.transport == "chatgpt";
     let req = if plan {
@@ -250,13 +256,29 @@ pub async fn translate(app: &AppHandle, id: u64, en: &str, early: bool, stop: &A
         show(&zh::to_taiwan(&zh));
     }, || stop.load(Ordering::SeqCst))
     .await;
-    match res {
+    let mut out = match res {
         Ok(u) => {
             usage::add_tokens(app, &t.catalog_id, Tally { early: u64::from(early), ..u });
-            Ok(zh::to_taiwan(&zh))
+            zh::to_taiwan(&zh)
         }
-        Err(e) => Err(format!("翻譯失敗：{e}")),
+        Err(e) => return Err(format!("翻譯失敗：{e}")),
+    };
+    // The small local model now and then gives the English back untranslated (2 or 3 lines in 30
+    // of the roundtable clip): ask once more, plainly, for the final translation.
+    if t.transport == "llama" && !early && !stop.load(Ordering::SeqCst) && !crate::captions::reads_as_subtitle(&out) {
+        let again = format!("{}\n\nOutput only Traditional Chinese (繁體中文). Do not repeat the English.", prompts::listen_user(&ctx, en, false));
+        let system = prompts::system_blocks(prompts::LISTEN_SYSTEM, &prompts::parse_glossary(&s.glossary), &script);
+        let mut retry = String::new();
+        if let Ok(u) = stream_until(&client, &t, system, again, |d| retry.push_str(d), || stop.load(Ordering::SeqCst)).await {
+            usage::add_tokens(app, &t.catalog_id, u);
+            let retry = zh::to_taiwan(&retry);
+            if crate::captions::reads_as_subtitle(&retry) {
+                show(&retry);
+                out = retry;
+            }
+        }
     }
+    Ok(out)
 }
 
 /// Turn typed Chinese into English to read aloud; the reply window follows the `reply` events.
