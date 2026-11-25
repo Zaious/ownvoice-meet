@@ -19,9 +19,9 @@ Gemini Live is listening and Claude Haiku 5.5 translating; speech recognition he
 
 I read English well, but in a meeting I often can't find the words in time. With OwnVoice Meet you type what you mean in Chinese and get a sentence you can say in English, which you read aloud. It does not answer for you: the words are yours, and so is the voice. While others speak, the captions add the Chinese meaning under each English sentence, and the answers you prepared sit beside them in a bilingual script. The interface is in Traditional Chinese.
 
-> **Status: 0.4.0 · Windows 10 and 11, macOS 11 or later (the Mac version is being tested) · in-app updates on the Mac not yet tried.**
+> **Status: 0.5.0 · Windows 10 and 11, macOS 11 or later (the Mac version is being tested) · in-app updates on the Mac not yet tried.**
 
-The app is free · your own API keys or ChatGPT plan, or a combination with no key at all · cloud speech recognition about US$0.18–1.02 an hour, translation on the fastest models a few cents (list-price estimates, 2026-10-17; see [Providers and cost](#providers-and-cost))
+The app is free · your own API keys or ChatGPT plan, or everything on your computer with no key and no cost · cloud speech recognition about US$0.18–1.02 an hour, translation on the fastest models a few cents (list-price estimates, 2026-10-17; see [Providers and cost](#providers-and-cost))
 
 ## What it does
 
@@ -68,7 +68,7 @@ This only shows that the download is not damaged; it cannot catch a download pag
 
 ### Getting started
 
-You need Windows 10 or 11 (or macOS 11 or later), and one service for listening and one for translation. Most need an API key of your own; Settings links to each provider's key page. The combination with no key at all is Windows 11 Live Captions for listening and the ChatGPT plan for translation (with ChatGPT Go, Plus, Pro or Business). See [Providers and cost](#providers-and-cost).
+You need Windows 10 or 11 (or macOS 11 or later), and one service for listening and one for translation. Most need an API key of your own; Settings links to each provider's key page. Two combinations need no key at all: local recognition and local translation, everything on your computer with no account and no cost (about 2 GB of models downloaded once); or Windows 11 Live Captions for listening and the ChatGPT plan for translation (with ChatGPT Go, Plus, Pro or Business). See [Providers and cost](#providers-and-cost).
 
 To look first, without any setup: open OwnVoice Meet and press **Demo**. The text is a prepared demo; nothing is recorded, nothing goes online, nothing is spent.
 
@@ -93,7 +93,7 @@ Bring your own keys, or your ChatGPT plan; keys are kept in the system's credent
 | OpenAI gpt-live-transcribe (live, about US$1.02 an hour) | OpenAI gpt-6-luna, gpt-6.1-sol |
 | OpenAI gpt-4o-mini-transcribe (per sentence, about US$0.18 an hour) | Gemini 3.5 Flash-Lite, 3.8 Flash |
 | | **ChatGPT plan** (gpt-6-luna, no API key: press **Continue with ChatGPT** and use your Go, Plus, Pro or Business plan) |
-| Local recognition (Parakeet and SenseVoice; free, on the device, no key; about 910 MB downloaded once) | |
+| Local recognition (Parakeet and SenseVoice; free, on the device, no key; about 910 MB downloaded once) | Local translation (Qwen3 1.7B; free, on the device, no key; about 1.1 GB downloaded once; rougher than the cloud models) |
 | A Whisper server on your own machine (free) | vLLM or Ollama on your own machine (free) |
 | Windows 11 Live Captions (live, free, on the device, no key; experimental, Settings walks you through a one-time setup) | |
 
@@ -161,7 +161,7 @@ Many people asked for the tool afterwards. OwnVoice Meet is that tool rebuilt to
 
 ## How this was made
 
-I decide what OwnVoice Meet does and what it claims, and I answer for every release. AI agents wrote most of the code and the documentation: of the 49 commits up to 0.4.0, 46 carry an AI co-author trailer (`Co-Authored-By`) that you can see in the git history; the other 3 are merge commits. On every push, CI runs the type check, the front-end tests and the Rust tests, and builds the app on clean Windows and macOS machines (see [ci.yml](.github/workflows/ci.yml)); tests that need real services or speakers do not run in CI, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) lists them.
+I decide what OwnVoice Meet does and what it claims, and I answer for every release. AI agents wrote most of the code and the documentation: of the 67 commits up to 0.5.0, 64 carry an AI co-author trailer (`Co-Authored-By`) that you can see in the git history; the other 3 are merge commits. On every push, CI runs the type check, the front-end tests and the Rust tests, and builds the app on clean Windows and macOS machines (see [ci.yml](.github/workflows/ci.yml)); tests that need real services or speakers do not run in CI, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) lists them.
 
 The translations, the English for your replies and the summaries in the app are written on the spot by the language model you choose, and no person checks them sentence by sentence. Look before you read one aloud.
 

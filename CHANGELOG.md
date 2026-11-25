@@ -4,6 +4,8 @@ OwnVoice Meet 每一版改了什麼，寫給使用者看。格式參考 [Keep a 
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-25
+
 - 本機翻譯：「翻」可以選在電腦上翻譯（Qwen3 1.7B），免費、文字不送出去、不需要 key；和本機辨識一起選，就完全不用網路、不花錢。品質不如雲端模型。第一次要下載約 1.1 GB 的模型。
 
 - 本機辨識：「聽」可以選在電腦上辨識，免費、聲音不送出去、不需要 key。英文用 NVIDIA Parakeet，中文、日文、韓文用 SenseVoice，自動偵測時中英夾雜也聽得懂。第一次要下載約 910 MB 的模型；沒有灰字，每句講完約 0.5–1 秒出字。
@@ -66,7 +68,8 @@ OwnVoice Meet 每一版改了什麼，寫給使用者看。格式參考 [Keep a 
 
 - 第一個公開版本：字幕與中文翻譯、回覆提詞（打中文、唸英文）、中英對照講稿。
 
-[Unreleased]: https://github.com/Zaious/ownvoice-meet/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Zaious/ownvoice-meet/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Zaious/ownvoice-meet/releases/tag/v0.5.0
 [0.4.0]: https://github.com/Zaious/ownvoice-meet/releases/tag/v0.4.0
 [0.3.2]: https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.2
 [0.3.1]: https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.1

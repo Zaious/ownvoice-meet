@@ -19,9 +19,9 @@ Gemini Live 聽、Claude Haiku 5.5 翻；語音辨識把 Jane 聽成了 Jinn。�
 
 我英文看得懂，但開會時常常一下子想不出該怎麼說。用 OwnVoice Meet，你用中文打出想說的意思，它給你一句說得出口的英文，你照著唸。它不替你作答：話是你自己的，聲音也是你自己的。別人說的英文，字幕會即時接上中文意思；事先準備好的回答，就放在旁邊的中英對照講稿裡。
 
-> **狀態：0.4.0 · Windows 10、11 與 macOS 11 以上（Mac 版測試中） · Mac 版的程式內更新還沒實測過。**
+> **狀態：0.5.0 · Windows 10、11 與 macOS 11 以上（Mac 版測試中） · Mac 版的程式內更新還沒實測過。**
 
-程式免費 · 用你自己的 API key 或 ChatGPT 方案，也有完全不用 key 的組合 · 雲端語音辨識每小時約 0.18～1.02 美元，翻譯選最快一級約幾美分（牌價估算，2026-10-17；見「[服務與費用](#服務與費用)」）
+程式免費 · 用你自己的 API key 或 ChatGPT 方案，也可以全部在電腦上跑，不用 key、不花錢 · 雲端語音辨識每小時約 0.18～1.02 美元，翻譯選最快一級約幾美分（牌價估算，2026-10-17；見「[服務與費用](#服務與費用)」）
 
 ## 它做什麼
 
@@ -68,7 +68,7 @@ Get-FileHash .\OwnVoice.Meet_x.y.z_x64-setup.exe -Algorithm SHA256
 
 ### 開始使用
 
-你需要 Windows 10 或 11（或 macOS 11 以上），以及「聽」和「翻」各一個服務：多數服務要你自己的 API key（設定裡有每家申請 key 的連結）。完全不用 key 的組合是 Windows 11 即時輔助字幕（聽）加 ChatGPT 方案（翻，要有 ChatGPT Go、Plus、Pro 或 Business）。選法見「[服務與費用](#服務與費用)」。
+你需要 Windows 10 或 11（或 macOS 11 以上），以及「聽」和「翻」各一個服務：多數服務要你自己的 API key（設定裡有每家申請 key 的連結）。完全不用 key 的組合有兩種：本機辨識（聽）加本機翻譯（翻），全部在電腦上跑，不用帳號也不花錢，第一次要下載約 2 GB 的模型；或 Windows 11 即時輔助字幕（聽）加 ChatGPT 方案（翻，要有 ChatGPT Go、Plus、Pro 或 Business）。選法見「[服務與費用](#服務與費用)」。
 
 想先看看、不必設定：打開 OwnVoice Meet，按 **Demo**。畫面是預先寫好的示範文字，不收音、不連網、不花錢。
 
@@ -93,7 +93,7 @@ Get-FileHash .\OwnVoice.Meet_x.y.z_x64-setup.exe -Algorithm SHA256
 | OpenAI gpt-live-transcribe（即時，約每小時 1.02 美元） | OpenAI gpt-6-luna、gpt-6.1-sol |
 | OpenAI gpt-4o-mini-transcribe（一句講完才出字，約每小時 0.18 美元） | Gemini 3.5 Flash-Lite、3.8 Flash |
 | | **ChatGPT 方案**（gpt-6-luna，不用 API key：按 **Continue with ChatGPT** 登入，用你的 Go／Plus／Pro／Business 方案額度） |
-| 本機辨識（Parakeet＋SenseVoice；免費、在電腦上辨識、不需要 key；第一次下載約 910 MB） | |
+| 本機辨識（Parakeet＋SenseVoice；免費、在電腦上辨識、不需要 key；第一次下載約 910 MB） | 本機翻譯（Qwen3 1.7B；免費、在電腦上翻譯、不需要 key；第一次下載約 1.1 GB；品質不如雲端） |
 | 自己電腦上的 Whisper 伺服器（免費） | 自己電腦上的 vLLM 或 Ollama（免費） |
 | Windows 11 即時輔助字幕（即時、免費、在電腦上辨識、不需要 key；實驗功能，設定會帶你完成一次性設定） | |
 
@@ -161,7 +161,7 @@ key 存在系統的認證管理員（Windows 認證管理員、Mac 鑰匙圈）�
 
 ## 這是怎麼做的
 
-OwnVoice Meet 做什麼、主張什麼由我決定，每次發布由我負責。程式與文件大部分由 AI agent 撰寫：到 0.4.0 為止的 49 個 commit 中，46 個帶有 AI 共同作者標記（`Co-Authored-By`），在 git 歷史裡查得到；另外 3 個是合併 commit。CI 每次 push 都會跑型別檢查、前端測試與 Rust 測試，並在乾淨的 Windows 與 macOS 機器上建置（見 [ci.yml](.github/workflows/ci.yml)）；需要真實服務或喇叭的測試不在 CI 裡跑，清單在 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+OwnVoice Meet 做什麼、主張什麼由我決定，每次發布由我負責。程式與文件大部分由 AI agent 撰寫：到 0.5.0 為止的 67 個 commit 中，64 個帶有 AI 共同作者標記（`Co-Authored-By`），在 git 歷史裡查得到；另外 3 個是合併 commit。CI 每次 push 都會跑型別檢查、前端測試與 Rust 測試，並在乾淨的 Windows 與 macOS 機器上建置（見 [ci.yml](.github/workflows/ci.yml)）；需要真實服務或喇叭的測試不在 CI 裡跑，清單在 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
 程式裡的翻譯、回覆的英文和摘要，是你選的語言模型當場產生的，沒有人逐句查過。照著唸之前，請自己看一眼。
 

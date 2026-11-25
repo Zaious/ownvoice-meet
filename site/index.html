@@ -40,7 +40,7 @@
   "downloadUrl": "https://github.com/Zaious/ownvoice-meet/releases/latest",
   "image": "https://ownvoice.chroniclecore.com/media/og.png",
   "screenshot": ["https://ownvoice.chroniclecore.com/media/demo.gif", "https://ownvoice.chroniclecore.com/media/overview.png"],
-  "featureList": ["英文即時字幕與中文翻譯", "中文打字變成好唸的英文回覆，由你自己唸", "中英對照講稿與 Q&A 備忘", "研討會會場麥克風收音", "錄音與逐字稿存在你的電腦", "依場次分段存檔", "網路斷線時錄音照常", "雲端或本機語音辨識，自備 API key"],
+  "featureList": ["英文即時字幕與中文翻譯", "中文打字變成好唸的英文回覆，由你自己唸", "中英對照講稿與 Q&A 備忘", "研討會會場麥克風收音", "錄音與逐字稿存在你的電腦", "依場次分段存檔", "網路斷線時錄音照常", "雲端或本機語音辨識，自備 API key", "本機辨識加本機翻譯，免費、不用 key、不上傳", "標出講者，可以改成名字"],
   "isAccessibleForFree": true,
   "codeRepository": "https://github.com/Zaious/ownvoice-meet",
   "inLanguage": ["zh-Hant", "en"],
@@ -53,12 +53,12 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "要錢嗎？", "acceptedAnswer": { "@type": "Answer", "text": "程式免費、開源（Apache License 2.0）。語音辨識和翻譯用你自己的 API key，費用直接付給 Google、OpenAI 或 Anthropic：最便宜的組合每小時約 0.03 美元，雲端即時字幕加翻譯每小時約 0.57 美元。不想付費可以用 Windows 內建的即時輔助字幕或自己架的 Whisper 辨識。" } },
+    { "@type": "Question", "name": "要錢嗎？", "acceptedAnswer": { "@type": "Answer", "text": "程式免費、開源（Apache License 2.0）。語音辨識和翻譯用你自己的 API key，費用直接付給 Google、OpenAI 或 Anthropic：最便宜的組合每小時約 0.03 美元，雲端即時字幕加翻譯每小時約 0.57 美元。不想付費可以全部在電腦上跑：本機辨識加本機翻譯，不需要 key，第一次要下載約 2 GB 的模型，翻譯品質不如雲端。" } },
     { "@type": "Question", "name": "它會替我回答嗎？", "acceptedAnswer": { "@type": "Answer", "text": "不會。沒有 AI 代寫的回答，也沒有合成語音。你用中文打你想說的意思，它只負責把這個意思變成好唸的英文，由你自己說出口。" } },
-    { "@type": "Question", "name": "需要什麼？", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10、11 或 macOS 11 以上，以及你選的服務的 API key（例如 Gemini 和 Anthropic）。設定裡每個服務旁都有「取得 key」的連結。key 存在 Windows 認證管理員（Mac 是鑰匙圈），不會寫進檔案。" } },
+    { "@type": "Question", "name": "需要什麼？", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10、11 或 macOS 11 以上，以及你選的服務的 API key（例如 Gemini 和 Anthropic）；選本機辨識加本機翻譯就不需要 key。設定裡每個服務旁都有「取得 key」的連結。key 存在 Windows 認證管理員（Mac 是鑰匙圈），不會寫進檔案。" } },
     { "@type": "Question", "name": "錄音和逐字稿存在哪？會上傳嗎？", "acceptedAnswer": { "@type": "Answer", "text": "存檔預設是關的。開啟後，錄音和逐字稿只存在你的電腦（預設在「文件」裡的 OwnVoice Meet 資料夾），不會上傳到作者這邊；但辨識時，聲音會送到你選的語音服務。現場錄音前，請先確認主辦單位的規定。" } },
     { "@type": "Question", "name": "公司電腦不能安裝程式怎麼辦？", "acceptedAnswer": { "@type": "Answer", "text": "用免安裝版：下載 zip，解壓縮後執行 OwnVoice Meet.exe，不需要系統管理員權限。若公司政策禁止執行下載的程式，或關掉了桌面應用程式的麥克風權限，就無法使用。" } },
-    { "@type": "Question", "name": "Mac 能用嗎？", "acceptedAnswer": { "@type": "Answer", "text": "可以。0.3.0 起有 Mac 版（測試中），Intel 和 Apple 晶片都能用，macOS 11 以上，有 Apple 簽章與公證，下載 dmg 拖進「應用程式」就好。Mac 版只能收麥克風，適合在會場聽演講；收不到電腦播放的聲音，線上會議要讓喇叭的聲音給麥克風聽到。" } },
+    { "@type": "Question", "name": "Mac 能用嗎？", "acceptedAnswer": { "@type": "Answer", "text": "可以。0.3.0 起有 Mac 版（測試中），Intel 和 Apple 晶片都能用，macOS 11 以上，有 Apple 簽章與公證，下載 dmg 拖進「應用程式」就好。Mac 版只能收麥克風，適合在會場聽演講；收不到電腦播放的聲音，線上會議要讓喇叭的聲音給麥克風聽到。本機辨識、本機翻譯與標出講者還沒在 Mac 上實測過。" } },
     { "@type": "Question", "name": "Windows 為什麼說「已保護您的電腦」？", "acceptedAnswer": { "@type": "Answer", "text": "因為程式還沒有程式碼簽章，不代表有問題。按「其他資訊」，再按「仍要執行」。原始碼公開在 GitHub，安裝檔由 GitHub 從原始碼自動建置。" } },
     { "@type": "Question", "name": "怎麼更新？", "acceptedAnswer": { "@type": "Answer", "text": "啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕 ⚙ 會出現小點（可以在設定關掉）。安裝版：設定 → 更新並重新啟動，會先驗證簽章再安裝，不按就不會動。免安裝版請下載新的 zip。" } }
   ]
@@ -112,6 +112,8 @@
       <li><b><span class="rec-dot">●</span> 錄音和逐字稿存在你的電腦</b>每句英文、中文和時間都記下來，整場一份，每個場次也各一份。預設不存，要你自己打開。</li>
       <li><b>一個場次一個檔</b>換場次按「新段落」或 Ctrl+Shift+F9；先貼上議程，段落就照議程命名。</li>
       <li><b>網路斷了也不怕</b>錄音和辨識是分開的：會場 Wi-Fi 斷線或 key 出錯，錄音照常進行。網路太差可以只錄音、不辨識。</li>
+      <li><b>標出講者</b>每句字幕前面標「講者 1、講者 2…」，點一下改成名字，逐字稿和摘要跟著改。聲紋在你的電腦上比對，不送出聲音。</li>
+      <li><b>不用網路也能用</b>「聽」選本機辨識、「翻」選本機翻譯，全部在電腦上跑，會場沒有 Wi-Fi 也照樣出字幕和中文；翻譯品質不如雲端。</li>
       <li><b>不只英文</b>別人說日文、韓文、德文、法文等也聽得懂，字幕照樣翻成中文；回覆也可以改成你要說的語言。</li>
       <li><b>跟不上時看摘要</b>「摘要」視窗列出到目前為止的重點，每幾分鐘更新一次。只整理講者說過的話，不編造、不替你出主意。</li>
       <li><b>不會睡著</b>聆聽期間，筆電和螢幕不會自動休眠。</li>
@@ -132,14 +134,15 @@
 
   <section class="split" id="cost">
     <div class="side">
-      <h2>一小時幾美分起。</h2>
-      <p>用你自己的 API key，費用直接付給服務商；程式本身免費。</p>
+      <h2>免費，或一小時幾美分。</h2>
+      <p>程式本身免費。全部在電腦上跑不花錢；用雲端服務時用你自己的 API key，費用直接付給服務商。</p>
     </div>
     <div class="body">
       <div class="table-wrap">
         <table>
           <thead><tr><th>聽（語音辨識）</th><th>翻（翻譯與回覆）</th><th class="cost">約每小時</th></tr></thead>
           <tbody>
+            <tr><td>本機辨識（免費，在電腦上辨識）</td><td>本機翻譯 Qwen3 1.7B（免費，品質不如雲端）</td><td class="cost">US$0</td></tr>
             <tr><td>Windows 即時輔助字幕（免費，在電腦上辨識）</td><td>Claude Haiku 5.5 或 gpt-6-luna</td><td class="cost">US$0.03</td></tr>
             <tr><td>自己架的 Whisper（免費）</td><td>同上</td><td class="cost">US$0.03</td></tr>
             <tr><td>OpenAI gpt-4o-mini-transcribe</td><td>同上</td><td class="cost">US$0.21</td></tr>
@@ -147,7 +150,7 @@
           </tbody>
         </table>
       </div>
-      <p><b>完全不用 key：</b>Windows 即時輔助字幕（聽）加 ChatGPT 方案（翻；Go、Plus、Pro、Business），不用申請任何 API key，也不另外付費。ChatGPT 方案是 OpenAI 預覽中的功能，只能翻譯、不能辨識語音。</p>
+      <p><b>完全不用 key：</b>本機辨識加本機翻譯，全部在電腦上跑，第一次下載約 2 GB 的模型；或 Windows 即時輔助字幕（聽）加 ChatGPT 方案（翻；Go、Plus、Pro、Business），不用申請任何 API key，也不另外付費。ChatGPT 方案是 OpenAI 預覽中的功能，只能翻譯、不能辨識語音。</p>
       <p>實例：作者在 JCDL 2026 那一晚一個半多小時的場次，翻譯費用是 <b>0.11 美元</b>（Claude Haiku 5.5）。以上是官方牌價估算，實際以各家帳單為準；設定裡會記錄你自己的用量。</p>
     </div>
   </section>
@@ -176,6 +179,7 @@
     </div>
     <div class="body">
       <dl>
+        <dt><a href="https://github.com/Zaious/ownvoice-meet/releases/tag/v0.5.0">0.5.0</a> <time datetime="2026-11-25">2026-11-25</time></dt><dd>可以全部在電腦上跑：「聽」選本機辨識、「翻」選本機翻譯（Qwen3 1.7B），免費、不用 key、不上傳；第一次下載約 2 GB 的模型。每句字幕前標出講者，點一下改成名字。</dd>
         <dt><a href="https://github.com/Zaious/ownvoice-meet/releases/tag/v0.4.0">0.4.0</a> <time datetime="2026-11-23">2026-11-23</time></dt><dd>不用 API key 也能翻：設定的「翻」選「ChatGPT 方案」，按 Continue with ChatGPT 登入，翻譯、回覆和摘要改用你的 ChatGPT 方案額度（OpenAI 預覽中的功能）。</dd>
         <dt><a href="https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.2">0.3.2</a> <time datetime="2026-11-23">2026-11-23</time></dt><dd>不只英文：別人說日文、韓文、德文等也聽得懂，字幕照樣翻成中文；回覆和講稿「補對照」可以改成你要說的語言（設定的「別人說的語言」「我說的語言」）。</dd>
         <dt><a href="https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.1">0.3.1</a> <time datetime="2026-11-22">2026-11-22</time></dt><dd>設定改了就自動儲存，「儲存」按鈕固定在視窗底部（之前按鈕夾在設定頁中間，沒按就關掉會全部不見）。</dd>
@@ -197,12 +201,12 @@
       <p class="aside">找不到答案？到 <a href="https://github.com/Zaious/ownvoice-meet/issues">GitHub</a> 問。</p>
     </div>
     <div class="body">
-      <details><summary>要錢嗎？</summary><p>程式免費、開源（Apache License 2.0）。語音辨識和翻譯用你自己的 API key，費用直接付給 Google、OpenAI 或 Anthropic：最便宜的組合每小時約 0.03 美元，雲端即時字幕加翻譯每小時約 0.57 美元。不想付費可以用 Windows 內建的即時輔助字幕或自己架的 Whisper 辨識。</p></details>
+      <details><summary>要錢嗎？</summary><p>程式免費、開源（Apache License 2.0）。語音辨識和翻譯用你自己的 API key，費用直接付給 Google、OpenAI 或 Anthropic：最便宜的組合每小時約 0.03 美元，雲端即時字幕加翻譯每小時約 0.57 美元。不想付費可以全部在電腦上跑：本機辨識加本機翻譯，不需要 key，第一次要下載約 2 GB 的模型，翻譯品質不如雲端。</p></details>
       <details><summary>它會替我回答嗎？</summary><p>不會。沒有 AI 代寫的回答，也沒有合成語音。你用中文打你想說的意思，它只負責把這個意思變成好唸的英文，由你自己說出口。</p></details>
-      <details><summary>需要什麼？</summary><p>Windows 10、11 或 macOS 11 以上，以及你選的服務的 API key（例如 Gemini 和 Anthropic）。設定裡每個服務旁都有「取得 key」的連結。key 存在 Windows 認證管理員（Mac 是鑰匙圈），不會寫進檔案。</p></details>
+      <details><summary>需要什麼？</summary><p>Windows 10、11 或 macOS 11 以上，以及你選的服務的 API key（例如 Gemini 和 Anthropic）；選本機辨識加本機翻譯就不需要 key。設定裡每個服務旁都有「取得 key」的連結。key 存在 Windows 認證管理員（Mac 是鑰匙圈），不會寫進檔案。</p></details>
       <details><summary>錄音和逐字稿存在哪？會上傳嗎？</summary><p>存檔預設是關的。開啟後，錄音和逐字稿只存在你的電腦（預設在「文件」裡的 OwnVoice Meet 資料夾），不會上傳到作者這邊；但辨識時，聲音會送到你選的語音服務。現場錄音前，請先確認主辦單位的規定。</p></details>
       <details><summary>公司電腦不能安裝程式怎麼辦？</summary><p>用免安裝版：下載 zip，解壓縮後執行 OwnVoice Meet.exe，不需要系統管理員權限。若公司政策禁止執行下載的程式，或關掉了桌面應用程式的麥克風權限，就無法使用。</p></details>
-      <details><summary>Mac 能用嗎？</summary><p>可以。0.3.0 起有 Mac 版（測試中），Intel 和 Apple 晶片都能用，macOS 11 以上，有 Apple 簽章與公證，下載 dmg 拖進「應用程式」就好。Mac 版只能收麥克風，適合在會場聽演講；收不到電腦播放的聲音，線上會議要讓喇叭的聲音給麥克風聽到。</p></details>
+      <details><summary>Mac 能用嗎？</summary><p>可以。0.3.0 起有 Mac 版（測試中），Intel 和 Apple 晶片都能用，macOS 11 以上，有 Apple 簽章與公證，下載 dmg 拖進「應用程式」就好。Mac 版只能收麥克風，適合在會場聽演講；收不到電腦播放的聲音，線上會議要讓喇叭的聲音給麥克風聽到。本機辨識、本機翻譯與標出講者還沒在 Mac 上實測過。</p></details>
       <details><summary>Windows 為什麼說「已保護您的電腦」？</summary><p>因為程式還沒有程式碼簽章，不代表有問題。按「其他資訊」，再按「仍要執行」。原始碼公開在 GitHub，安裝檔由 GitHub 從原始碼自動建置。</p></details>
       <details><summary>怎麼更新？</summary><p>啟動 20 秒後，程式會問 GitHub 一次有沒有新版，有的話設定按鈕 ⚙ 會出現小點（可以在設定關掉）。安裝版：設定 → 更新並重新啟動，會先驗證簽章再安裝，不按就不會動。免安裝版請下載新的 zip。</p></details>
     </div>
@@ -223,7 +227,7 @@
       <h2><span class="phrase">用你自己的帳號，</span><span class="phrase">存在你自己的電腦。</span></h2>
     </div>
     <div class="body">
-      <p>會議的聲音只送到你選的語音辨識服務，文字只送到你選的翻譯模型，用的是你自己的 key；作者這邊沒有伺服器，收不到任何東西。程式不做分析；除了你選的服務，只會在啟動後問 GitHub 一次有沒有新版（可以在設定關掉）。選 Windows 即時輔助字幕或自己架的 Whisper，聲音就不會離開你的電腦。</p>
+      <p>會議的聲音只送到你選的語音辨識服務，文字只送到你選的翻譯模型，用的是你自己的 key；作者這邊沒有伺服器，收不到任何東西。程式不做分析；除了你選的服務，只會在啟動後問 GitHub 一次有沒有新版（可以在設定關掉）。選本機辨識、Windows 即時輔助字幕或自己架的 Whisper，聲音就不會離開你的電腦；再選本機翻譯，文字也不會。</p>
       <p>Gemini 的免費層會用你的資料改進產品，請用付費層的 key。有些會議有保密要求，有些地方轉錄談話需要所有人同意，開始前請先確認。</p>
     </div>
   </section>

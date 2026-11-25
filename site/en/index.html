@@ -39,7 +39,7 @@
   "downloadUrl": "https://github.com/Zaious/ownvoice-meet/releases/latest",
   "image": "https://ownvoice.chroniclecore.com/media/og.png",
   "screenshot": ["https://ownvoice.chroniclecore.com/media/demo.gif", "https://ownvoice.chroniclecore.com/media/overview.png"],
-  "featureList": ["Live English captions with Chinese translation", "Typed Chinese turned into short English you read aloud", "Bilingual script and prepared answers", "Microphone listening at a venue", "Recordings and transcripts kept on your computer", "One file per conference session", "Recording continues when the network drops", "Cloud or local speech recognition with your own API keys"],
+  "featureList": ["Live English captions with Chinese translation", "Typed Chinese turned into short English you read aloud", "Bilingual script and prepared answers", "Microphone listening at a venue", "Recordings and transcripts kept on your computer", "One file per conference session", "Recording continues when the network drops", "Cloud or local speech recognition with your own API keys", "Local recognition and translation: free, no key, nothing uploaded", "Speaker labels you can rename"],
   "isAccessibleForFree": true,
   "codeRepository": "https://github.com/Zaious/ownvoice-meet",
   "inLanguage": ["zh-Hant", "en"],
@@ -52,12 +52,12 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "Does it cost anything?", "acceptedAnswer": { "@type": "Answer", "text": "The app is free and open source (Apache License 2.0). Speech recognition and translation run on your own API keys, paid directly to Google, OpenAI or Anthropic: the cheapest combination is about US$0.03 an hour, cloud live captions with translation about US$0.57 an hour. Windows Live Captions or a Whisper server of your own recognize speech for free." } },
+    { "@type": "Question", "name": "Does it cost anything?", "acceptedAnswer": { "@type": "Answer", "text": "The app is free and open source (Apache License 2.0). Speech recognition and translation run on your own API keys, paid directly to Google, OpenAI or Anthropic: the cheapest combination is about US$0.03 an hour, cloud live captions with translation about US$0.57 an hour. To pay nothing, run everything on your computer: local recognition and local translation, no key, about 2 GB of models downloaded once, translations rougher than the cloud models." } },
     { "@type": "Question", "name": "Does it answer for me?", "acceptedAnswer": { "@type": "Answer", "text": "No. There are no AI-written replies and no synthetic voice. You type what you mean in Chinese; it only turns that meaning into English that is easy to say, and you say it yourself." } },
-    { "@type": "Question", "name": "What do I need?", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10 or 11, or macOS 11 or later, and API keys for the services you pick (Gemini and Anthropic, for example). Settings links to each provider's key page. Keys are kept in Windows Credential Manager (the Keychain on a Mac), never in a file." } },
+    { "@type": "Question", "name": "What do I need?", "acceptedAnswer": { "@type": "Answer", "text": "Windows 10 or 11, or macOS 11 or later, and API keys for the services you pick (Gemini and Anthropic, for example); local recognition with local translation needs none. Settings links to each provider's key page. Keys are kept in Windows Credential Manager (the Keychain on a Mac), never in a file." } },
     { "@type": "Question", "name": "Where do recordings and transcripts go? Are they uploaded?", "acceptedAnswer": { "@type": "Answer", "text": "Saving is off by default. Turned on, recordings and transcripts stay on your computer (by default in an OwnVoice Meet folder in Documents) and never reach the author; the speech service you pick does hear the audio. Check the organizer's rules before recording a talk." } },
     { "@type": "Question", "name": "My work computer will not let me install programs.", "acceptedAnswer": { "@type": "Answer", "text": "Use the portable zip: unzip it and run OwnVoice Meet.exe, no administrator rights needed. It cannot help if company policy blocks downloaded programs or desktop apps' access to the microphone." } },
-    { "@type": "Question", "name": "Is there a Mac version?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, from 0.3.0 (being tested): for Intel and Apple silicon, macOS 11 or later, signed and notarized by Apple. Open the dmg and drag the app to Applications. It listens through a microphone only, which suits a talk in a room; it cannot hear what the computer plays, so for an online meeting the speakers have to reach the microphone." } },
+    { "@type": "Question", "name": "Is there a Mac version?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, from 0.3.0 (being tested): for Intel and Apple silicon, macOS 11 or later, signed and notarized by Apple. Open the dmg and drag the app to Applications. It listens through a microphone only, which suits a talk in a room; it cannot hear what the computer plays, so for an online meeting the speakers have to reach the microphone. Local recognition, local translation and speaker labels have not been tried on a Mac yet." } },
     { "@type": "Question", "name": "Why does Windows say it protected my PC?", "acceptedAnswer": { "@type": "Answer", "text": "The app is not code-signed yet; that does not mean anything is wrong. Choose More info, then Run anyway. The source is public on GitHub, and GitHub builds the installers from it." } },
     { "@type": "Question", "name": "How does it update?", "acceptedAnswer": { "@type": "Answer", "text": "Twenty seconds after start the app asks GitHub once whether a newer version is out, and puts a dot on the settings button if so (this can be turned off in Settings). Installed copy: Settings, Update; the update's signature is checked before it installs, and nothing happens until you press it. For the portable zip, download the new one." } }
   ]
@@ -110,6 +110,8 @@
       <li><b><span class="rec-dot">●</span> Recordings and transcripts on your computer</b>Every sentence with its translation and time, for the whole session and for each part. Off until you turn it on.</li>
       <li><b>One file per session</b>Press 新段落 or Ctrl+Shift+F9 when the next session starts; paste the programme first and the parts take its names.</li>
       <li><b>Bad Wi-Fi is fine</b>Recording runs apart from speech recognition, so a dropped network or a rejected key does not stop it. On a very bad network, record without recognition.</li>
+      <li><b>Who said it</b>Each caption line starts with Speaker 1, Speaker 2…; click one to give the name, and the transcript and summary follow. Voices are compared on your computer; no audio is sent for this.</li>
+      <li><b>No network needed</b>With local recognition and local translation everything runs on the computer, so captions and Chinese keep coming in a hall without Wi-Fi; translations are rougher than the cloud models'.</li>
       <li><b>Not only English</b>Captions follow Japanese, Korean, German, French and more, translated into Chinese; replies can be in the language you speak.</li>
       <li><b>A summary when you fall behind</b>The 摘要 window lists the main points so far, brought up to date every few minutes. It only sums up what the speakers said: nothing invented, no advice.</li>
       <li><b>Stays awake</b>The laptop and screen do not go to sleep while it listens.</li>
@@ -130,14 +132,15 @@
 
   <section class="split" id="cost">
     <div class="side">
-      <h2>From a few cents an hour.</h2>
-      <p>Bring your own API keys and pay the providers directly; the app is free.</p>
+      <h2>Free, or a few cents an hour.</h2>
+      <p>The app is free. Everything on your computer costs nothing; for cloud services, bring your own API keys and pay the providers directly.</p>
     </div>
     <div class="body">
       <div class="table-wrap">
         <table>
           <thead><tr><th>Listening</th><th>Translation and replies</th><th class="cost">Per hour</th></tr></thead>
           <tbody>
+            <tr><td>Local recognition (free, on the device)</td><td>Local translation, Qwen3 1.7B (free, rougher than the cloud)</td><td class="cost">US$0</td></tr>
             <tr><td>Windows Live Captions (free, on the device)</td><td>Claude Haiku 5.5 or gpt-6-luna</td><td class="cost">US$0.03</td></tr>
             <tr><td>A Whisper server of your own (free)</td><td>Same</td><td class="cost">US$0.03</td></tr>
             <tr><td>OpenAI gpt-4o-mini-transcribe</td><td>Same</td><td class="cost">US$0.21</td></tr>
@@ -145,7 +148,7 @@
           </tbody>
         </table>
       </div>
-      <p><b>No key at all:</b> Windows Live Captions to listen and your ChatGPT plan (Go, Plus, Pro or Business) to translate: no API key, nothing extra to pay. The ChatGPT plan route is an OpenAI preview and covers translation only, not speech recognition.</p>
+      <p><b>No key at all:</b> local recognition and local translation, everything on the computer, about 2 GB of models downloaded once; or Windows Live Captions to listen and your ChatGPT plan (Go, Plus, Pro or Business) to translate: no API key, nothing extra to pay. The ChatGPT plan route is an OpenAI preview and covers translation only, not speech recognition.</p>
       <p>For example: translation for the author's session at JCDL 2026, an evening of an hour and a half and a bit, cost <b>US$0.11</b> on Claude Haiku 5.5. These are list-price estimates; your provider's bill is the authority, and Settings keeps track of your own usage.</p>
     </div>
   </section>
@@ -174,6 +177,7 @@
     </div>
     <div class="body">
       <dl>
+        <dt><a href="https://github.com/Zaious/ownvoice-meet/releases/tag/v0.5.0">0.5.0</a> <time datetime="2026-11-25">2026-11-25</time></dt><dd>Everything can run on your computer: local recognition to listen and local translation (Qwen3 1.7B) to translate, free, no key, nothing uploaded; about 2 GB of models downloaded once. Each caption line names its speaker, and a click renames them.</dd>
         <dt><a href="https://github.com/Zaious/ownvoice-meet/releases/tag/v0.4.0">0.4.0</a> <time datetime="2026-11-23">2026-11-23</time></dt><dd>Translate without an API key: choose ChatGPT 方案 in Settings and Continue with ChatGPT; translation, replies and the summary use your ChatGPT plan (an OpenAI preview).</dd>
         <dt><a href="https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.2">0.3.2</a> <time datetime="2026-11-23">2026-11-23</time></dt><dd>Not only English: captions follow Japanese, Korean, German and more, translated into Chinese; replies and the script's 補對照 can be in the language you speak (Settings).</dd>
         <dt><a href="https://github.com/Zaious/ownvoice-meet/releases/tag/v0.3.1">0.3.1</a> <time datetime="2026-11-22">2026-11-22</time></dt><dd>Settings save themselves as they change, and the save button stays at the bottom of the window (before, it sat mid-page and closing without it lost everything).</dd>
@@ -195,12 +199,12 @@
       <p class="aside">Not here? Ask on <a href="https://github.com/Zaious/ownvoice-meet/issues">GitHub</a>.</p>
     </div>
     <div class="body">
-      <details><summary>Does it cost anything?</summary><p>The app is free and open source (Apache License 2.0). Speech recognition and translation run on your own API keys, paid directly to Google, OpenAI or Anthropic: the cheapest combination is about US$0.03 an hour, cloud live captions with translation about US$0.57 an hour. Windows Live Captions or a Whisper server of your own recognize speech for free.</p></details>
+      <details><summary>Does it cost anything?</summary><p>The app is free and open source (Apache License 2.0). Speech recognition and translation run on your own API keys, paid directly to Google, OpenAI or Anthropic: the cheapest combination is about US$0.03 an hour, cloud live captions with translation about US$0.57 an hour. To pay nothing, run everything on your computer: local recognition and local translation, no key, about 2 GB of models downloaded once, translations rougher than the cloud models.</p></details>
       <details><summary>Does it answer for me?</summary><p>No. There are no AI-written replies and no synthetic voice. You type what you mean in Chinese; it only turns that meaning into English that is easy to say, and you say it yourself.</p></details>
-      <details><summary>What do I need?</summary><p>Windows 10 or 11, or macOS 11 or later, and API keys for the services you pick (Gemini and Anthropic, for example). Settings links to each provider's key page. Keys are kept in Windows Credential Manager (the Keychain on a Mac), never in a file.</p></details>
+      <details><summary>What do I need?</summary><p>Windows 10 or 11, or macOS 11 or later, and API keys for the services you pick (Gemini and Anthropic, for example); local recognition with local translation needs none. Settings links to each provider's key page. Keys are kept in Windows Credential Manager (the Keychain on a Mac), never in a file.</p></details>
       <details><summary>Where do recordings and transcripts go? Are they uploaded?</summary><p>Saving is off by default. Turned on, recordings and transcripts stay on your computer (by default in an OwnVoice Meet folder in Documents) and never reach the author; the speech service you pick does hear the audio. Check the organizer's rules before recording a talk.</p></details>
       <details><summary>My work computer will not let me install programs.</summary><p>Use the portable zip: unzip it and run OwnVoice Meet.exe, no administrator rights needed. It cannot help if company policy blocks downloaded programs or desktop apps' access to the microphone.</p></details>
-      <details><summary>Is there a Mac version?</summary><p>Yes, from 0.3.0 (being tested): for Intel and Apple silicon, macOS 11 or later, signed and notarized by Apple. Open the dmg and drag the app to Applications. It listens through a microphone only, which suits a talk in a room; it cannot hear what the computer plays, so for an online meeting the speakers have to reach the microphone.</p></details>
+      <details><summary>Is there a Mac version?</summary><p>Yes, from 0.3.0 (being tested): for Intel and Apple silicon, macOS 11 or later, signed and notarized by Apple. Open the dmg and drag the app to Applications. It listens through a microphone only, which suits a talk in a room; it cannot hear what the computer plays, so for an online meeting the speakers have to reach the microphone. Local recognition, local translation and speaker labels have not been tried on a Mac yet.</p></details>
       <details><summary>Why does Windows say it protected my PC?</summary><p>The app is not code-signed yet; that does not mean anything is wrong. Choose More info, then Run anyway. The source is public on GitHub, and GitHub builds the installers from it.</p></details>
       <details><summary>How does it update?</summary><p>Twenty seconds after start the app asks GitHub once whether a newer version is out, and puts a dot on the settings button if so (this can be turned off in Settings). Installed copy: Settings, Update; the update's signature is checked before it installs, and nothing happens until you press it. For the portable zip, download the new one.</p></details>
     </div>
@@ -221,7 +225,7 @@
       <h2>Your accounts, your computer.</h2>
     </div>
     <div class="body">
-      <p>Meeting audio goes only to the speech service you choose and text only to the language model you choose, on your own keys; the author has no server and receives nothing. The app has no analytics; besides the services you choose, it only asks GitHub once after start whether a newer version is out (this can be turned off in Settings). With Windows Live Captions or your own Whisper server, the audio never leaves your computer.</p>
+      <p>Meeting audio goes only to the speech service you choose and text only to the language model you choose, on your own keys; the author has no server and receives nothing. The app has no analytics; besides the services you choose, it only asks GitHub once after start whether a newer version is out (this can be turned off in Settings). With local recognition, Windows Live Captions or your own Whisper server, the audio never leaves your computer; add local translation and the text does not either.</p>
       <p>Gemini's free tier uses your data to improve Google's products; use a paid-tier key. Some meetings are confidential, and some places require everyone's consent before a conversation is transcribed: check before you turn it on.</p>
     </div>
   </section>
